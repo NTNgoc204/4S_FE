@@ -61,7 +61,7 @@ function HomePage() {
       navigate('/login')
       return
     }
-    navigate(isProAccount ? '/consultation' : '/pricing')
+    navigate(isProAccount ? '/consultation' : '/chat')
   }
 
   return (
