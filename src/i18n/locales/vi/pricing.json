@@ -1,0 +1,66 @@
+{
+  "header": {
+    "backAria": "Về trang chủ",
+    "languageAria": "Chuyển ngôn ngữ"
+  },
+  "hero": {
+    "chip": "Bảng Giá Minh Bạch & Đơn Giản",
+    "title": "Chọn Gói Phù Hợp",
+    "subtitle": "Bắt đầu miễn phí hoặc mở khóa toàn bộ tính năng cao cấp"
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "description": "Phù hợp để khám phá và bắt đầu",
+      "price": "$0",
+      "period": "/ trọn đời",
+      "cta": "Bắt Đầu Miễn Phí",
+      "features": [
+        "Tư vấn hướng nghiệp AI cơ bản",
+        "Truy cập 50+ trường đại học",
+        "Gợi ý ngành học cơ bản",
+        "Giới hạn số lượt hỏi AI mỗi ngày",
+        "Thông tin tuyển sinh cơ bản"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Dành cho học sinh cần định hướng chuyên sâu",
+      "price": "$27",
+      "period": "/ tháng",
+      "badge": "Phổ Biến Nhất",
+      "cta": "Bắt Đầu Ngay",
+      "features": [
+        "Tư vấn AI không giới hạn",
+        "Truy cập 200+ trường đại học",
+        "Phân tích độ phù hợp nghề nghiệp nâng cao",
+        "Gợi ý ngành học cá nhân hóa",
+        "Ưu tiên tốc độ phản hồi AI"
+      ]
+    },
+    "edu": {
+      "name": "Edu",
+      "description": "Dành cho trường học & tổ chức giáo dục",
+      "price": "Liên Hệ",
+      "period": "",
+      "badge": "Dành Cho Trường",
+      "cta": "Liên Hệ Trường Học",
+      "features": [
+        "Bao gồm toàn bộ tính năng Pro",
+        "Dashboard phân tích hướng nghiệp học sinh",
+        "Quản lý nhiều tài khoản học sinh",
+        "Đánh giá hướng nghiệp AI cho học sinh",
+        "Bảng điều khiển quản trị nhà trường",
+        "Kho dữ liệu ngành học & trường đại học"
+      ]
+    }
+  },
+  "note": "Tất cả gói đều bao gồm bảo mật dữ liệu và cam kết uptime 99.9%.",
+  "questions": {
+    "title": "Bạn Cần Hỗ Trợ?",
+    "subtitle": "Liên hệ với chúng tôi để được tư vấn thêm",
+    "contact": "Liên Hệ",
+    "partnership": "Hợp Tác Trường Học"
+  },
+  "currentPlanCta": "Đang sử dụng gói này"
+}

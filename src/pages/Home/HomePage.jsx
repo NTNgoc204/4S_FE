@@ -1,15 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useOutletContext } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import fourSLogo from '../../assets/logo-4s.svg'
+import fourSLogo from '../../assets/logo-4s.png'
 
 function HomePage() {
-  const { i18n, t } = useTranslation()
-
-  const navItems = [
-    { label: t('home:nav.forSchools'), to: '/for-schools' },
-    { label: t('home:nav.aboutUs'), to: '/about-us' },
-    { label: t('home:nav.pricing'), to: '/pricing' },
-  ]
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const outletContext = useOutletContext()
+  const isLoggedIn = outletContext?.isLoggedIn ?? false
 
   const featureCards = [
     {
@@ -57,49 +54,12 @@ function HomePage() {
   const primaryBtnClass =
     'rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]'
 
-  const currentLanguage = (i18n.resolvedLanguage || 'en').toUpperCase()
-
-  function handleToggleLanguage() {
-    const nextLanguage = i18n.resolvedLanguage === 'vi' ? 'en' : 'vi'
-    i18n.changeLanguage(nextLanguage)
+  function handleStartConsultationClick() {
+    navigate(isLoggedIn ? '/consultation' : '/login')
   }
 
   return (
-    <div className="relative overflow-hidden bg-[radial-gradient(circle_at_20%_15%,rgba(255,201,58,0.09),transparent_35%),radial-gradient(circle_at_75%_25%,rgba(15,226,168,0.1),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_40%,#041224_100%)] text-[#eaf2ff]">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#041326]/80 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[74px] w-[min(1120px,92vw)] items-center justify-between gap-6">
-          <Link className="inline-flex items-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-[34px] w-[34px] object-contain" src={fourSLogo} />
-            <span className="font-['Sora'] text-xl font-bold">{t('common:brand.forStudent')}</span>
-          </Link>
-
-          <nav aria-label="Main navigation" className="hidden items-center gap-6 lg:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                className="text-[0.95rem] text-slate-300 no-underline transition hover:text-slate-100"
-                to={item.to}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <button
-              className="min-w-[52px] rounded-[10px] bg-white/10 px-4 py-2 text-sm font-semibold text-slate-200"
-              onClick={handleToggleLanguage}
-              type="button"
-            >
-              {currentLanguage}
-            </button>
-            <button className={`${primaryBtnClass} hidden md:inline-flex`} type="button">
-              {t('common:actions.getStarted')}
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <>
       <main>
         <section className="relative pb-22 pt-20 md:pb-24 md:pt-26">
           <div className="pointer-events-none absolute -left-32 top-10 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(255,207,74,0.2),transparent_70%)]" />
@@ -115,7 +75,7 @@ function HomePage() {
             <p className="mx-auto mt-7 w-[min(760px,94%)] text-[1.05rem] leading-8 text-slate-300 md:text-[1.12rem]">
               {t('home:hero.description')}
             </p>
-            <button className={`${primaryBtnClass} mt-8 px-9 py-4`} type="button">
+            <button className={`${primaryBtnClass} mt-8 px-9 py-4`} onClick={handleStartConsultationClick} type="button">
               {t('common:actions.startConsultation')}
             </button>
 
@@ -230,7 +190,7 @@ function HomePage() {
                 <p aria-label={t('home:testimonial.ratingAria')} className="flex items-center gap-1 leading-none text-[#ecc741]">
                   {[0, 1, 2, 3, 4].map((starIndex) => (
                     <span key={starIndex} className="text-[1.85rem] md:text-[2.1rem]">
-                      ★
+                      {'\u2605'}
                     </span>
                   ))}
                 </p>
@@ -257,7 +217,7 @@ function HomePage() {
             </div>
             <h2 className="font-['Sora'] text-[2rem] tracking-[-0.03em] md:text-[3.3rem]">{t('home:cta.title')}</h2>
             <p className="mx-auto mt-4 w-[min(750px,96%)] text-[1rem] text-slate-300 md:text-[1.1rem]">{t('home:cta.subtitle')}</p>
-            <button className={`${primaryBtnClass} mt-8 px-9 py-4`} type="button">
+            <button className={`${primaryBtnClass} mt-8 px-9 py-4`} onClick={handleStartConsultationClick} type="button">
               {t('common:actions.startConsultation')}
             </button>
           </div>
@@ -267,13 +227,13 @@ function HomePage() {
       <footer className="border-t border-white/10 bg-[#020d1c]/90 py-8">
         <div className="mx-auto w-[min(1120px,92vw)] text-center">
           <Link className="mb-3 inline-flex items-center justify-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-9 w-9 object-contain" src={fourSLogo} />
+            <img alt="4S logo" className="h-[70px] w-[70px] object-contain" src={fourSLogo} />
             <span className="font-['Sora'] text-2xl font-bold text-[#29d39c]">4S</span>
           </Link>
           <p className="text-sm text-slate-400">{t('common:footer.copyright')}</p>
         </div>
       </footer>
-    </div>
+    </>
   )
 }
 

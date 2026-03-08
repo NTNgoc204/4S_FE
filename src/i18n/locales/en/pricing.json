@@ -1,0 +1,66 @@
+{
+  "header": {
+    "backAria": "Go back home",
+    "languageAria": "Language switch"
+  },
+  "hero": {
+    "chip": "Simple & Transparent Pricing",
+    "title": "Choose Your Plan",
+    "subtitle": "Start free or unlock premium features"
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "description": "Perfect for exploring and getting started",
+      "price": "$0",
+      "period": "/ forever",
+      "cta": "Start Free",
+      "features": [
+        "Basic AI career counseling",
+        "Access to 50+ universities",
+        "Basic major recommendation",
+        "Limited AI responses per day",
+        "Basic admission insights"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For students who want the best guidance",
+      "price": "$27",
+      "period": "/ mo",
+      "badge": "Most Popular",
+      "cta": "Get Started",
+      "features": [
+        "Unlimited AI consultations",
+        "Access to 200+ universities",
+        "Advanced career fit analysis",
+        "Personalized major recommendations",
+        "Priority AI responses"
+      ]
+    },
+    "edu": {
+      "name": "Edu",
+      "description": "For schools & educational institutions",
+      "price": "Custom",
+      "period": "",
+      "badge": "For Schools",
+      "cta": "Contact for Schools",
+      "features": [
+        "All Pro features included",
+        "Student career analytics dashboard",
+        "Multi-student account management",
+        "AI career assessment for students",
+        "Institution admin panel",
+        "University & major database access"
+      ]
+    }
+  },
+  "note": "All plans include secure data handling and 99.9% uptime guarantee.",
+  "currentPlanCta": "Current Plan",
+  "questions": {
+    "title": "Have Questions?",
+    "subtitle": "Contact us for more information",
+    "contact": "Contact Us",
+    "partnership": "School Partnership"
+  }
+}

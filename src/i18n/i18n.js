@@ -1,21 +1,29 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import enAuth from './locales/en/auth.json'
 import enCommon from './locales/en/common.json'
 import enHome from './locales/en/home.json'
+import enPricing from './locales/en/pricing.json'
+import viAuth from './locales/vi/auth.json'
 import viCommon from './locales/vi/common.json'
 import viHome from './locales/vi/home.json'
+import viPricing from './locales/vi/pricing.json'
 
 const supportedLanguages = ['en', 'vi']
 const languageStorageKey = 'app_language'
 
 const resources = {
   en: {
+    auth: enAuth,
     common: enCommon,
     home: enHome,
+    pricing: enPricing,
   },
   vi: {
+    auth: viAuth,
     common: viCommon,
     home: viHome,
+    pricing: viPricing,
   },
 }
 
@@ -27,19 +35,12 @@ function detectInitialLanguage() {
     }
   }
 
-  if (typeof navigator !== 'undefined') {
-    const browserLanguage = navigator.language?.toLowerCase() || ''
-    if (browserLanguage.startsWith('vi')) {
-      return 'vi'
-    }
-  }
-
   return 'en'
 }
 
 i18n.use(initReactI18next).init({
   resources,
-  ns: ['common', 'home'],
+  ns: ['common', 'home', 'auth', 'pricing'],
   defaultNS: 'common',
   lng: detectInitialLanguage(),
   fallbackLng: 'en',

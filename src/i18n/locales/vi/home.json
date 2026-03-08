@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Trang chủ",
     "forSchools": "Cho Trường Học",
     "aboutUs": "Về Chúng Tôi",
     "howItWorks": "Cách Hoạt Động",
@@ -59,10 +60,10 @@
     "title": "Sinh Viên Yêu Thích 4S",
     "subtitle": "Tham gia cùng hàng nghìn sinh viên đã tìm thấy trường phù hợp nhất.",
     "quote": "Dữ liệu học phí thực tế giúp mình lập ngân sách dễ dàng hơn và không còn chi phí ẩn.",
-    "name": "Th\u01b0 H\u01b0\u01a1ng L\u00ea",
+    "name": "Thư Hương Lê",
     "role": "Sinh Viên",
-    "ratingText": "\u0110\u00e1nh gi\u00e1 5.0/5 t\u1eeb sinh vi\u00ean",
-    "ratingAria": "5 tr\u00ean 5 sao"
+    "ratingText": "Đánh giá 5.0/5 từ sinh viên",
+    "ratingAria": "5 trên 5 sao"
   },
   "cta": {
     "title": "Sẵn Sàng Tìm Con Đường Phù Hợp?",

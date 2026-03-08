@@ -1,13 +1,14 @@
 {
   "brand": {
-    "forStudent": "Cho Học Sinh"
+    "forStudent": "Cho H\u1ecdc Sinh"
   },
   "actions": {
-    "getStarted": "Bắt Đầu",
-    "startConsultation": "Tư Vấn Ngay"
+    "getStarted": "B\u1eaft \u0110\u1ea7u",
+    "startConsultation": "T\u01b0 V\u1ea5n Ngay",
+    "logout": "\u0110\u0103ng Xu\u1ea5t"
   },
   "footer": {
-    "copyright": "(c) 2026 4S. Hỗ trợ sinh viên ra quyết định đúng đắn."
+    "copyright": "(c) 2026 4S. H\u1ed7 tr\u1ee3 sinh vi\u00ean ra quy\u1ebft \u0111\u1ecbnh \u0111\u00fang \u0111\u1eafn."
   },
   "language": {
     "en": "EN",
