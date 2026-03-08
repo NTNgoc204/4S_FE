@@ -29,7 +29,7 @@ function PublicLayout({
         showNav={showNav}
         stickyHeader={!isLoginPage}
       />
-      <Outlet context={{ isLoggedIn, currentPlan }} />
+      <Outlet context={{ isLoggedIn, currentPlan, onLogout }} />
     </div>
   )
 }

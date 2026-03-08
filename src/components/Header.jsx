@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import globeIcon from '../assets/Globe.svg'
 import fourSLogo from '../assets/logo-4s.png'
@@ -13,15 +13,21 @@ function Header({
   containerClassName = 'w-[min(1120px,92vw)]',
 }) {
   const { i18n, t } = useTranslation()
+  const location = useLocation()
   const navigate = useNavigate()
   const isEnglish = i18n.resolvedLanguage !== 'vi'
   const isProUser = isLoggedIn && String(currentPlan).toLowerCase() === 'pro'
+  const currentPath = location.pathname
 
-  const navItems = [
+  const baseNavItems = [
     { label: t('home:nav.forSchools'), to: '/for-schools' },
-    { label: t('home:nav.aboutUs'), to: '/about-us' },
     { label: t('home:nav.pricing'), to: '/pricing' },
+    { label: t('home:nav.aboutUs'), to: '/about-us' },
   ]
+  const navItems =
+    currentPath === '/'
+      ? baseNavItems
+      : [{ label: t('home:nav.home'), to: '/' }, ...baseNavItems].filter((item) => item.to !== currentPath)
 
   function handleLanguageChange(language) {
     i18n.changeLanguage(language)

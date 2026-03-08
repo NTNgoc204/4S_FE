@@ -1,10 +1,12 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import enAuth from './locales/en/auth.json'
+import enConsultation from './locales/en/consultation.json'
 import enCommon from './locales/en/common.json'
 import enHome from './locales/en/home.json'
 import enPricing from './locales/en/pricing.json'
 import viAuth from './locales/vi/auth.json'
+import viConsultation from './locales/vi/consultation.json'
 import viCommon from './locales/vi/common.json'
 import viHome from './locales/vi/home.json'
 import viPricing from './locales/vi/pricing.json'
@@ -15,12 +17,14 @@ const languageStorageKey = 'app_language'
 const resources = {
   en: {
     auth: enAuth,
+    consultation: enConsultation,
     common: enCommon,
     home: enHome,
     pricing: enPricing,
   },
   vi: {
     auth: viAuth,
+    consultation: viConsultation,
     common: viCommon,
     home: viHome,
     pricing: viPricing,
@@ -40,7 +44,7 @@ function detectInitialLanguage() {
 
 i18n.use(initReactI18next).init({
   resources,
-  ns: ['common', 'home', 'auth', 'pricing'],
+  ns: ['common', 'home', 'auth', 'pricing', 'consultation'],
   defaultNS: 'common',
   lng: detectInitialLanguage(),
   fallbackLng: 'en',
