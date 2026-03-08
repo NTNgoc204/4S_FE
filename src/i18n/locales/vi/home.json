@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "forSchools": "Cho Trường Học",
+    "aboutUs": "Về Chúng Tôi",
+    "howItWorks": "Cách Hoạt Động",
+    "pricing": "Bảng Giá"
+  },
+  "hero": {
+    "chip": "Được vận hành bởi công nghệ AI tiên tiến",
+    "titleLine1": "La Bàn AI",
+    "titleLine2": "dẫn lối tương lai",
+    "description": "Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng dữ liệu thực tế từ sinh viên.",
+    "studentsGuided": "10,000+ sinh viên đã được hỗ trợ",
+    "rating": "Đánh giá 4.9/5"
+  },
+  "stats": {
+    "students": "Sinh Viên Được Hỗ Trợ",
+    "universities": "Trường Đại Học",
+    "satisfaction": "Mức Độ Hài Lòng",
+    "averageRating": "Điểm Đánh Giá Trung Bình"
+  },
+  "why": {
+    "title": "Tại Sao Chọn 4S?",
+    "subtitle": "Được hỗ trợ bởi dữ liệu thực tế và thuật toán ghép nối thông minh."
+  },
+  "features": {
+    "chatbot": {
+      "title": "Trợ Lý AI Chatbot",
+      "description": "Trò chuyện tự nhiên với AI để khám phá trường, ngành học và hướng nghề nghiệp."
+    },
+    "tuition": {
+      "title": "Dữ Liệu Học Phí Thực",
+      "description": "Truy cập học phí và chi phí thực tế từ sinh viên hiện tại để ra quyết định đúng đắn."
+    },
+    "match": {
+      "title": "Điểm Phù Hợp Cá Nhân",
+      "description": "Nhận điểm phù hợp cho từng trường dựa trên hồ sơ và mục tiêu cá nhân của bạn."
+    }
+  },
+  "how": {
+    "title": "Quy Trình Hoạt Động",
+    "subtitle": "Ba bước đơn giản để tìm trường đại học phù hợp nhất."
+  },
+  "steps": {
+    "step1": {
+      "title": "Chia Sẻ Về Bạn",
+      "description": "Cho chúng tôi biết sở thích, năng lực học tập và ngân sách để cá nhân hóa gợi ý."
+    },
+    "step2": {
+      "title": "Nhận Kết Quả Phù Hợp",
+      "description": "AI đối chiếu hồ sơ của bạn với dữ liệu sinh viên thực tế để tìm trường và chương trình phù hợp."
+    },
+    "step3": {
+      "title": "Ra Quyết Định",
+      "description": "So sánh lựa chọn, xem insight và tự tin chọn hướng đi tốt nhất cho bản thân."
+    }
+  },
+  "testimonial": {
+    "title": "Sinh Viên Yêu Thích 4S",
+    "subtitle": "Tham gia cùng hàng nghìn sinh viên đã tìm thấy trường phù hợp nhất.",
+    "quote": "Dữ liệu học phí thực tế giúp mình lập ngân sách dễ dàng hơn và không còn chi phí ẩn.",
+    "name": "Th\u01b0 H\u01b0\u01a1ng L\u00ea",
+    "role": "Sinh Viên",
+    "ratingText": "\u0110\u00e1nh gi\u00e1 5.0/5 t\u1eeb sinh vi\u00ean",
+    "ratingAria": "5 tr\u00ean 5 sao"
+  },
+  "cta": {
+    "title": "Sẵn Sàng Tìm Con Đường Phù Hợp?",
+    "subtitle": "Bắt đầu tư vấn miễn phí hôm nay và tìm trường phù hợp với tiềm năng của bạn."
+  }
+}

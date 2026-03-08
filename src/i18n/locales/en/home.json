@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "forSchools": "For Schools",
+    "aboutUs": "About Us",
+    "howItWorks": "About Us",
+    "pricing": "Pricing"
+  },
+  "hero": {
+    "chip": "Powered by Advanced AI Technology",
+    "titleLine1": "Your AI Compass",
+    "titleLine2": "to the Future",
+    "description": "Discover the perfect university and career path tailored to your strengths, interests, and financial situation using real data from actual students.",
+    "studentsGuided": "10,000+ students guided",
+    "rating": "4.9/5 rating"
+  },
+  "stats": {
+    "students": "Students Guided",
+    "universities": "Universities",
+    "satisfaction": "Satisfaction",
+    "averageRating": "Average Rating"
+  },
+  "why": {
+    "title": "Why Choose 4S?",
+    "subtitle": "Powered by real data and intelligent matching algorithms."
+  },
+  "features": {
+    "chatbot": {
+      "title": "AI Chatbot Assistant",
+      "description": "Chat naturally with our AI to explore universities, majors, and career paths."
+    },
+    "tuition": {
+      "title": "Actual Tuition Data",
+      "description": "Access real tuition fees and cost breakdowns from current students for informed decisions."
+    },
+    "match": {
+      "title": "Personal Match Score",
+      "description": "Receive a personalized compatibility score for each university based on your profile."
+    }
+  },
+  "how": {
+    "title": "How It Works",
+    "subtitle": "Three simple steps to your perfect university match."
+  },
+  "steps": {
+    "step1": {
+      "title": "Tell Us About You",
+      "description": "Share your interests, academic strengths, and budget to shape your personalized recommendations."
+    },
+    "step2": {
+      "title": "Get Matched",
+      "description": "Our AI compares your profile with real student data to find universities and programs that fit."
+    },
+    "step3": {
+      "title": "Make Your Decision",
+      "description": "Review insights, compare options, and move forward with confidence on the right path."
+    }
+  },
+  "testimonial": {
+    "title": "Students Love 4S",
+    "subtitle": "Join thousands of students who have discovered their perfect university fit.",
+    "quote": "Real tuition data from actual students made budgeting so much easier. No more surprises about hidden costs.",
+    "name": "Thu Huong Le",
+    "role": "College Student",
+    "ratingText": "5.0/5 student rating",
+    "ratingAria": "5 out of 5 stars"
+  },
+  "cta": {
+    "title": "Ready to Find Your Perfect Path?",
+    "subtitle": "Start your free consultation today and discover universities that match your unique potential."
+  }
+}

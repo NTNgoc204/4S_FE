@@ -1,0 +1,16 @@
+{
+  "brand": {
+    "forStudent": "For Student"
+  },
+  "actions": {
+    "getStarted": "Get Started",
+    "startConsultation": "Start Consultation"
+  },
+  "footer": {
+    "copyright": "(c) 2026 4S. Empowering students to make informed decisions."
+  },
+  "language": {
+    "en": "EN",
+    "vi": "VI"
+  }
+}
