@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import loginIcon from '../../assets/Login.svg'
-import fourSLogo from '../../assets/logo-4s.png'
 
 function LoginPage({ onSignIn }) {
-  const { i18n, t } = useTranslation()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,61 +43,8 @@ function LoginPage({ onSignIn }) {
     navigate('/', { replace: true })
   }
 
-  function handleLanguageChange(language) {
-    i18n.changeLanguage(language)
-  }
-
-  const isEnglish = i18n.resolvedLanguage !== 'vi'
-  const navItems = [
-    { label: t('home:nav.home'), to: '/' },
-    { label: t('home:nav.pricing'), to: '/pricing' },
-    { label: t('home:nav.aboutUs'), to: '/about-us' },
-  ]
-
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_22%_16%,rgba(255,201,58,0.09),transparent_34%),radial-gradient(circle_at_75%_28%,rgba(15,226,168,0.1),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_40%,#041224_100%)] text-[#eaf2ff]">
-      <header className="border-b border-white/10 bg-[#041326]/80 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-[74px] w-[min(1120px,92vw)] items-center justify-between gap-6">
-          <Link className="inline-flex items-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-[70px] w-[70px] object-contain" src={fourSLogo} />
-            <span className="font-['Sora'] text-[2rem] font-bold text-[#29d39c]">4S</span>
-          </Link>
-
-          <nav aria-label="Login navigation" className="hidden items-center gap-6 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                className="text-[0.95rem] text-slate-300 no-underline transition hover:text-slate-100"
-                to={item.to}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
-            <button
-              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${
-                isEnglish ? 'bg-white/15 text-slate-100' : 'text-slate-400 hover:text-slate-200'
-              }`}
-              onClick={() => handleLanguageChange('en')}
-              type="button"
-            >
-              EN
-            </button>
-            <button
-              className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${
-                isEnglish ? 'text-slate-400 hover:text-slate-200' : 'bg-white/15 text-slate-100'
-              }`}
-              onClick={() => handleLanguageChange('vi')}
-              type="button"
-            >
-              VI
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <>
       <main className="mx-auto flex min-h-[calc(100vh-74px)] w-[min(1120px,92vw)] items-center justify-center py-10">
         <section className="w-full max-w-[540px] rounded-3xl border border-white/10 bg-gradient-to-b from-[#1e3451]/90 to-[#182c47]/94 p-8 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
           <div className="mb-5 flex justify-center">
@@ -173,7 +119,7 @@ function LoginPage({ onSignIn }) {
                   }`}
                 >
                   <p className={`text-sm font-bold ${account.plan === 'FREE' ? 'text-emerald-400' : 'text-[#ecc741]'}`}>
-                    {account.plan === 'PRO' ? '👑 ' : ''}
+                    {account.plan === 'PRO' ? '\u{1F451} ' : ''}
                     {account.plan}
                   </p>
                   <p className="text-sm text-slate-100">{account.title}</p>
@@ -186,7 +132,7 @@ function LoginPage({ onSignIn }) {
           </div>
         </section>
       </main>
-    </div>
+    </>
   )
 }
 
