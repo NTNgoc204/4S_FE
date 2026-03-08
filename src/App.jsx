@@ -30,6 +30,7 @@ function App() {
   const { t } = useTranslation()
   const [isLoggedIn, setIsLoggedIn] = useState(getInitialLoggedIn)
   const [currentPlan, setCurrentPlan] = useState(getInitialPlan)
+  const isProAccount = String(currentPlan).toLowerCase() === 'pro'
 
   function handleSignIn(plan) {
     setIsLoggedIn(true)
@@ -53,7 +54,10 @@ function App() {
         <Route element={<PublicLayout currentPlan={currentPlan} isLoggedIn={isLoggedIn} onLogout={handleLogout} />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <LoginPage onSignIn={handleSignIn} />} />
-          <Route path="/consultation" element={isLoggedIn ? <ConsultationPage /> : <Navigate to="/login" replace />} />
+          <Route
+            path="/consultation"
+            element={isLoggedIn ? (isProAccount ? <ConsultationPage /> : <Navigate to="/pricing" replace />) : <Navigate to="/login" replace />}
+          />
           <Route path="/pricing" element={<PricingPage currentPlan={currentPlan} isLoggedIn={isLoggedIn} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

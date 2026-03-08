@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "AI Consultation Room",
+    "subtitle": "Get personalized university recommendations",
+    "proBadge": "PRO",
+    "logoutAria": "Logout"
+  },
+  "hero": {
+    "chip": "PRO Account - Full Access",
+    "title": "Choose Your Experience",
+    "subtitle": "How would you like to discover your perfect university?"
+  },
+  "quiz": {
+    "title": "Guided Quiz",
+    "description": "Answer structured questions and get personalized recommendations based on your profile.",
+    "tag1": "Step-by-step",
+    "tag2": "5-10 minutes",
+    "tag3": "Accurate results",
+    "cta": "Start Quiz"
+  },
+  "chat": {
+    "title": "Free Chat",
+    "description": "Have a natural conversation with AI and ask anything about universities and careers.",
+    "tag1": "Flexible",
+    "tag2": "Ask anything",
+    "tag3": "Real-time advice",
+    "cta": "Start Chatting"
+  }
+}
