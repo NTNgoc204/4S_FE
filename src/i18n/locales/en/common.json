@@ -4,7 +4,8 @@
   },
   "actions": {
     "getStarted": "Get Started",
-    "startConsultation": "Start Consultation"
+    "startConsultation": "Start Consultation",
+    "logout": "Logout"
   },
   "footer": {
     "copyright": "(c) 2026 4S. Empowering students to make informed decisions."

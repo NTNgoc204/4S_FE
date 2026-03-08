@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import fourSLogo from '../../assets/logo-4s.svg'
+import fourSLogo from '../../assets/logo-4s.png'
 
-function HomePage() {
+function HomePage({ isLoggedIn = false, onLogout = () => {} }) {
   const { i18n, t } = useTranslation()
+  const navigate = useNavigate()
 
   const navItems = [
     { label: t('home:nav.forSchools'), to: '/for-schools' },
@@ -57,11 +58,19 @@ function HomePage() {
   const primaryBtnClass =
     'rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]'
 
-  const currentLanguage = (i18n.resolvedLanguage || 'en').toUpperCase()
+  const isEnglish = i18n.resolvedLanguage !== 'vi'
 
-  function handleToggleLanguage() {
-    const nextLanguage = i18n.resolvedLanguage === 'vi' ? 'en' : 'vi'
-    i18n.changeLanguage(nextLanguage)
+  function handleLanguageChange(language) {
+    i18n.changeLanguage(language)
+  }
+
+  function handleLogoutClick() {
+    onLogout()
+    navigate('/')
+  }
+
+  function handleGetStartedClick() {
+    navigate('/login')
   }
 
   return (
@@ -69,7 +78,7 @@ function HomePage() {
       <header className="sticky top-0 z-20 border-b border-white/10 bg-[#041326]/80 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[74px] w-[min(1120px,92vw)] items-center justify-between gap-6">
           <Link className="inline-flex items-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-[34px] w-[34px] object-contain" src={fourSLogo} />
+            <img alt="4S logo" className="h-[70px] w-[70px] object-contain" src={fourSLogo} />
             <span className="font-['Sora'] text-xl font-bold">{t('common:brand.forStudent')}</span>
           </Link>
 
@@ -86,16 +95,53 @@ function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              className="min-w-[52px] rounded-[10px] bg-white/10 px-4 py-2 text-sm font-semibold text-slate-200"
-              onClick={handleToggleLanguage}
-              type="button"
-            >
-              {currentLanguage}
-            </button>
-            <button className={`${primaryBtnClass} hidden md:inline-flex`} type="button">
-              {t('common:actions.getStarted')}
-            </button>
+            <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
+              <button
+                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                  isEnglish ? 'bg-white/15 text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                }`}
+                onClick={() => handleLanguageChange('en')}
+                type="button"
+              >
+                EN
+              </button>
+              <button
+                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                  isEnglish ? 'text-slate-400 hover:text-slate-200' : 'bg-white/15 text-slate-100'
+                }`}
+                onClick={() => handleLanguageChange('vi')}
+                type="button"
+              >
+                VI
+              </button>
+            </div>
+
+            {isLoggedIn ? (
+              <>
+                <button
+                  aria-label="User profile"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f]"
+                  type="button"
+                >
+                  <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+                  </svg>
+                </button>
+
+                <button
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                  onClick={handleLogoutClick}
+                  type="button"
+                >
+                  {t('common:actions.logout')}
+                </button>
+              </>
+            ) : (
+              <button className={`${primaryBtnClass} hidden md:inline-flex`} onClick={handleGetStartedClick} type="button">
+                {t('common:actions.getStarted')}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -230,7 +276,7 @@ function HomePage() {
                 <p aria-label={t('home:testimonial.ratingAria')} className="flex items-center gap-1 leading-none text-[#ecc741]">
                   {[0, 1, 2, 3, 4].map((starIndex) => (
                     <span key={starIndex} className="text-[1.85rem] md:text-[2.1rem]">
-                      ★
+                      {'\u2605'}
                     </span>
                   ))}
                 </p>
@@ -267,7 +313,7 @@ function HomePage() {
       <footer className="border-t border-white/10 bg-[#020d1c]/90 py-8">
         <div className="mx-auto w-[min(1120px,92vw)] text-center">
           <Link className="mb-3 inline-flex items-center justify-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-9 w-9 object-contain" src={fourSLogo} />
+            <img alt="4S logo" className="h-[70px] w-[70px] object-contain" src={fourSLogo} />
             <span className="font-['Sora'] text-2xl font-bold text-[#29d39c]">4S</span>
           </Link>
           <p className="text-sm text-slate-400">{t('common:footer.copyright')}</p>
