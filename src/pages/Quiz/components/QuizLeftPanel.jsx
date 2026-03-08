@@ -1,4 +1,4 @@
-function QuizLeftPanel({
+﻿function QuizLeftPanel({
   activeIndex,
   answers,
   buildInsight,
@@ -31,7 +31,7 @@ function QuizLeftPanel({
             <article key={question.id} className="mb-5">
               <div className="flex items-start gap-3">
                 <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
-                  👑
+                  {'\u{1F451}'}
                 </span>
 
                 <div className="w-full max-w-[790px] rounded-2xl border border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98 p-4 md:p-5">
@@ -80,7 +80,7 @@ function QuizLeftPanel({
               {insights[question.id] ? (
                 <div className="mt-3 flex max-w-[790px] items-start gap-3">
                   <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
-                    👑
+                    {'\u{1F451}'}
                   </span>
                   <p className="rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/10 px-4 py-3 text-sm leading-6 text-slate-100 md:text-base">
                     {selectedOption ? buildInsight(selectedOption) : ''}
@@ -122,3 +122,5 @@ function QuizLeftPanel({
 }
 
 export default QuizLeftPanel
+
+

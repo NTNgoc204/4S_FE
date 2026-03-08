@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PublicLayout from "./layouts/PublicLayout";
 import LoginPage from "./pages/Auth/LoginPage";
+import ChatPage from "./pages/Chat/ChatPage";
 import ConsultationPage from "./pages/Consultation/ConsultationPage";
 import HomePage from "./pages/Home/HomePage";
 import PricingPage from "./pages/Pricing/PricingPage";
@@ -95,6 +96,16 @@ function App() {
                 ) : (
                   <Navigate to="/pricing" replace />
                 )
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              isLoggedIn ? (
+                <ChatPage />
               ) : (
                 <Navigate to="/login" replace />
               )

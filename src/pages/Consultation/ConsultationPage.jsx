@@ -104,6 +104,7 @@ function ConsultationPage() {
             <button
               className="mt-auto w-full rounded-2xl bg-gradient-to-br from-[#17d8b2] to-[#0fbc98] px-6 py-3.5 text-xl font-semibold text-[#e8fffa] transition hover:brightness-110"
               type="button"
+              onClick={() => navigate("/chat")}
             >
               {t("consultation:chat.cta")} {"\u2192"}
             </button>
