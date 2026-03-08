@@ -134,6 +134,7 @@ function Header({
               <button
                 aria-label="User profile"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f]"
+                onClick={() => navigate("/profile")}
                 type="button"
               >
                 <svg

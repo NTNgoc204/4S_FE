@@ -1,0 +1,96 @@
+{
+  "edit": {
+    "title": "Edit Your Profile",
+    "subtitle": "Update your information for better recommendations",
+    "openDashboard": "Open Skill Dashboard",
+    "editProfile": "Edit",
+    "saveChanges": "Save Changes",
+    "saveSuccess": "Changed successfully.",
+    "sections": {
+      "personal": "Personal Information",
+      "academic": "Academic Information",
+      "skills": "Personality & Skills",
+      "interests": "Career Interests",
+      "preferences": "Study Preferences"
+    },
+    "interestHint": "Select all fields you're interested in",
+    "fields": {
+      "fullName": "Full Name *",
+      "email": "Email *",
+      "phone": "Phone Number",
+      "birthYear": "Birth Year",
+      "currentGrade": "Current Grade",
+      "gpa": "GPA (0-10)",
+      "mathScore": "Math Score (0-100)",
+      "englishScore": "English Score (0-100)",
+      "scienceScore": "Science Score (0-100)",
+      "preferredLocation": "Preferred Location",
+      "maxTuition": "Max Tuition (M VND/year)",
+      "studyMode": "Study Mode",
+      "language": "Language of Instruction"
+    },
+    "skills": {
+      "creativity": "Creativity",
+      "logic": "Logic & Reasoning",
+      "communication": "Communication",
+      "leadership": "Leadership",
+      "problemSolving": "Problem Solving",
+      "teamwork": "Teamwork"
+    },
+    "interests": {
+      "software": "Software Engineering",
+      "dataScience": "Data Science",
+      "ai": "AI/Machine Learning",
+      "businessAnalytics": "Business Analytics",
+      "finance": "Finance",
+      "marketing": "Marketing",
+      "medicine": "Medicine",
+      "law": "Law",
+      "education": "Education",
+      "engineering": "Engineering",
+      "design": "Design",
+      "arts": "Arts"
+    }
+  },
+  "dashboard": {
+    "title": "Student Dashboard",
+    "subtitle": "Your personalized education journey",
+    "newConsultation": "New Consultation",
+    "skillProfile": "Your Skill Profile",
+    "skillSubtitle": "Based on your assessments and consultations",
+    "savedSchools": "Saved Schools",
+    "viewAllSaved": "View All Saved",
+    "recentConsultations": "Recent Consultations",
+    "viewAllHistory": "View All History",
+    "topRecommended": "Top Recommended Universities",
+    "topRecommendedSubtitle": "Personalized matches based on your profile",
+    "recommended": "Recommended",
+    "compare": "Compare",
+    "details": "Details",
+    "journey": "Your Journey",
+    "journeyItems": {
+      "explored": "Universities Explored",
+      "saved": "Schools Saved",
+      "consultations": "Consultations"
+    },
+    "quickCompare": "Quick Compare",
+    "quickCompareSubtitle": "Compare your saved universities side by side",
+    "startComparison": "Start Comparison",
+    "skills": {
+      "mathematics": "Mathematics",
+      "logic": "Logic",
+      "creativity": "Creativity",
+      "communication": "Communication",
+      "problemSolving": "Problem Solving",
+      "leadership": "Leadership"
+    },
+    "history": {
+      "h1": "Best IT programs under 30M VND",
+      "h2": "Engineering schools with scholarships",
+      "h3": "Universities in Ho Chi Minh City",
+      "t1": "2 hours ago",
+      "t2": "1 day ago",
+      "t3": "3 days ago"
+    }
+  }
+}
