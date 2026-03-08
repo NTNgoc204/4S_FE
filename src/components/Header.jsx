@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import globeIcon from "../assets/Globe.svg";
 import fourSLogo from "../assets/logo-4s.png";
@@ -13,24 +13,17 @@ function Header({
   stickyHeader = true,
 }) {
   const { i18n, t } = useTranslation();
-  const location = useLocation();
   const navigate = useNavigate();
   const isEnglish = i18n.resolvedLanguage !== "vi";
   const isProUser = isLoggedIn && String(currentPlan).toLowerCase() === "pro";
   const isFreeUser = isLoggedIn && !isProUser;
-  const currentPath = location.pathname;
 
-  const baseNavItems = [
+  const navItems = [
+    { label: t("home:nav.home"), to: "/" },
     { label: t("home:nav.forSchools"), to: "/for-schools" },
     { label: t("home:nav.pricing"), to: "/pricing" },
     { label: t("home:nav.aboutUs"), to: "/about-us" },
   ];
-  const navItems =
-    currentPath === "/"
-      ? baseNavItems
-      : [{ label: t("home:nav.home"), to: "/" }, ...baseNavItems].filter(
-          (item) => item.to !== currentPath,
-        );
 
   function handleLanguageChange(language) {
     i18n.changeLanguage(language);
@@ -70,13 +63,20 @@ function Header({
             className="hidden items-center gap-6 lg:flex"
           >
             {navItems.map((item) => (
-              <Link
+              <NavLink
+                end={item.to === "/"}
                 key={item.to}
-                className="text-[0.95rem] text-slate-300 no-underline transition hover:text-slate-100"
+                className={({ isActive }) =>
+                  `text-[0.95rem] no-underline transition ${
+                    isActive
+                      ? "font-semibold text-[#f2cb36]"
+                      : "text-slate-300 hover:text-slate-100"
+                  }`
+                }
                 to={item.to}
               >
                 {item.label}
-              </Link>
+              </NavLink>
             ))}
           </nav>
         ) : null}

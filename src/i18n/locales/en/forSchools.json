@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Partner with 4S",
+    "title": "For Universities & Schools",
+    "subtitle": "Connect with thousands of qualified students and enhance your recruitment with AI-powered matching.",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More"
+  },
+  "why": {
+    "title": "Why Partner with 4S?",
+    "subtitle": "Transform your student recruitment with intelligent matching."
+  },
+  "benefits": {
+    "reach": {
+      "title": "Reach More Students",
+      "desc": "Connect with thousands of students actively searching for their ideal university. Our AI ensures your school reaches students who are genuinely interested."
+    },
+    "quality": {
+      "title": "Quality Matches",
+      "desc": "Our intelligent matching system ensures students who discover your school are well-suited based on academic profile, interests, and career goals."
+    },
+    "transparent": {
+      "title": "Transparent Information",
+      "desc": "Provide accurate, up-to-date information directly to prospective students. Build trust through transparency in tuition, programs, and admissions."
+    }
+  },
+  "process": {
+    "title": "Partnership Process",
+    "subtitle": "Four simple steps to join our platform.",
+    "steps": {
+      "info": {
+        "title": "Provide Information",
+        "desc": "Submit complete and up-to-date details about your institution, programs, admissions requirements, and facilities."
+      },
+      "review": {
+        "title": "Review AI Content",
+        "desc": "Review and approve AI-generated recruitment content before it goes live to ensure accuracy and alignment with your brand."
+      },
+      "track": {
+        "title": "Track Student Engagement",
+        "desc": "Monitor student interest in your programs through detailed analytics and engagement metrics."
+      },
+      "maintain": {
+        "title": "Update & Maintain",
+        "desc": "After launch, keep your information updated regularly. If the AI presents incorrect content, contact our team for quick correction."
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to Partner with Us?",
+    "subtitle": "Join leading institutions already using 4S to connect with qualified students.",
+    "email": "schools@4s.edu",
+    "phone": "+84 123 456 789",
+    "note": "Our team usually responds within 24 hours."
+  }
+}

@@ -8,6 +8,11 @@
     "logout": "\u0110\u0103ng Xu\u1ea5t"
   },
   "footer": {
+    "contactTitle": "Li\u00ean h\u1ec7",
+    "emailLabel": "Email",
+    "phoneLabel": "\u0110i\u1ec7n tho\u1ea1i",
+    "addressLabel": "\u0110\u1ecba ch\u1ec9",
+    "socialTitle": "M\u1ea1ng x\u00e3 h\u1ed9i",
     "copyright": "(c) 2026 4S. H\u1ed7 tr\u1ee3 sinh vi\u00ean ra quy\u1ebft \u0111\u1ecbnh \u0111\u00fang \u0111\u1eafn."
   },
   "language": {
