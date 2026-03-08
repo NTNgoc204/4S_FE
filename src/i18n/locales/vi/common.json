@@ -1,0 +1,16 @@
+{
+  "brand": {
+    "forStudent": "Cho Học Sinh"
+  },
+  "actions": {
+    "getStarted": "Bắt Đầu",
+    "startConsultation": "Tư Vấn Ngay"
+  },
+  "footer": {
+    "copyright": "(c) 2026 4S. Hỗ trợ sinh viên ra quyết định đúng đắn."
+  },
+  "language": {
+    "en": "EN",
+    "vi": "VI"
+  }
+}

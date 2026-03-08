@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldStroke" x1="68" y1="124" x2="450" y2="406" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE793"/>
+      <stop offset="0.38" stop-color="#F2C339"/>
+      <stop offset="0.68" stop-color="#C58810"/>
+      <stop offset="1" stop-color="#FFD76A"/>
+    </linearGradient>
+    <linearGradient id="goldText" x1="179" y1="173" x2="328" y2="364" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF7CF"/>
+      <stop offset="0.35" stop-color="#F6CC55"/>
+      <stop offset="0.65" stop-color="#C98812"/>
+      <stop offset="1" stop-color="#FFE487"/>
+    </linearGradient>
+    <radialGradient id="spark" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(105 206) rotate(45) scale(34)">
+      <stop stop-color="#FFFDE0"/>
+      <stop offset="0.4" stop-color="#FFD85F"/>
+      <stop offset="1" stop-color="#C38309" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path d="M102 304C104 198 193 122 303 130C368 135 421 165 451 214" stroke="url(#goldStroke)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M76 299C88 365 148 412 232 427C329 444 424 404 463 324" stroke="url(#goldStroke)" stroke-width="26" stroke-linecap="round"/>
+  <path d="M71 290C63 219 96 166 136 137" stroke="url(#goldStroke)" stroke-width="16" stroke-linecap="round" opacity="0.8"/>
+  <ellipse cx="103" cy="204" rx="30" ry="27" fill="url(#spark)"/>
+  <ellipse cx="389" cy="184" rx="34" ry="31" fill="url(#spark)"/>
+  <text x="160" y="315" fill="url(#goldText)" font-size="238" font-family="Times New Roman, Georgia, serif" font-style="italic">4S</text>
+</svg>
