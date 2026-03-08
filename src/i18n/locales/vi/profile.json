@@ -1,0 +1,96 @@
+{
+  "edit": {
+    "title": "Chỉnh sửa hồ sơ",
+    "subtitle": "Cập nhật thông tin để nhận gợi ý phù hợp hơn",
+    "openDashboard": "Mở Dashboard Kỹ Năng",
+    "editProfile": "Chỉnh sửa",
+    "saveChanges": "Lưu thay đổi",
+    "saveSuccess": "Changed successfully.",
+    "sections": {
+      "personal": "Thông tin cá nhân",
+      "academic": "Thông tin học tập",
+      "skills": "Tính cách & Kỹ năng",
+      "interests": "Sở thích nghề nghiệp",
+      "preferences": "Tùy chọn học tập"
+    },
+    "interestHint": "Chọn tất cả lĩnh vực bạn quan tâm",
+    "fields": {
+      "fullName": "Họ và tên *",
+      "email": "Email *",
+      "phone": "Số điện thoại",
+      "birthYear": "Năm sinh",
+      "currentGrade": "Khối hiện tại",
+      "gpa": "GPA (0-10)",
+      "mathScore": "Điểm Toán (0-100)",
+      "englishScore": "Điểm Anh (0-100)",
+      "scienceScore": "Điểm Khoa học (0-100)",
+      "preferredLocation": "Khu vực ưu tiên",
+      "maxTuition": "Học phí tối đa (triệu VNĐ/năm)",
+      "studyMode": "Hình thức học",
+      "language": "Ngôn ngữ giảng dạy"
+    },
+    "skills": {
+      "creativity": "Sáng tạo",
+      "logic": "Logic & Lập luận",
+      "communication": "Giao tiếp",
+      "leadership": "Lãnh đạo",
+      "problemSolving": "Giải quyết vấn đề",
+      "teamwork": "Làm việc nhóm"
+    },
+    "interests": {
+      "software": "Kỹ thuật phần mềm",
+      "dataScience": "Khoa học dữ liệu",
+      "ai": "AI/Machine Learning",
+      "businessAnalytics": "Phân tích kinh doanh",
+      "finance": "Tài chính",
+      "marketing": "Marketing",
+      "medicine": "Y khoa",
+      "law": "Luật",
+      "education": "Giáo dục",
+      "engineering": "Kỹ thuật",
+      "design": "Thiết kế",
+      "arts": "Nghệ thuật"
+    }
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển sinh viên",
+    "subtitle": "Hành trình định hướng cá nhân của bạn",
+    "newConsultation": "Tư vấn mới",
+    "skillProfile": "Hồ sơ kỹ năng",
+    "skillSubtitle": "Dựa trên bài đánh giá và phiên tư vấn của bạn",
+    "savedSchools": "Trường đã lưu",
+    "viewAllSaved": "Xem tất cả đã lưu",
+    "recentConsultations": "Lịch sử tư vấn gần đây",
+    "viewAllHistory": "Xem toàn bộ lịch sử",
+    "topRecommended": "Trường đề xuất hàng đầu",
+    "topRecommendedSubtitle": "Gợi ý cá nhân hóa dựa trên hồ sơ của bạn",
+    "recommended": "Gợi ý",
+    "compare": "So sánh",
+    "details": "Chi tiết",
+    "journey": "Hành trình của bạn",
+    "journeyItems": {
+      "explored": "Trường đã khám phá",
+      "saved": "Trường đã lưu",
+      "consultations": "Lượt tư vấn"
+    },
+    "quickCompare": "So sánh nhanh",
+    "quickCompareSubtitle": "So sánh các trường đã lưu cạnh nhau",
+    "startComparison": "Bắt đầu so sánh",
+    "skills": {
+      "mathematics": "Toán học",
+      "logic": "Logic",
+      "creativity": "Sáng tạo",
+      "communication": "Giao tiếp",
+      "problemSolving": "Giải quyết vấn đề",
+      "leadership": "Lãnh đạo"
+    },
+    "history": {
+      "h1": "Ngành IT tốt dưới 30 triệu VNĐ",
+      "h2": "Trường kỹ thuật có học bổng",
+      "h3": "Trường đại học tại TP.HCM",
+      "t1": "2 giờ trước",
+      "t2": "1 ngày trước",
+      "t3": "3 ngày trước"
+    }
+  }
+}

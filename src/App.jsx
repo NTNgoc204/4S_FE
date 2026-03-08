@@ -12,6 +12,8 @@ import ConsultationPage from "./pages/Consultation/ConsultationPage";
 import ForSchoolsPage from "./pages/ForSchools/ForSchoolsPage";
 import HomePage from "./pages/Home/HomePage";
 import PricingPage from "./pages/Pricing/PricingPage";
+import ProfilePage from "./pages/Profile/ProfilePage";
+import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
 import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 
@@ -87,6 +89,14 @@ function App() {
           />
           <Route path="/for-schools" element={<ForSchoolsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
+          <Route
+            path="/profile"
+            element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/dashboard"
+            element={isLoggedIn ? <SkillDashboardPage /> : <Navigate to="/login" replace />}
+          />
           <Route
             path="/consultation"
             element={
