@@ -1,0 +1,29 @@
+{
+  "header": {
+    "title": "Phòng Tư Vấn AI",
+    "subtitle": "Nhận gợi ý trường đại học cá nhân hóa",
+    "proBadge": "PRO",
+    "logoutAria": "Đăng xuất"
+  },
+  "hero": {
+    "chip": "Tài khoản PRO - Toàn quyền truy cập",
+    "title": "Chọn Trải Nghiệm Của Bạn",
+    "subtitle": "Bạn muốn khám phá trường đại học phù hợp theo cách nào?"
+  },
+  "quiz": {
+    "title": "Quiz Định Hướng",
+    "description": "Trả lời các câu hỏi có cấu trúc để nhận gợi ý cá nhân hóa dựa trên hồ sơ của bạn.",
+    "tag1": "Từng bước rõ ràng",
+    "tag2": "5-10 phút",
+    "tag3": "Kết quả chính xác",
+    "cta": "Bắt Đầu Quiz"
+  },
+  "chat": {
+    "title": "Trò Chuyện Tự Do",
+    "description": "Trò chuyện tự nhiên với AI và hỏi mọi điều về trường đại học và nghề nghiệp.",
+    "tag1": "Linh hoạt",
+    "tag2": "Hỏi mọi thứ",
+    "tag3": "Tư vấn thời gian thực",
+    "cta": "Bắt Đầu Chat"
+  }
+}

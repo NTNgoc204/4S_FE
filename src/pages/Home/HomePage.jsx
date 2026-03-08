@@ -7,6 +7,8 @@ function HomePage() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
   const isLoggedIn = outletContext?.isLoggedIn ?? false
+  const currentPlan = String(outletContext?.currentPlan ?? '').toLowerCase()
+  const isProAccount = currentPlan === 'pro'
 
   const featureCards = [
     {
@@ -55,7 +57,11 @@ function HomePage() {
     'rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]'
 
   function handleStartConsultationClick() {
-    navigate(isLoggedIn ? '/consultation' : '/login')
+    if (!isLoggedIn) {
+      navigate('/login')
+      return
+    }
+    navigate(isProAccount ? '/consultation' : '/chat')
   }
 
   return (
