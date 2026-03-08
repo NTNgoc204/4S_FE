@@ -396,13 +396,6 @@ function ChatPage() {
     }))
   }
 
-  function handleViewDetail(school) {
-    if (!school) {
-      return
-    }
-    navigate(`/universities/${school.id}`)
-  }
-
   function handleSubmit(event) {
     event.preventDefault()
     sendManualMessage(inputValue)
@@ -440,7 +433,6 @@ function ChatPage() {
         <ChatRecommendationPanel
           hasSignal={hasSignal}
           locale={locale}
-          onViewDetail={handleViewDetail}
           recommendations={recommendations}
           systemBadge={systemBadge}
           text={text}

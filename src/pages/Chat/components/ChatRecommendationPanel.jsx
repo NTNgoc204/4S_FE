@@ -40,13 +40,15 @@
                   <span className="block h-full rounded-full bg-gradient-to-r from-[#0fe2a8] to-[#11d1f2]" style={{ width: `${school.score}%` }} />
                 </div>
 
-                <button
-                  className="mt-2.5 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-1.5 text-xs font-semibold text-[#0fe2a8] transition hover:bg-[#0ed8ab]/20"
-                  onClick={() => onViewDetail(school)}
-                  type="button"
-                >
-                  {text.viewDetail}
-                </button>
+                {onViewDetail ? (
+                  <button
+                    className="mt-2.5 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-1.5 text-xs font-semibold text-[#0fe2a8] transition hover:bg-[#0ed8ab]/20"
+                    onClick={() => onViewDetail(school)}
+                    type="button"
+                  >
+                    {text.viewDetail}
+                  </button>
+                ) : null}
               </article>
             ))}
           </div>
