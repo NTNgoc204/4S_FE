@@ -1,10 +1,9 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { SCORE_KEYS, rankUniversities } from '../../data/universities'
 import QuizLeftPanel from './components/QuizLeftPanel'
 import QuizRightPanel from './components/QuizRightPanel'
-
-const SCORE_KEYS = ['tech', 'business', 'engineering', 'creative', 'social']
 
 const UI_TEXT = {
   en: {
@@ -55,6 +54,24 @@ const UI_TEXT = {
       social: 'Thiên hướng giao tiếp - xã hội',
     },
   },
+}
+
+const QUIZ_STATE_KEY = 'guided_quiz_state_v1'
+
+function readQuizState() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  try {
+    const raw = window.sessionStorage.getItem(QUIZ_STATE_KEY)
+    if (!raw) {
+      return null
+    }
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
 }
 
 const INSIGHT_PROFILES = {
@@ -648,41 +665,6 @@ const QUESTIONS = [
   },
 ]
 
-const UNIVERSITIES = [
-  {
-    id: 'hcmut',
-    name: { en: 'HCMC University of Technology', vi: 'ĐH Bách Khoa TP.HCM' },
-    major: { en: 'Technology - Engineering', vi: 'Khối ngành Công nghệ - Kỹ thuật' },
-    place: { en: 'Ho Chi Minh City', vi: 'TP. Hồ Chí Minh' },
-    tuition: { en: '15-25M VND/semester', vi: '15-25M VNĐ/học kỳ' },
-    affinity: { tech: 4, engineering: 4, business: 1, creative: 1, social: 1 },
-  },
-  {
-    id: 'hust',
-    name: { en: 'Hanoi University of Science and Technology', vi: 'ĐH Bách Khoa Hà Nội' },
-    major: { en: 'Engineering & Applied Science', vi: 'Kỹ thuật và Công nghệ ứng dụng' },
-    place: { en: 'Ha Noi', vi: 'Hà Nội' },
-    tuition: { en: '18-28M VNĐ/semester', vi: '18-28M VNĐ/học kỳ' },
-    affinity: { tech: 3, engineering: 4, business: 1, creative: 1, social: 1 },
-  },
-  {
-    id: 'ftu',
-    name: { en: 'Foreign Trade University', vi: 'ĐH Ngoại Thương' },
-    major: { en: 'International Business', vi: 'Kinh tế đối ngoại' },
-    place: { en: 'Ha Noi', vi: 'Hà Nội' },
-    tuition: { en: '14-22M VNĐ/semester', vi: '14-22M VNĐ/học kỳ' },
-    affinity: { tech: 1, engineering: 1, business: 4, creative: 2, social: 3 },
-  },
-  {
-    id: 'rmit',
-    name: { en: 'RMIT Vietnam', vi: 'RMIT Việt Nam' },
-    major: { en: 'Business, Media & Design', vi: 'Kinh doanh, Truyền thông, Thiết kế' },
-    place: { en: 'HCMC & Ha Noi', vi: 'TP.HCM & Hà Nội' },
-    tuition: { en: '70-95M VNĐ/semester', vi: '70-95M VNĐ/học kỳ' },
-    affinity: { tech: 2, engineering: 1, business: 3, creative: 4, social: 3 },
-  },
-]
-
 function createEmptyProfile() {
   return {
     tech: 0,
@@ -701,10 +683,12 @@ function GuidedQuizPage() {
   const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
   const text = UI_TEXT[locale]
 
-  const [answers, setAnswers] = useState({})
-  const [insights, setInsights] = useState({})
-  const [profile, setProfile] = useState(createEmptyProfile)
-  const [activeIndex, setActiveIndex] = useState(0)
+  const cachedState = readQuizState()
+
+  const [answers, setAnswers] = useState(cachedState?.answers ?? {})
+  const [insights, setInsights] = useState(cachedState?.insights ?? {})
+  const [profile, setProfile] = useState(cachedState?.profile ?? createEmptyProfile())
+  const [activeIndex, setActiveIndex] = useState(cachedState?.activeIndex ?? 0)
   const [thinkingQuestionId, setThinkingQuestionId] = useState('')
   const [isThinking, setIsThinking] = useState(false)
 
@@ -715,18 +699,7 @@ function GuidedQuizPage() {
   const isDone = answeredCount === QUESTIONS.length
   const visibleQuestions = QUESTIONS.slice(0, Math.min(activeIndex + 1, QUESTIONS.length))
 
-  const recommendations = useMemo(() => {
-    return UNIVERSITIES.map((school) => {
-      const weighted = SCORE_KEYS.reduce((sum, key) => {
-        return sum + (profile[key] ?? 0) * (school.affinity[key] ?? 0)
-      }, 0)
-      const score = Math.max(68, Math.min(97, Math.round(68 + weighted / 2.4)))
-      return {
-        ...school,
-        score,
-      }
-    }).sort((a, b) => b.score - a.score)
-  }, [profile])
+  const recommendations = useMemo(() => rankUniversities(profile), [profile])
 
   const strengths = useMemo(() => {
     return SCORE_KEYS.map((key) => ({
@@ -774,6 +747,19 @@ function GuidedQuizPage() {
     })
   }, [answers, insights, activeIndex])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const nextState = {
+      answers,
+      insights,
+      profile,
+      activeIndex,
+    }
+    window.sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(nextState))
+  }, [activeIndex, answers, insights, profile])
+
   function buildInsight(option) {
     const profile = INSIGHT_PROFILES[option.profile] ?? INSIGHT_PROFILES.balanced
     if (locale === 'vi') {
@@ -815,6 +801,18 @@ function GuidedQuizPage() {
     timeoutRef.current.push(insightTimer, nextTimer)
   }
 
+  function handleViewDetail(school) {
+    if (!school) {
+      return
+    }
+    navigate(`/university/${school.id}`, {
+      state: {
+        from: '/quiz',
+        matchScore: school.score,
+      },
+    })
+  }
+
   return (
     <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] flex-col overflow-hidden py-3">
       <div className="mb-3 flex justify-end">
@@ -845,6 +843,7 @@ function GuidedQuizPage() {
           visibleQuestions={visibleQuestions}
         />
         <QuizRightPanel
+          onViewDetail={handleViewDetail}
           answeredCount={answeredCount}
           isDone={isDone}
           locale={locale}
@@ -858,3 +857,4 @@ function GuidedQuizPage() {
 }
 
 export default GuidedQuizPage
+

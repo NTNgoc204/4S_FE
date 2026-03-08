@@ -1,6 +1,6 @@
 import sparklesIcon from '../../../assets/Sparkles.svg'
 
-function QuizRightPanel({ answeredCount, isDone, locale, questionCount, recommendations, text }) {
+function QuizRightPanel({ answeredCount, isDone, locale, onViewDetail, questionCount, recommendations, text }) {
   return (
     <aside className="flex min-h-0 flex-col bg-[#203a59]/93">
       <header className="border-b border-white/10 p-5">
@@ -36,14 +36,18 @@ function QuizRightPanel({ answeredCount, isDone, locale, questionCount, recommen
                 </div>
 
                 <p className="mt-2 text-[11px] text-slate-400">
-                  {school.place[locale]} • {school.tuition[locale]}
+                  {school.place[locale]} - {school.tuition[locale]}
                 </p>
 
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                   <span className="block h-full rounded-full bg-gradient-to-r from-[#0fe2a8] to-[#11d1f2]" style={{ width: `${school.score}%` }} />
                 </div>
 
-                <button className="mt-2.5 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-1.5 text-xs font-semibold text-[#0fe2a8] transition hover:bg-[#0ed8ab]/20" type="button">
+                <button
+                  className="mt-2.5 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-1.5 text-xs font-semibold text-[#0fe2a8] transition hover:bg-[#0ed8ab]/20"
+                  onClick={() => onViewDetail?.(school)}
+                  type="button"
+                >
                   {text.viewDetail}
                 </button>
               </article>
@@ -70,3 +74,4 @@ function QuizRightPanel({ answeredCount, isDone, locale, questionCount, recommen
 }
 
 export default QuizRightPanel
+

@@ -10,6 +10,7 @@ import ConsultationPage from "./pages/Consultation/ConsultationPage";
 import HomePage from "./pages/Home/HomePage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
+import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 
 const authStorageKey = "is_logged_in";
 const planStorageKey = "demo_plan";
@@ -115,6 +116,16 @@ function App() {
             path="/pricing"
             element={
               <PricingPage currentPlan={currentPlan} isLoggedIn={isLoggedIn} />
+            }
+          />
+          <Route
+            path="/university/:schoolId"
+            element={
+              isLoggedIn ? (
+                <UniversityDetailPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

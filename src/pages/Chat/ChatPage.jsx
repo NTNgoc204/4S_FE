@@ -1,11 +1,12 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import sparklesIcon from '../../assets/Sparkles.svg'
+import { SCORE_KEYS, UNIVERSITIES, getUniversityById, rankUniversities } from '../../data/universities'
 import ChatConversationPanel from './components/ChatConversationPanel'
 import ChatRecommendationPanel from './components/ChatRecommendationPanel'
 
-const SCORE_KEYS = ['tech', 'business', 'engineering', 'creative', 'social']
+const CHAT_STATE_KEY = 'chat_page_state_v1'
 
 const KEYWORD_RULES = [
   {
@@ -30,44 +31,8 @@ const KEYWORD_RULES = [
   },
 ]
 
-const UNIVERSITIES = [
-  {
-    id: 'hcmut',
-    name: { en: 'HCMC University of Technology', vi: 'ĐH Bách Khoa TP.HCM' },
-    major: { en: 'Technology - Engineering', vi: 'Khối ngành Công nghệ - Kỹ thuật' },
-    place: { en: 'Ho Chi Minh City', vi: 'TP. Hồ Chí Minh' },
-    tuition: { en: '15-25M VND/semester', vi: '15-25M VNĐ/học kỳ' },
-    affinity: { tech: 4, engineering: 4, business: 1, creative: 1, social: 1 },
-  },
-  {
-    id: 'hust',
-    name: { en: 'Hanoi University of Science and Technology', vi: 'ĐH Bách Khoa Hà Nội' },
-    major: { en: 'Engineering & Applied Science', vi: 'Kỹ thuật và Công nghệ ứng dụng' },
-    place: { en: 'Ha Noi', vi: 'Hà Nội' },
-    tuition: { en: '18-28M VNĐ/semester', vi: '18-28M VNĐ/học kỳ' },
-    affinity: { tech: 3, engineering: 4, business: 1, creative: 1, social: 1 },
-  },
-  {
-    id: 'ftu',
-    name: { en: 'Foreign Trade University', vi: 'ĐH Ngoại Thương' },
-    major: { en: 'International Business', vi: 'Kinh tế đối ngoại' },
-    place: { en: 'Ha Noi', vi: 'Hà Nội' },
-    tuition: { en: '14-22M VNĐ/semester', vi: '14-22M VNĐ/học kỳ' },
-    affinity: { tech: 1, engineering: 1, business: 4, creative: 2, social: 3 },
-  },
-  {
-    id: 'rmit',
-    name: { en: 'RMIT Vietnam', vi: 'RMIT Việt Nam' },
-    major: { en: 'Business, Media & Design', vi: 'Kinh doanh, Truyền thông, Thiết kế' },
-    place: { en: 'HCMC & Ha Noi', vi: 'TP.HCM & Hà Nội' },
-    tuition: { en: '70-95M VNĐ/semester', vi: '70-95M VNĐ/học kỳ' },
-    affinity: { tech: 2, engineering: 1, business: 3, creative: 4, social: 3 },
-  },
-]
-
 const UI_TEXT = {
   en: {
-    tab: 'Free Chat',
     changeMode: 'Change mode',
     initialGreeting:
       "Hi! I'm your AI Career Assistant. I can help you explore majors, universities, and career directions. What would you like to start with?",
@@ -103,7 +68,6 @@ const UI_TEXT = {
       `I can see strong interest in ${focus}. Based on your current inputs, ${school} looks very relevant. Do you want me to filter further by tuition, city, or specific major?`,
   },
   vi: {
-    tab: 'Free Chat',
     changeMode: 'Đổi chế độ',
     initialGreeting:
       'Xin chào! Tôi là Trợ lý Hướng nghiệp AI. Tôi có thể giúp bạn tìm ngành học, trường phù hợp, hoặc giải đáp thắc mắc về định hướng tương lai. Bạn muốn bắt đầu từ điều gì?',
@@ -177,19 +141,6 @@ function extractDeltaFromMessage(message) {
   return delta
 }
 
-function rankUniversities(profile) {
-  return UNIVERSITIES.map((school) => {
-    const weighted = SCORE_KEYS.reduce((sum, key) => {
-      return sum + (profile[key] ?? 0) * (school.affinity[key] ?? 0)
-    }, 0)
-    const score = Math.max(68, Math.min(97, Math.round(68 + weighted / 2.4)))
-    return {
-      ...school,
-      score,
-    }
-  }).sort((a, b) => b.score - a.score)
-}
-
 function getSchoolStrengthKeys(school) {
   return SCORE_KEYS.map((key) => ({ key, score: school.affinity[key] ?? 0 }))
     .sort((a, b) => b.score - a.score)
@@ -197,8 +148,20 @@ function getSchoolStrengthKeys(school) {
     .map((item) => item.key)
 }
 
-function getSchoolById(id) {
-  return UNIVERSITIES.find((item) => item.id === id)
+function readChatState() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  try {
+    const raw = window.sessionStorage.getItem(CHAT_STATE_KEY)
+    if (!raw) {
+      return null
+    }
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
 }
 
 function ChatPage() {
@@ -209,6 +172,9 @@ function ChatPage() {
   const isProAccount = currentPlan === 'pro'
   const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
   const text = UI_TEXT[locale]
+
+  const cachedState = readChatState()
+
   const systemBadge = isProAccount
     ? {
         label: '\u{1F451}',
@@ -219,21 +185,25 @@ function ChatPage() {
         className: 'border-emerald-300/40 bg-emerald-400/12 text-emerald-300',
       }
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(cachedState?.inputValue ?? '')
   const [isThinking, setIsThinking] = useState(false)
-  const [profile, setProfile] = useState(createEmptyProfile)
-  const [userSignalCount, setUserSignalCount] = useState(0)
-  const [usedPromptIndexes, setUsedPromptIndexes] = useState([])
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      kind: 'welcome',
-    },
-  ])
+  const [profile, setProfile] = useState(cachedState?.profile ?? createEmptyProfile())
+  const [userSignalCount, setUserSignalCount] = useState(cachedState?.userSignalCount ?? 0)
+  const [usedPromptIndexes, setUsedPromptIndexes] = useState(cachedState?.usedPromptIndexes ?? [])
+  const [messages, setMessages] = useState(
+    cachedState?.messages?.length
+      ? cachedState.messages
+      : [
+          {
+            id: 'welcome',
+            role: 'assistant',
+            kind: 'welcome',
+          },
+        ],
+  )
 
   const conversationRef = useRef(null)
-  const messageIdRef = useRef(0)
+  const messageIdRef = useRef(cachedState?.messageCounter ?? 0)
   const timeoutRef = useRef([])
 
   const recommendations = useMemo(() => rankUniversities(profile), [profile])
@@ -251,7 +221,7 @@ function ChatPage() {
       }
 
       if (message.kind === 'user_recommend_ask') {
-        const school = getSchoolById(message.schoolId)
+        const school = getUniversityById(message.schoolId)
         const schoolName = school ? school.name[locale] : message.fallbackName
         return { ...message, content: text.recommendationAsk(schoolName) }
       }
@@ -265,14 +235,14 @@ function ChatPage() {
       }
 
       if (message.kind === 'assistant_focus') {
-        const school = getSchoolById(message.schoolId)
+        const school = getUniversityById(message.schoolId)
         const schoolName = school ? school.name[locale] : locale === 'vi' ? 'một số trường phù hợp' : 'a few matching schools'
         const focusLabel = text.focusLabels[message.dominantKey] ?? text.focusLabels.social
         return { ...message, content: text.replyTemplate(focusLabel, schoolName) }
       }
 
       if (message.kind === 'assistant_recommendation_detail') {
-        const school = getSchoolById(message.schoolId)
+        const school = getUniversityById(message.schoolId)
         if (!school) {
           return {
             ...message,
@@ -324,6 +294,21 @@ function ChatPage() {
       behavior: 'smooth',
     })
   }, [displayMessages, isThinking])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const nextState = {
+      inputValue,
+      profile,
+      userSignalCount,
+      usedPromptIndexes,
+      messages,
+      messageCounter: messageIdRef.current,
+    }
+    window.sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify(nextState))
+  }, [inputValue, messages, profile, usedPromptIndexes, userSignalCount])
 
   function createMessageId(prefix) {
     messageIdRef.current += 1
@@ -396,6 +381,18 @@ function ChatPage() {
     }))
   }
 
+  function handleViewDetail(school) {
+    if (!school) {
+      return
+    }
+    navigate(`/university/${school.id}`, {
+      state: {
+        from: '/chat',
+        matchScore: school.score,
+      },
+    })
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
     sendManualMessage(inputValue)
@@ -433,6 +430,7 @@ function ChatPage() {
         <ChatRecommendationPanel
           hasSignal={hasSignal}
           locale={locale}
+          onViewDetail={handleViewDetail}
           recommendations={recommendations}
           systemBadge={systemBadge}
           text={text}
@@ -444,4 +442,3 @@ function ChatPage() {
 }
 
 export default ChatPage
-
