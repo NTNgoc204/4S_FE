@@ -1,0 +1,28 @@
+{
+  "title": "Create Your Account",
+  "subtitle": "Start your 4S journey in a few quick steps.",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "emailLabel": "Email Address",
+  "emailPlaceholder": "Enter your email",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Create a password",
+  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordPlaceholder": "Re-enter your password",
+  "accountTypeLabel": "Account Type",
+  "accountTypes": {
+    "student": "Student",
+    "school": "School / University"
+  },
+  "submit": "Create Account",
+  "alreadyHaveAccount": "Already have an account?",
+  "loginNow": "Log in",
+  "successTitle": "Demo Sign Up Completed",
+  "successDesc": "Thanks for registering. This is a demo flow, so your account is not persisted yet.",
+  "goLogin": "Go to Login",
+  "goHome": "Back to Home",
+  "errors": {
+    "required": "Please fill in all required fields.",
+    "passwordMismatch": "Passwords do not match."
+  }
+}

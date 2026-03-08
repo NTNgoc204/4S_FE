@@ -1,0 +1,28 @@
+﻿{
+    "title":  "Táº¡o tÃ i khoáº£n",
+    "subtitle":  "Báº¯t Ä‘áº§u hÃ nh trÃ¬nh vá»›i 4S chá»‰ trong vÃ i bÆ°á»›c ngáº¯n.",
+    "fullNameLabel":  "Há» vÃ  tÃªn",
+    "fullNamePlaceholder":  "Nháº­p há» vÃ  tÃªn",
+    "emailLabel":  "Äá»‹a chá»‰ email",
+    "emailPlaceholder":  "Nháº­p email cá»§a báº¡n",
+    "passwordLabel":  "Máº­t kháº©u",
+    "passwordPlaceholder":  "Táº¡o máº­t kháº©u",
+    "confirmPasswordLabel":  "XÃ¡c nháº­n máº­t kháº©u",
+    "confirmPasswordPlaceholder":  "Nháº­p láº¡i máº­t kháº©u",
+    "accountTypeLabel":  "Loáº¡i tÃ i khoáº£n",
+    "accountTypes":  {
+                         "student":  "Há»c sinh",
+                         "school":  "TrÆ°á»ng há»c / Äáº¡i há»c"
+                     },
+    "submit":  "Táº¡o tÃ i khoáº£n",
+    "successTitle":  "ÄÄƒng kÃ½ demo thÃ nh cÃ´ng",
+    "successDesc":  "Cáº£m Æ¡n báº¡n Ä‘Ã£ Ä‘Äƒng kÃ½. ÄÃ¢y lÃ  luá»“ng demo nÃªn tÃ i khoáº£n chÆ°a Ä‘Æ°á»£c lÆ°u tháº­t.",
+    "goLogin":  "Äáº¿n trang Ä‘Äƒng nháº­p",
+    "goHome":  "Vá» trang chá»§",
+    "errors":  {
+                   "required":  "Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ thÃ´ng tin báº¯t buá»™c.",
+                   "passwordMismatch":  "Máº­t kháº©u xÃ¡c nháº­n chÆ°a khá»›p."
+               },
+    "alreadyHaveAccount":  "Đã có tài khoản?",
+    "loginNow":  "Đăng nhập"
+}

@@ -5,8 +5,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PublicLayout from "./layouts/PublicLayout";
 import LoginPage from "./pages/Auth/LoginPage";
+import SignUpPage from "./pages/Auth/SignUpPage";
+import AboutPage from "./pages/About/AboutPage";
 import ChatPage from "./pages/Chat/ChatPage";
 import ConsultationPage from "./pages/Consultation/ConsultationPage";
+import ForSchoolsPage from "./pages/ForSchools/ForSchoolsPage";
 import HomePage from "./pages/Home/HomePage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
@@ -14,6 +17,8 @@ import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 
 const authStorageKey = "is_logged_in";
 const planStorageKey = "demo_plan";
+const chatStateStorageKey = "chat_page_state_v1";
+const quizStateStorageKey = "guided_quiz_state_v1";
 
 function getInitialLoggedIn() {
   if (typeof window === "undefined") {
@@ -48,6 +53,8 @@ function App() {
     setCurrentPlan("");
     window.localStorage.removeItem(authStorageKey);
     window.localStorage.removeItem(planStorageKey);
+    window.sessionStorage.removeItem(chatStateStorageKey);
+    window.sessionStorage.removeItem(quizStateStorageKey);
     toast.success(t("auth:logoutSuccess"));
   }
 
@@ -74,6 +81,12 @@ function App() {
               )
             }
           />
+          <Route
+            path="/sign-up"
+            element={isLoggedIn ? <Navigate to="/" replace /> : <SignUpPage />}
+          />
+          <Route path="/for-schools" element={<ForSchoolsPage />} />
+          <Route path="/about-us" element={<AboutPage />} />
           <Route
             path="/consultation"
             element={

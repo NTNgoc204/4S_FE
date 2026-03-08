@@ -8,6 +8,11 @@
     "logout": "Logout"
   },
   "footer": {
+    "contactTitle": "Contact",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "addressLabel": "Address",
+    "socialTitle": "Social Media",
     "copyright": "(c) 2026 4S. Empowering students to make informed decisions."
   },
   "language": {

@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Đồng hành cùng 4S",
+    "title": "Giải pháp cho Trường Đại học & Nhà trường",
+    "subtitle": "Kết nối với hàng nghìn học sinh đủ điều kiện và nâng cao tuyển sinh bằng hệ thống ghép nối AI.",
+    "getStarted": "Bắt đầu",
+    "learnMore": "Tìm hiểu thêm"
+  },
+  "why": {
+    "title": "Vì sao nên hợp tác với 4S?",
+    "subtitle": "Nâng cấp hoạt động tuyển sinh với cơ chế ghép nối thông minh."
+  },
+  "benefits": {
+    "reach": {
+      "title": "Tiếp cận nhiều học sinh hơn",
+      "desc": "Kết nối với hàng nghìn học sinh đang chủ động tìm trường phù hợp. AI giúp thông tin của trường đến đúng nhóm quan tâm thực sự."
+    },
+    "quality": {
+      "title": "Ghép nối chất lượng",
+      "desc": "Hệ thống ghép nối thông minh giúp học sinh tìm thấy trường phù hợp dựa trên hồ sơ học tập, sở thích và mục tiêu nghề nghiệp."
+    },
+    "transparent": {
+      "title": "Thông tin minh bạch",
+      "desc": "Cung cấp thông tin chính xác và cập nhật trực tiếp cho học sinh. Tăng niềm tin qua minh bạch học phí, chương trình và tiêu chí tuyển sinh."
+    }
+  },
+  "process": {
+    "title": "Quy trình hợp tác",
+    "subtitle": "Bốn bước đơn giản để tham gia nền tảng.",
+    "steps": {
+      "info": {
+        "title": "Cung cấp thông tin",
+        "desc": "Gửi đầy đủ thông tin mới nhất về trường, ngành học, yêu cầu tuyển sinh và cơ sở vật chất."
+      },
+      "review": {
+        "title": "Duyệt nội dung AI",
+        "desc": "Xem và duyệt nội dung tuyển sinh do AI tạo trước khi hiển thị chính thức để đảm bảo đúng định hướng thương hiệu."
+      },
+      "track": {
+        "title": "Theo dõi mức quan tâm",
+        "desc": "Theo dõi mức độ quan tâm của học sinh với ngành học thông qua phân tích chi tiết và các chỉ số tương tác."
+      },
+      "maintain": {
+        "title": "Cập nhật & duy trì",
+        "desc": "Sau khi triển khai, cập nhật dữ liệu định kỳ. Nếu AI hiển thị sai thông tin, đội ngũ 4S sẽ hỗ trợ chỉnh sửa nhanh."
+      }
+    }
+  },
+  "cta": {
+    "title": "Sẵn sàng hợp tác cùng 4S?",
+    "subtitle": "Tham gia cùng các trường đang dùng 4S để kết nối với học sinh phù hợp.",
+    "email": "schools@4s.edu",
+    "phone": "+84 123 456 789",
+    "note": "Đội ngũ của chúng tôi thường phản hồi trong vòng 24 giờ."
+  }
+}

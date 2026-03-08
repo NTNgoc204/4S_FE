@@ -101,7 +101,11 @@ function LoginPage({ onSignIn }) {
 
           <p className="mt-7 text-center text-lg text-slate-300">
             {t('auth:noAccount')}{' '}
-            <button className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69]" type="button">
+            <button
+              className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69]"
+              onClick={() => navigate('/sign-up')}
+              type="button"
+            >
               {t('auth:signUp')}
             </button>
           </p>

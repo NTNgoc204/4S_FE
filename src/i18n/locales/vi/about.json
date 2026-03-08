@@ -1,0 +1,35 @@
+{
+  "hero": {
+    "title": "Về 4S",
+    "subtitle": "4S giúp học sinh chọn hướng học tập tự tin hơn nhờ dữ liệu minh bạch, gợi ý AI và góc nhìn từ sinh viên thực tế.",
+    "ctaPrimary": "Tạo tài khoản",
+    "ctaSecondary": "Dành cho trường"
+  },
+  "mission": {
+    "title": "Sứ mệnh của chúng tôi",
+    "desc1": "Việc chọn trường đại học cần rõ ràng, thực tế và cá nhân hóa. 4S được xây dựng để giảm mơ hồ trong quá trình ra quyết định.",
+    "desc2": "Kết hợp dữ liệu học phí đáng tin cậy, thuật toán ghép nối và tín hiệu từ trải nghiệm sinh viên, 4S giúp mỗi người học có lộ trình rõ hơn."
+  },
+  "stats": {
+    "students": "Sinh viên đã được hỗ trợ",
+    "universities": "Trường trong hệ dữ liệu",
+    "rating": "Điểm đánh giá trung bình"
+  },
+  "values": {
+    "title": "Giá trị cốt lõi",
+    "items": {
+      "data": {
+        "title": "Dữ liệu đáng tin cậy",
+        "desc": "Ưu tiên thông tin chính xác và luôn cập nhật để người dùng so sánh lựa chọn một cách tự tin."
+      },
+      "students": {
+        "title": "Lấy học sinh làm trung tâm",
+        "desc": "Mọi quyết định sản phẩm đều xoay quanh kết quả học tập, khả năng tiếp cận và phát triển dài hạn của người học."
+      },
+      "guidance": {
+        "title": "Gợi ý có thể hành động",
+        "desc": "Chúng tôi biến thông tin phức tạp thành khuyến nghị thực tế để người dùng có thể áp dụng ngay."
+      }
+    }
+  }
+}

@@ -1,6 +1,5 @@
-import { Link, useNavigate, useOutletContext } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import fourSLogo from '../../assets/logo-4s.png'
 
 function HomePage() {
   const { t } = useTranslation()
@@ -230,15 +229,6 @@ function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 bg-[#020d1c]/90 py-8">
-        <div className="mx-auto w-[min(1120px,92vw)] text-center">
-          <Link className="mb-3 inline-flex items-center justify-center gap-3 text-[#ecc741] no-underline" to="/">
-            <img alt="4S logo" className="h-[70px] w-[70px] object-contain" src={fourSLogo} />
-            <span className="font-['Sora'] text-2xl font-bold text-[#29d39c]">4S</span>
-          </Link>
-          <p className="text-sm text-slate-400">{t('common:footer.copyright')}</p>
-        </div>
-      </footer>
     </>
   )
 }
