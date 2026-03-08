@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
+import SiteFooter from '../components/SiteFooter'
 
 function PublicLayout({
   isLoggedIn = false,
@@ -11,6 +12,12 @@ function PublicLayout({
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
   const isPricingPage = location.pathname === '/pricing'
+  const isUniversityDetailPage = location.pathname.startsWith('/university/')
+  const isProfilePage = location.pathname === '/profile'
+  const isDashboardPage = location.pathname === '/dashboard'
+  const isConsultationPage = location.pathname === '/consultation'
+  const isQuizPage = location.pathname === '/quiz'
+  const isChatPage = location.pathname === '/chat'
 
   const pageBackgroundClass = isLoginPage
     ? 'bg-[radial-gradient(circle_at_22%_16%,rgba(255,201,58,0.09),transparent_34%),radial-gradient(circle_at_75%_28%,rgba(15,226,168,0.1),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_40%,#041224_100%)]'
@@ -18,18 +25,30 @@ function PublicLayout({
       ? 'bg-[radial-gradient(circle_at_20%_16%,rgba(255,201,58,0.1),transparent_34%),radial-gradient(circle_at_78%_26%,rgba(15,226,168,0.11),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_42%,#041224_100%)]'
       : 'relative overflow-hidden bg-[radial-gradient(circle_at_20%_15%,rgba(255,201,58,0.09),transparent_35%),radial-gradient(circle_at_75%_25%,rgba(15,226,168,0.1),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_40%,#041224_100%)]'
 
+  const shouldShowHeader = !isUniversityDetailPage && !isProfilePage && !isDashboardPage
+  const shouldShowFooter =
+    !isUniversityDetailPage &&
+    !isProfilePage &&
+    !isDashboardPage &&
+    !isConsultationPage &&
+    !isQuizPage &&
+    !isChatPage
+
   return (
     <div className={`min-h-screen text-[#eaf2ff] ${pageBackgroundClass}`}>
-      <Header
-        containerClassName={headerContainerClassName}
-        isLoggedIn={isLoggedIn}
-        currentPlan={currentPlan}
-        onLogout={onLogout}
-        showGuestCta={!isLoggedIn && !isLoginPage}
-        showNav={showNav}
-        stickyHeader={!isLoginPage}
-      />
+      {shouldShowHeader ? (
+        <Header
+          containerClassName={headerContainerClassName}
+          isLoggedIn={isLoggedIn}
+          currentPlan={currentPlan}
+          onLogout={onLogout}
+          showGuestCta={!isLoggedIn && !isLoginPage}
+          showNav={showNav}
+          stickyHeader={!isLoginPage}
+        />
+      ) : null}
       <Outlet context={{ isLoggedIn, currentPlan, onLogout }} />
+      {shouldShowFooter ? <SiteFooter /> : null}
     </div>
   )
 }

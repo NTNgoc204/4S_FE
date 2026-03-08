@@ -1,0 +1,35 @@
+{
+  "hero": {
+    "title": "About 4S",
+    "subtitle": "4S helps students make confident education choices with transparent data, AI guidance, and real student insights.",
+    "ctaPrimary": "Create Account",
+    "ctaSecondary": "For Schools"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "desc1": "Choosing a university should be clear, practical, and personalized. We built 4S to remove confusion from the decision process.",
+    "desc2": "By combining trusted tuition data, matching intelligence, and student experience signals, 4S gives each learner a clearer path forward."
+  },
+  "stats": {
+    "students": "Students guided",
+    "universities": "Universities in dataset",
+    "rating": "Average student rating"
+  },
+  "values": {
+    "title": "What We Stand For",
+    "items": {
+      "data": {
+        "title": "Data Integrity",
+        "desc": "We prioritize reliable and up-to-date information to help users compare options with confidence."
+      },
+      "students": {
+        "title": "Student First",
+        "desc": "Every product decision is made around student outcomes, accessibility, and long-term growth."
+      },
+      "guidance": {
+        "title": "Actionable Guidance",
+        "desc": "We turn complex information into practical recommendations that users can act on immediately."
+      }
+    }
+  }
+}
