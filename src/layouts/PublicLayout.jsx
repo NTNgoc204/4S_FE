@@ -5,6 +5,7 @@ import SiteFooter from '../components/SiteFooter'
 function PublicLayout({
   isLoggedIn = false,
   currentPlan = '',
+  currentRole = 'user',
   onLogout = () => {},
   showNav = true,
   headerContainerClassName = 'w-[min(1120px,92vw)]',
@@ -41,13 +42,14 @@ function PublicLayout({
           containerClassName={headerContainerClassName}
           isLoggedIn={isLoggedIn}
           currentPlan={currentPlan}
+          currentRole={currentRole}
           onLogout={onLogout}
           showGuestCta={!isLoggedIn && !isLoginPage}
           showNav={showNav}
           stickyHeader={!isLoginPage}
         />
       ) : null}
-      <Outlet context={{ isLoggedIn, currentPlan, onLogout }} />
+      <Outlet context={{ isLoggedIn, currentPlan, currentRole, onLogout }} />
       {shouldShowFooter ? <SiteFooter /> : null}
     </div>
   )

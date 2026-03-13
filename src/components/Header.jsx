@@ -7,6 +7,7 @@ import sparklesIcon from "../assets/Sparkles.svg";
 function Header({
   isLoggedIn = false,
   currentPlan = "",
+  currentRole = "user",
   onLogout = () => {},
   showGuestCta = true,
   showNav = true,
@@ -16,6 +17,7 @@ function Header({
   const navigate = useNavigate();
   const isEnglish = i18n.resolvedLanguage !== "vi";
   const isProUser = isLoggedIn && String(currentPlan).toLowerCase() === "pro";
+  const isAdmin = isLoggedIn && String(currentRole).toLowerCase() === "admin";
   const isFreeUser = isLoggedIn && !isProUser;
 
   const navItems = [
@@ -115,7 +117,11 @@ function Header({
 
           {isLoggedIn ? (
             <>
-              {isProUser ? (
+              {isAdmin ? (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-rose-300/60 bg-rose-400/12 px-3 py-2 text-sm font-bold tracking-wide text-rose-300">
+                  <span>ADMIN</span>
+                </span>
+              ) : isProUser ? (
                 <span className="inline-flex items-end gap-1 rounded-lg border border-[#ecc741]/60 bg-[#ecc741]/15 px-3 pb-2 text-sm font-bold tracking-wide text-[#f4d040]">
                   <span className="text-xl">{"\u{1F451}"}</span>
                   <span>PRO</span>
@@ -130,6 +136,15 @@ function Header({
                   />
                   <span>FREE</span>
                 </span>
+              ) : null}
+              {isAdmin ? (
+                <button
+                  className="rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 px-3 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25"
+                  onClick={() => navigate("/admin")}
+                  type="button"
+                >
+                  Admin
+                </button>
               ) : null}
               <button
                 aria-label="User profile"
