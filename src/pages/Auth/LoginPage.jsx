@@ -12,16 +12,25 @@ function LoginPage({ onSignIn }) {
 
   const demoAccounts = [
     {
+      role: 'user',
       plan: 'FREE',
       title: t('auth:freeAccount'),
       email: 'free@4s.edu',
       password: 'free123',
     },
     {
+      role: 'user',
       plan: 'PRO',
       title: t('auth:proAccount'),
       email: 'pro@4s.edu',
       password: 'pro123',
+    },
+    {
+      role: 'admin',
+      plan: 'PRO',
+      title: 'Admin account',
+      email: 'admin@4s.edu',
+      password: 'admin123',
     },
   ]
 
@@ -39,8 +48,8 @@ function LoginPage({ onSignIn }) {
     }
 
     setError('')
-    onSignIn(account.plan)
-    navigate('/', { replace: true })
+    onSignIn(account)
+    navigate(account.role === 'admin' ? '/admin' : '/', { replace: true })
   }
 
   return (
@@ -123,7 +132,7 @@ function LoginPage({ onSignIn }) {
                   }`}
                 >
                   <p className={`text-sm font-bold ${account.plan === 'FREE' ? 'text-emerald-400' : 'text-[#ecc741]'}`}>
-                    {account.plan === 'PRO' ? '\u{1F451} ' : ''}
+                    {account.role === 'admin' ? 'ADMIN ' : account.plan === 'PRO' ? '\u{1F451} ' : ''}
                     {account.plan}
                   </p>
                   <p className="text-sm text-slate-100">{account.title}</p>
