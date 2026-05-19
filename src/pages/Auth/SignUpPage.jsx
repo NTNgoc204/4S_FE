@@ -6,20 +6,101 @@ import loginIcon from "../../assets/Login.svg";
 function SignUpPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
+
+  // Step 1: Personal Information
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [accountType, setAccountType] = useState("student");
+
+  // Step 2: OTP & Password
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [accountType, setAccountType] = useState("student");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // State management
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState(1); // 1 or 2
 
-  function handleSubmit(event) {
+  // Validate step 1 form
+  function validateStep1() {
+    if (
+      !email.trim() ||
+      !fullName.trim() ||
+      !dateOfBirth.trim() ||
+      !address.trim() ||
+      !phoneNumber.trim()
+    ) {
+      setError(t("signup:errors.required"));
+      return false;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError(t("signup:errors.invalidEmail"));
+      return false;
+    }
+
+    setError("");
+    return true;
+  }
+
+  // Handle step 1 submission
+  function handleStep1Submit(event) {
     event.preventDefault();
-    if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (validateStep1()) {
+      // Simulate sending OTP to email
+      setStep(2);
+      setError("");
+    }
+  }
+
+  // Handle OTP verification
+  function handleOtpCheck() {
+    setOtpError("");
+
+    if (!otp.trim()) {
+      setOtpError(t("signup:errors.required"));
+      return;
+    }
+
+    // Demo OTP verification: accept "123456" as valid OTP
+    if (otp === "123456") {
+      setOtpVerified(true);
+      setOtpError("");
+    } else {
+      setOtpError(t("signup:otpInvalid"));
+      setOtpVerified(false);
+    }
+  }
+
+  // Handle step 2 submission (final)
+  function handleStep2Submit(event) {
+    event.preventDefault();
+
+    if (!otpVerified) {
+      setError(t("signup:errors.otpRequired"));
+      return;
+    }
+
+    if (!password.trim() || !confirmPassword.trim()) {
       setError(t("signup:errors.required"));
       return;
     }
+
+    if (password.length < 6) {
+      setError(t("signup:errors.passwordTooShort"));
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError(t("signup:errors.passwordMismatch"));
       return;
@@ -29,21 +110,43 @@ function SignUpPage() {
     setSubmitted(true);
   }
 
+  function handleBackToStep1() {
+    setStep(1);
+    setOtp("");
+    setPassword("");
+    setConfirmPassword("");
+    setOtpVerified(false);
+    setOtpError("");
+    setError("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  }
+
   return (
     <main className="mx-auto flex min-h-[calc(100vh-74px)] w-[min(1120px,92vw)] items-center justify-center py-10">
       <section className="w-full max-w-[620px] rounded-3xl border border-white/10 bg-gradient-to-b from-[#1e3451]/90 to-[#182c47]/94 p-8 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
         <div className="mb-5 flex justify-center">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-to-br from-[#ffe16d] to-[#deb320] shadow-[0_10px_24px_rgba(237,196,46,0.28)]">
-            <img alt="Sign up icon" className="h-8 w-8 object-contain" src={loginIcon} />
+            <img
+              alt="Sign up icon"
+              className="h-8 w-8 object-contain"
+              src={loginIcon}
+            />
           </div>
         </div>
 
-        <h1 className="text-center font-['Sora'] text-4xl font-bold">{t("signup:title")}</h1>
-        <p className="mt-2 text-center text-lg text-slate-300">{t("signup:subtitle")}</p>
+        <h1 className="text-center font-['Sora'] text-4xl font-bold">
+          {t("signup:title")}
+        </h1>
+        <p className="mt-2 text-center text-lg text-slate-300">
+          {step === 1 ? t("signup:step1Title") : t("signup:step2Title")}
+        </p>
 
         {submitted ? (
           <div className="mt-8 rounded-2xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/10 p-6 text-center">
-            <h2 className="font-['Sora'] text-2xl font-semibold text-[#0ed8ab]">{t("signup:successTitle")}</h2>
+            <h2 className="font-['Sora'] text-2xl font-semibold text-[#0ed8ab]">
+              {t("signup:successTitle")}
+            </h2>
             <p className="mt-2 text-slate-200">{t("signup:successDesc")}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button
@@ -62,10 +165,32 @@ function SignUpPage() {
               </button>
             </div>
           </div>
-        ) : (
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+        ) : step === 1 ? (
+          // STEP 1: Personal Information
+          <form className="mt-8 space-y-5" onSubmit={handleStep1Submit}>
             <div>
-              <label className="mb-2 block text-base font-semibold text-slate-200" htmlFor="fullName">
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="email"
+              >
+                {t("signup:emailLabel")}
+              </label>
+              <input
+                autoComplete="email"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                id="email"
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder={t("signup:emailPlaceholder")}
+                type="email"
+                value={email}
+              />
+            </div>
+
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="fullName"
+              >
                 {t("signup:fullNameLabel")}
               </label>
               <input
@@ -79,74 +204,65 @@ function SignUpPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-semibold text-slate-200" htmlFor="signupEmail">
-                {t("signup:emailLabel")}
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="dateOfBirth"
+              >
+                {t("signup:dateOfBirthLabel")}
               </label>
               <input
-                autoComplete="email"
                 className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
-                id="signupEmail"
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={t("signup:emailPlaceholder")}
-                type="email"
-                value={email}
+                id="dateOfBirth"
+                onChange={(event) => setDateOfBirth(event.target.value)}
+                placeholder={t("signup:dateOfBirthPlaceholder")}
+                type="date"
+                value={dateOfBirth}
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-base font-semibold text-slate-200" htmlFor="signupPassword">
-                  {t("signup:passwordLabel")}
-                </label>
-                <input
-                  autoComplete="new-password"
-                  className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
-                  id="signupPassword"
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder={t("signup:passwordPlaceholder")}
-                  type="password"
-                  value={password}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-base font-semibold text-slate-200" htmlFor="confirmPassword">
-                  {t("signup:confirmPasswordLabel")}
-                </label>
-                <input
-                  autoComplete="new-password"
-                  className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
-                  id="confirmPassword"
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder={t("signup:confirmPasswordPlaceholder")}
-                  type="password"
-                  value={confirmPassword}
-                />
-              </div>
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="address"
+              >
+                {t("signup:addressLabel")}
+              </label>
+              <input
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                id="address"
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder={t("signup:addressPlaceholder")}
+                type="text"
+                value={address}
+              />
             </div>
 
             <div>
-              <label className="mb-2 block text-base font-semibold text-slate-200" htmlFor="accountType">
-                {t("signup:accountTypeLabel")}
-              </label>
-              <select
-                className="w-full rounded-xl border border-white/15 bg-[#19324d] px-4 py-3 text-base text-slate-100 focus:border-[#ecc741] focus:outline-none"
-                id="accountType"
-                onChange={(event) => setAccountType(event.target.value)}
-                value={accountType}
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="phoneNumber"
               >
-                <option value="student">{t("signup:accountTypes.student")}</option>
-                <option value="school">{t("signup:accountTypes.school")}</option>
-              </select>
+                {t("signup:phoneNumberLabel")}
+              </label>
+              <input
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                id="phoneNumber"
+                onChange={(event) => setPhoneNumber(event.target.value)}
+                placeholder={t("signup:phoneNumberPlaceholder")}
+                type="tel"
+                value={phoneNumber}
+              />
             </div>
 
-            {error ? <p className="text-sm font-medium text-rose-300">{error}</p> : null}
+            {error ? (
+              <p className="text-sm font-medium text-rose-300">{error}</p>
+            ) : null}
 
             <button
               className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]"
               type="submit"
             >
-              {t("signup:submit")}
+              {t("signup:nextStep")}
             </button>
 
             <p className="text-center text-base text-slate-300">
@@ -159,6 +275,151 @@ function SignUpPage() {
                 {t("signup:loginNow")}
               </button>
             </p>
+          </form>
+        ) : (
+          // STEP 2: OTP Verification & Password
+          <form className="mt-8 space-y-5" onSubmit={handleStep2Submit}>
+            <div className="rounded-xl border border-[#0ed8ab]/30 bg-[#0ed8ab]/5 p-4">
+              <p className="text-sm text-slate-300">
+                {t("signup:otpSent")}:{" "}
+                <span className="font-semibold">{email}</span>
+              </p>
+            </div>
+
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="otp"
+              >
+                {t("signup:otpLabel")}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  className="flex-1 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                  id="otp"
+                  onChange={(event) => setOtp(event.target.value)}
+                  placeholder={t("signup:otpPlaceholder")}
+                  type="text"
+                  value={otp}
+                  maxLength="6"
+                />
+                <button
+                  className={`rounded-xl px-6 py-3 font-semibold transition ${
+                    otpVerified
+                      ? "bg-[#0ed8ab] text-[#112542] hover:brightness-110"
+                      : "bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#112542] hover:-translate-y-0.5"
+                  }`}
+                  onClick={handleOtpCheck}
+                  type="button"
+                >
+                  {otpVerified
+                    ? "✓ " + t("signup:otpVerified")
+                    : t("signup:checkOtpButton")}
+                </button>
+              </div>
+              {otpError ? (
+                <p className="mt-2 text-sm font-medium text-rose-300">
+                  {otpError}
+                </p>
+              ) : null}
+              {otpVerified && (
+                <p className="mt-2 text-sm font-medium text-[#0ed8ab]">
+                  ✓ {t("signup:otpVerified")}
+                </p>
+              )}
+
+              {/* Demo note */}
+              <p className="mt-2 text-xs text-slate-400">
+                Demo: Use OTP "123456"
+              </p>
+            </div>
+
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="password"
+              >
+                {t("signup:passwordLabel")}
+              </label>
+              <div className="relative">
+                <input
+                  autoComplete="new-password"
+                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none ${
+                    otpVerified
+                      ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
+                      : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
+                  }`}
+                  disabled={!otpVerified}
+                  id="password"
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder={t("signup:passwordPlaceholder")}
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                />
+                {otpVerified && (
+                  <button
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    onClick={() => setShowPassword(!showPassword)}
+                    type="button"
+                  >
+                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="confirmPassword"
+              >
+                {t("signup:confirmPasswordLabel")}
+              </label>
+              <div className="relative">
+                <input
+                  autoComplete="new-password"
+                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none ${
+                    otpVerified
+                      ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
+                      : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
+                  }`}
+                  disabled={!otpVerified}
+                  id="confirmPassword"
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder={t("signup:confirmPasswordPlaceholder")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                />
+                {otpVerified && (
+                  <button
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    type="button"
+                  >
+                    {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {error ? (
+              <p className="text-sm font-medium text-rose-300">{error}</p>
+            ) : null}
+
+            <button
+              className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]"
+              type="submit"
+            >
+              {t("signup:submit")}
+            </button>
+
+            <button
+              className="w-full rounded-xl border border-white/14 bg-white/5 px-6 py-3 text-base font-semibold text-slate-200 transition hover:bg-white/10"
+              onClick={handleBackToStep1}
+              type="button"
+            >
+              Back to Personal Info
+            </button>
           </form>
         )}
       </section>
