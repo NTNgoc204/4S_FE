@@ -1,10 +1,21 @@
 {
   "title": "Create Your Account",
   "subtitle": "Start your 4S journey in a few quick steps.",
-  "fullNameLabel": "Full Name",
-  "fullNamePlaceholder": "Enter your full name",
+  "step1Title": "Personal Information",
+  "step2Title": "Verify & Set Password",
   "emailLabel": "Email Address",
   "emailPlaceholder": "Enter your email",
+  "fullNameLabel": "Full Name",
+  "fullNamePlaceholder": "Enter your full name",
+  "dateOfBirthLabel": "Date of Birth",
+  "dateOfBirthPlaceholder": "YYYY-MM-DD",
+  "addressLabel": "Address",
+  "addressPlaceholder": "Enter your address",
+  "phoneNumberLabel": "Phone Number",
+  "phoneNumberPlaceholder": "Enter your phone number",
+  "otpLabel": "OTP Code",
+  "otpPlaceholder": "Enter the OTP sent to your email",
+  "checkOtpButton": "Check",
   "passwordLabel": "Password",
   "passwordPlaceholder": "Create a password",
   "confirmPasswordLabel": "Confirm Password",
@@ -14,6 +25,7 @@
     "student": "Student",
     "school": "School / University"
   },
+  "nextStep": "Next",
   "submit": "Create Account",
   "alreadyHaveAccount": "Already have an account?",
   "loginNow": "Log in",
@@ -21,8 +33,14 @@
   "successDesc": "Thanks for registering. This is a demo flow, so your account is not persisted yet.",
   "goLogin": "Go to Login",
   "goHome": "Back to Home",
+  "otpSent": "OTP has been sent to your email",
+  "otpVerified": "OTP verified successfully",
+  "otpInvalid": "Invalid OTP",
   "errors": {
     "required": "Please fill in all required fields.",
-    "passwordMismatch": "Passwords do not match."
+    "invalidEmail": "Please enter a valid email address.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "otpRequired": "Please enter and verify OTP first."
   }
 }
