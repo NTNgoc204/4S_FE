@@ -1,8 +1,9 @@
-import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { logoutRequest } from "./feature/auth/authSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -21,193 +22,115 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
 import UniversityDetailPage from "./pages/University/UniversityDetailPage";
-
-const authStorageKey = "is_logged_in";
-const planStorageKey = "demo_plan";
-const roleStorageKey = "demo_role";
-const chatStateStorageKey = "chat_page_state_v1";
-const quizStateStorageKey = "guided_quiz_state_v1";
-
-function getInitialLoggedIn() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  return window.localStorage.getItem(authStorageKey) === "true";
-}
-
-function getInitialPlan() {
-  if (typeof window === "undefined") {
-    return "";
-  }
-  return window.localStorage.getItem(planStorageKey) ?? "";
-}
-
-function getInitialRole() {
-  if (typeof window === "undefined") {
-    return "user";
-  }
-  return window.localStorage.getItem(roleStorageKey) ?? "user";
-}
+import NotFoundPage from "./pages/NotFound/NotFoundPage";
 
 function App() {
   const { t } = useTranslation();
-  const [isLoggedIn, setIsLoggedIn] = useState(getInitialLoggedIn);
-  const [currentPlan, setCurrentPlan] = useState(getInitialPlan);
-  const [currentRole, setCurrentRole] = useState(getInitialRole);
-  const isAdmin = isLoggedIn && String(currentRole).toLowerCase() === "admin";
-  const defaultAfterAuthPath = isAdmin ? "/admin" : "/";
+  const dispatch = useDispatch();
 
-  function handleSignIn(payload) {
-    const resolvedPlan =
-      typeof payload === "string" ? payload : payload?.plan ?? "";
-    const resolvedRole =
-      typeof payload === "string" ? "user" : payload?.role ?? "user";
-
-    setIsLoggedIn(true);
-    setCurrentPlan(resolvedPlan);
-    setCurrentRole(resolvedRole);
-    window.localStorage.setItem(authStorageKey, "true");
-    window.localStorage.setItem(planStorageKey, resolvedPlan);
-    window.localStorage.setItem(roleStorageKey, resolvedRole);
-    toast.success(t("auth:loginSuccess"));
-  }
+  // Get auth state from Redux
+  const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
 
   function handleLogout() {
-    setIsLoggedIn(false);
-    setCurrentPlan("");
-    setCurrentRole("user");
-    window.localStorage.removeItem(authStorageKey);
-    window.localStorage.removeItem(planStorageKey);
-    window.localStorage.removeItem(roleStorageKey);
-    window.sessionStorage.removeItem(chatStateStorageKey);
-    window.sessionStorage.removeItem(quizStateStorageKey);
+    dispatch(logoutRequest());
     toast.success(t("auth:logoutSuccess"));
   }
 
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Layout - cho public users + student users */}
         <Route
           element={
             <PublicLayout
-              currentPlan={currentPlan}
-              currentRole={currentRole}
+              currentPlan={plan}
+              currentRole={role}
               isLoggedIn={isLoggedIn}
               onLogout={handleLogout}
             />
           }
         >
-          <Route
-            path="/"
-            element={isAdmin ? <Navigate replace to="/admin" /> : <HomePage />}
-          />
-          <Route
-            path="/login"
-            element={
-              isLoggedIn ? (
-                <Navigate replace to={defaultAfterAuthPath} />
-              ) : (
-                <LoginPage onSignIn={handleSignIn} />
-              )
-            }
-          />
-          <Route
-            path="/sign-up"
-            element={
-              isLoggedIn ? (
-                <Navigate replace to={defaultAfterAuthPath} />
-              ) : (
-                <SignUpPage />
-              )
-            }
-          />
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/for-schools" element={<ForSchoolsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute isAuthenticated={isLoggedIn}>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute isAuthenticated={isLoggedIn}>
-                <SkillDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/consultation"
-            element={
-              <ProtectedRoute
-                currentPlan={currentPlan}
-                isAuthenticated={isLoggedIn}
-                requirePro
-                unauthorizedTo="/pricing"
-              >
-                <ConsultationPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/quiz"
-            element={
-              <ProtectedRoute
-                currentPlan={currentPlan}
-                isAuthenticated={isLoggedIn}
-                requirePro
-                unauthorizedTo="/pricing"
-              >
-                <GuidedQuizPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute isAuthenticated={isLoggedIn}>
-                <ChatPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/not-found" element={<NotFoundPage />} />
           <Route
             path="/pricing"
-            element={
-              <PricingPage currentPlan={currentPlan} isLoggedIn={isLoggedIn} />
-            }
+            element={<PricingPage currentPlan={plan} isLoggedIn={isLoggedIn} />}
           />
+
+          {/* Protected Student Routes */}
           <Route
-            path="/university/:schoolId"
             element={
-              <ProtectedRoute isAuthenticated={isLoggedIn}>
-                <UniversityDetailPage />
-              </ProtectedRoute>
+              <ProtectedRoute
+                isAuthenticated={isLoggedIn}
+                currentRole={role}
+                roles={["student"]}
+              />
             }
-          />
-          <Route path="*" element={<Navigate replace to={defaultAfterAuthPath} />} />
+          >
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/dashboard" element={<SkillDashboardPage />} />
+            <Route
+              path="/consultation"
+              element={
+                <ProtectedRoute
+                  currentPlan={plan}
+                  isAuthenticated={isLoggedIn}
+                  requirePro
+                  unauthorizedTo="/pricing"
+                >
+                  <ConsultationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quiz"
+              element={
+                <ProtectedRoute
+                  currentPlan={plan}
+                  isAuthenticated={isLoggedIn}
+                  requirePro
+                  unauthorizedTo="/pricing"
+                >
+                  <GuidedQuizPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route
+              path="/university/:schoolId"
+              element={<UniversityDetailPage />}
+            />
+          </Route>
         </Route>
 
+        {/* Admin Layout - cho admin users only */}
         <Route
           element={
             <ProtectedRoute
-              allowedRoles={["admin"]}
-              currentRole={currentRole}
+              roles={["admin"]}
+              currentRole={role}
               isAuthenticated={isLoggedIn}
+              useRedux={true}
             >
-              <AdminLayout currentPlan={currentPlan} onLogout={handleLogout} />
+              <AdminLayout currentPlan={plan} onLogout={handleLogout} />
             </ProtectedRoute>
           }
         >
-          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
         </Route>
+
+        {/* Catch all - phải ở cuối cùng */}
+        <Route path="*" element={<Navigate replace to="/not-found" />} />
       </Routes>
       <ToastContainer
-        autoClose={1000}
+        autoClose={2000}
         closeOnClick
         draggable
         hideProgressBar={false}

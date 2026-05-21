@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import fourSLogo from "../assets/logo-4s.png";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", to: "/admin" },
+  { label: "Dashboard", to: "/admin/dashboard" },
   { label: "User Management", to: "/admin/users" },
   { label: "Pricing Management", to: "/admin/pricing" },
 ];
@@ -22,7 +22,7 @@ function AdminLayout({ currentPlan = "", onLogout = () => {} }) {
         <aside className="hidden min-h-screen w-[290px] shrink-0 border-r border-white/10 bg-[#0f223a]/88 px-5 py-6 lg:flex lg:flex-col">
           <button
             className="flex items-center gap-3 px-1 py-1 text-left transition hover:opacity-90"
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/admin/dashboard")}
             type="button"
           >
             <img alt="4S logo" className="h-16 w-16 object-contain" src={fourSLogo} />
@@ -32,7 +32,7 @@ function AdminLayout({ currentPlan = "", onLogout = () => {} }) {
           <nav aria-label="Admin navigation" className="mt-7 space-y-2">
             {NAV_ITEMS.map((item) => (
               <NavLink
-                end={item.to === "/admin"}
+                end={item.to === "/admin/dashboard"}
                 key={item.to}
                 className={({ isActive }) =>
                   `flex items-center rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
@@ -77,7 +77,7 @@ function AdminLayout({ currentPlan = "", onLogout = () => {} }) {
             <nav aria-label="Admin mobile navigation" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:hidden">
               {NAV_ITEMS.map((item) => (
                 <NavLink
-                  end={item.to === "/admin"}
+                  end={item.to === "/admin/dashboard"}
                   key={item.to}
                   className={({ isActive }) =>
                     `rounded-xl border px-3 py-2 text-center text-sm font-semibold transition ${
