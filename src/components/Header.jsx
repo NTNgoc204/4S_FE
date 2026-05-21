@@ -1,12 +1,11 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import globeIcon from "../assets/Globe.svg";
 import fourSLogo from "../assets/logo-4s.png";
-import sparklesIcon from "../assets/Sparkles.svg";
 
 function Header({
   isLoggedIn = false,
-  currentPlan = "",
   currentRole = "user",
   onLogout = () => {},
   showGuestCta = true,
@@ -15,10 +14,17 @@ function Header({
 }) {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+
+  // Get auth state from Redux
+  const reduxAuth = useSelector((state) => state.auth);
+
+  // Use Redux auth if available, fallback to props
+  const finalIsLoggedIn = reduxAuth.isLoggedIn ?? isLoggedIn;
+
   const isEnglish = i18n.resolvedLanguage !== "vi";
-  const isProUser = isLoggedIn && String(currentPlan).toLowerCase() === "pro";
-  const isAdmin = isLoggedIn && String(currentRole).toLowerCase() === "admin";
-  const isFreeUser = isLoggedIn && !isProUser;
+  const isAdmin =
+    finalIsLoggedIn &&
+    String(reduxAuth.role || currentRole).toLowerCase() === "admin";
 
   const navItems = [
     { label: t("home:nav.home"), to: "/" },
@@ -115,32 +121,22 @@ function Header({
             </button>
           </div>
 
-          {isLoggedIn ? (
+          {finalIsLoggedIn ? (
             <>
               {isAdmin ? (
                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-rose-300/60 bg-rose-400/12 px-3 py-2 text-sm font-bold tracking-wide text-rose-300">
                   <span>ADMIN</span>
                 </span>
-              ) : isProUser ? (
+              ) : (
                 <span className="inline-flex items-end gap-1 rounded-lg border border-[#ecc741]/60 bg-[#ecc741]/15 px-3 pb-2 text-sm font-bold tracking-wide text-[#f4d040]">
                   <span className="text-xl">{"\u{1F451}"}</span>
                   <span>PRO</span>
                 </span>
-              ) : isFreeUser ? (
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/60 bg-emerald-400/12 px-3 py-2 text-sm font-bold tracking-wide text-emerald-300">
-                  <img
-                    alt=""
-                    aria-hidden="true"
-                    className="h-4 w-4 object-contain"
-                    src={sparklesIcon}
-                  />
-                  <span>FREE</span>
-                </span>
-              ) : null}
+              )}
               {isAdmin ? (
                 <button
                   className="rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 px-3 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25"
-                  onClick={() => navigate("/admin")}
+                  onClick={() => navigate("/admin/dashboard")}
                   type="button"
                 >
                   Admin
