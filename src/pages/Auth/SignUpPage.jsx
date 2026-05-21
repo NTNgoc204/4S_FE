@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  registerStep1Request,
+  verifyOtpRequest,
+  registerStep3Request,
+} from "../../feature/auth/authSlice";
+import { I18N_ERROR_KEYS } from "../../util/i18nErrorKeys";
 import loginIcon from "../../assets/Login.svg";
 
 function SignUpPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {
+    loading,
+    error: reduxError,
+    verifyToken,
+    registerStep1Success,
+  } = useSelector((state) => state.auth);
 
   // Step 1: Personal Information
   const [email, setEmail] = useState("");
@@ -13,7 +27,6 @@ function SignUpPage() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [accountType, setAccountType] = useState("student");
 
   // Step 2: OTP & Password
   const [otp, setOtp] = useState("");
@@ -26,8 +39,23 @@ function SignUpPage() {
 
   // State management
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState(1); // 1 or 2
+
+  // Move to step 2 after step 1 success
+  useEffect(() => {
+    if (registerStep1Success) {
+      setStep(2);
+      setError("");
+    }
+  }, [registerStep1Success]);
+
+  // Set otpVerified when verifyToken is received
+  useEffect(() => {
+    if (verifyToken) {
+      setOtpVerified(true);
+      setOtpError("");
+    }
+  }, [verifyToken]);
 
   // Validate step 1 form
   function validateStep1() {
@@ -38,14 +66,14 @@ function SignUpPage() {
       !address.trim() ||
       !phoneNumber.trim()
     ) {
-      setError(t("signup:errors.required"));
+      setError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
       return false;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError(t("signup:errors.invalidEmail"));
+      setError(t(I18N_ERROR_KEYS.INVALID_EMAIL));
       return false;
     }
 
@@ -56,11 +84,19 @@ function SignUpPage() {
   // Handle step 1 submission
   function handleStep1Submit(event) {
     event.preventDefault();
-    if (validateStep1()) {
-      // Simulate sending OTP to email
-      setStep(2);
-      setError("");
+    if (!validateStep1()) {
+      return;
     }
+
+    dispatch(
+      registerStep1Request({
+        email: email.trim(),
+        fullName: fullName.trim(),
+        dateOfBirth: dateOfBirth,
+        address: address.trim(),
+        phoneNumber: phoneNumber.trim(),
+      }),
+    );
   }
 
   // Handle OTP verification
@@ -68,18 +104,16 @@ function SignUpPage() {
     setOtpError("");
 
     if (!otp.trim()) {
-      setOtpError(t("signup:errors.required"));
+      setOtpError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
       return;
     }
 
-    // Demo OTP verification: accept "123456" as valid OTP
-    if (otp === "123456") {
-      setOtpVerified(true);
-      setOtpError("");
-    } else {
-      setOtpError(t("signup:otpInvalid"));
-      setOtpVerified(false);
-    }
+    dispatch(
+      verifyOtpRequest({
+        email: email.trim(),
+        otp: otp.trim(),
+      }),
+    );
   }
 
   // Handle step 2 submission (final)
@@ -87,27 +121,32 @@ function SignUpPage() {
     event.preventDefault();
 
     if (!otpVerified) {
-      setError(t("signup:errors.otpRequired"));
+      setError(t(I18N_ERROR_KEYS.OTP_REQUIRED));
       return;
     }
 
     if (!password.trim() || !confirmPassword.trim()) {
-      setError(t("signup:errors.required"));
+      setError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
       return;
     }
 
     if (password.length < 6) {
-      setError(t("signup:errors.passwordTooShort"));
+      setError(t(I18N_ERROR_KEYS.PASSWORD_TOO_SHORT));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError(t("signup:errors.passwordMismatch"));
+      setError(t(I18N_ERROR_KEYS.PASSWORD_MISMATCH));
       return;
     }
 
-    setError("");
-    setSubmitted(true);
+    dispatch(
+      registerStep3Request({
+        verifyToken: verifyToken,
+        password: password,
+        onSuccess: () => navigate("/login", { replace: true }),
+      }),
+    );
   }
 
   function handleBackToStep1() {
@@ -121,6 +160,9 @@ function SignUpPage() {
     setShowPassword(false);
     setShowConfirmPassword(false);
   }
+
+  // Use Redux error if available, otherwise use local error
+  const displayError = reduxError || error;
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-74px)] w-[min(1120px,92vw)] items-center justify-center py-10">
@@ -142,30 +184,7 @@ function SignUpPage() {
           {step === 1 ? t("signup:step1Title") : t("signup:step2Title")}
         </p>
 
-        {submitted ? (
-          <div className="mt-8 rounded-2xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/10 p-6 text-center">
-            <h2 className="font-['Sora'] text-2xl font-semibold text-[#0ed8ab]">
-              {t("signup:successTitle")}
-            </h2>
-            <p className="mt-2 text-slate-200">{t("signup:successDesc")}</p>
-            <div className="mt-5 flex flex-wrap justify-center gap-3">
-              <button
-                className="rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-5 py-2.5 font-semibold text-[#112542] transition hover:brightness-105"
-                onClick={() => navigate("/login")}
-                type="button"
-              >
-                {t("signup:goLogin")}
-              </button>
-              <button
-                className="rounded-xl border border-white/14 bg-white/5 px-5 py-2.5 font-semibold text-slate-200 transition hover:bg-white/10"
-                onClick={() => navigate("/")}
-                type="button"
-              >
-                {t("signup:goHome")}
-              </button>
-            </div>
-          </div>
-        ) : step === 1 ? (
+        {step === 1 ? (
           // STEP 1: Personal Information
           <form className="mt-8 space-y-5" onSubmit={handleStep1Submit}>
             <div>
@@ -177,12 +196,13 @@ function SignUpPage() {
               </label>
               <input
                 autoComplete="email"
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="email"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={t("signup:emailPlaceholder")}
                 type="email"
                 value={email}
+                disabled={loading}
               />
             </div>
 
@@ -194,12 +214,13 @@ function SignUpPage() {
                 {t("signup:fullNameLabel")}
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="fullName"
                 onChange={(event) => setFullName(event.target.value)}
                 placeholder={t("signup:fullNamePlaceholder")}
                 type="text"
                 value={fullName}
+                disabled={loading}
               />
             </div>
 
@@ -211,12 +232,13 @@ function SignUpPage() {
                 {t("signup:dateOfBirthLabel")}
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="dateOfBirth"
                 onChange={(event) => setDateOfBirth(event.target.value)}
                 placeholder={t("signup:dateOfBirthPlaceholder")}
                 type="date"
                 value={dateOfBirth}
+                disabled={loading}
               />
             </div>
 
@@ -228,12 +250,13 @@ function SignUpPage() {
                 {t("signup:addressLabel")}
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="address"
                 onChange={(event) => setAddress(event.target.value)}
                 placeholder={t("signup:addressPlaceholder")}
                 type="text"
                 value={address}
+                disabled={loading}
               />
             </div>
 
@@ -245,32 +268,37 @@ function SignUpPage() {
                 {t("signup:phoneNumberLabel")}
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="phoneNumber"
                 onChange={(event) => setPhoneNumber(event.target.value)}
                 placeholder={t("signup:phoneNumberPlaceholder")}
                 type="tel"
                 value={phoneNumber}
+                disabled={loading}
               />
             </div>
 
-            {error ? (
-              <p className="text-sm font-medium text-rose-300">{error}</p>
+            {displayError ? (
+              <p className="text-sm font-medium text-rose-300">
+                {displayError}
+              </p>
             ) : null}
 
             <button
-              className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]"
+              className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={loading}
             >
-              {t("signup:nextStep")}
+              {loading ? "Loading..." : t("signup:nextStep")}
             </button>
 
             <p className="text-center text-base text-slate-300">
               {t("signup:alreadyHaveAccount")}{" "}
               <button
-                className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69]"
+                className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69] disabled:opacity-50"
                 onClick={() => navigate("/login")}
                 type="button"
+                disabled={loading}
               >
                 {t("signup:loginNow")}
               </button>
@@ -295,26 +323,30 @@ function SignUpPage() {
               </label>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                  className="flex-1 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                   id="otp"
                   onChange={(event) => setOtp(event.target.value)}
                   placeholder={t("signup:otpPlaceholder")}
                   type="text"
                   value={otp}
                   maxLength="6"
+                  disabled={loading || otpVerified}
                 />
                 <button
-                  className={`rounded-xl px-6 py-3 font-semibold transition ${
+                  className={`rounded-xl px-6 py-3 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
                     otpVerified
                       ? "bg-[#0ed8ab] text-[#112542] hover:brightness-110"
                       : "bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#112542] hover:-translate-y-0.5"
                   }`}
                   onClick={handleOtpCheck}
                   type="button"
+                  disabled={loading || otpVerified}
                 >
                   {otpVerified
                     ? "✓ " + t("signup:otpVerified")
-                    : t("signup:checkOtpButton")}
+                    : loading
+                      ? "Verifying..."
+                      : t("signup:checkOtpButton")}
                 </button>
               </div>
               {otpError ? (
@@ -344,12 +376,12 @@ function SignUpPage() {
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none ${
+                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
                     otpVerified
                       ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
                       : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
                   }`}
-                  disabled={!otpVerified}
+                  disabled={!otpVerified || loading}
                   id="password"
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={t("signup:passwordPlaceholder")}
@@ -358,9 +390,10 @@ function SignUpPage() {
                 />
                 {otpVerified && (
                   <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition disabled:opacity-50"
                     onClick={() => setShowPassword(!showPassword)}
                     type="button"
+                    disabled={loading}
                   >
                     {showPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
@@ -378,12 +411,12 @@ function SignUpPage() {
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none ${
+                  className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
                     otpVerified
                       ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
                       : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
                   }`}
-                  disabled={!otpVerified}
+                  disabled={!otpVerified || loading}
                   id="confirmPassword"
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   placeholder={t("signup:confirmPasswordPlaceholder")}
@@ -392,9 +425,10 @@ function SignUpPage() {
                 />
                 {otpVerified && (
                   <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition disabled:opacity-50"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     type="button"
+                    disabled={loading}
                   >
                     {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
@@ -402,21 +436,25 @@ function SignUpPage() {
               </div>
             </div>
 
-            {error ? (
-              <p className="text-sm font-medium text-rose-300">{error}</p>
+            {displayError ? (
+              <p className="text-sm font-medium text-rose-300">
+                {displayError}
+              </p>
             ) : null}
 
             <button
-              className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]"
+              className="w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={loading}
             >
-              {t("signup:submit")}
+              {loading ? "Creating account..." : t("signup:submit")}
             </button>
 
             <button
-              className="w-full rounded-xl border border-white/14 bg-white/5 px-6 py-3 text-base font-semibold text-slate-200 transition hover:bg-white/10"
+              className="w-full rounded-xl border border-white/14 bg-white/5 px-6 py-3 text-base font-semibold text-slate-200 transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleBackToStep1}
               type="button"
+              disabled={loading}
             >
               Back to Personal Info
             </button>

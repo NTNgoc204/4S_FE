@@ -1,1 +1,203 @@
 @import 'tailwindcss';
+
+.not-found-stage {
+  position: relative;
+}
+
+.not-found-stage::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 72%);
+  opacity: 0.5;
+}
+
+.not-found-panel {
+  animation: not-found-panel-in 520ms ease-out both;
+}
+
+.not-found-panel::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 45%, transparent 62%),
+    radial-gradient(circle at 28% 24%, rgba(236, 199, 65, 0.16), transparent 32%),
+    radial-gradient(circle at 82% 18%, rgba(14, 216, 171, 0.1), transparent 30%);
+  animation: not-found-panel-sheen 6s ease-in-out infinite;
+}
+
+.not-found-route-line {
+  position: absolute;
+  left: -12%;
+  width: 124%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(14, 216, 171, 0.55), transparent);
+  opacity: 0.55;
+}
+
+.not-found-route-line-one {
+  top: 28%;
+  animation: not-found-route-slide 4.8s linear infinite;
+}
+
+.not-found-route-line-two {
+  bottom: 26%;
+  animation: not-found-route-slide 6.2s linear infinite reverse;
+}
+
+.not-found-signal {
+  position: absolute;
+  width: min(280px, 72vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(236, 199, 65, 0.12) 0%, transparent 44%),
+    conic-gradient(from 90deg, rgba(14, 216, 171, 0.02), rgba(14, 216, 171, 0.18), rgba(236, 199, 65, 0.16), rgba(14, 216, 171, 0.02));
+  animation: not-found-float 5s ease-in-out infinite;
+}
+
+.not-found-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.not-found-ring-one {
+  inset: 18%;
+}
+
+.not-found-ring-two {
+  inset: 32%;
+  border-color: rgba(236, 199, 65, 0.28);
+}
+
+.not-found-ring-three {
+  inset: 46%;
+  border-color: rgba(14, 216, 171, 0.34);
+}
+
+.not-found-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, rgba(236, 199, 65, 0.38), transparent 23%, transparent 100%);
+  mask-image: radial-gradient(circle, transparent 0 18%, black 19% 100%);
+  animation: not-found-sweep 3.8s linear infinite;
+}
+
+.not-found-code {
+  text-shadow:
+    0 0 18px rgba(236, 199, 65, 0.28),
+    0 18px 34px rgba(0, 0, 0, 0.35);
+  animation: not-found-code-pulse 2.8s ease-in-out infinite;
+}
+
+.not-found-code::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  height: 9px;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(14, 216, 171, 0.78), transparent);
+  filter: blur(1px);
+  transform: translateY(-50%);
+  animation: not-found-scan 2.2s ease-in-out infinite;
+}
+
+@keyframes not-found-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes not-found-panel-sheen {
+  0%,
+  100% {
+    transform: translateX(-18%);
+  }
+
+  50% {
+    transform: translateX(18%);
+  }
+}
+
+@keyframes not-found-route-slide {
+  from {
+    transform: translateX(-18%);
+  }
+
+  to {
+    transform: translateX(18%);
+  }
+}
+
+@keyframes not-found-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes not-found-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes not-found-code-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.16);
+  }
+}
+
+@keyframes not-found-scan {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(-46px) scaleX(0.35);
+  }
+
+  45%,
+  55% {
+    opacity: 1;
+    transform: translateY(0) scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-panel,
+  .not-found-panel::before,
+  .not-found-route-line,
+  .not-found-signal,
+  .not-found-sweep,
+  .not-found-code,
+  .not-found-code::after {
+    animation: none;
+  }
+}

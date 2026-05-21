@@ -30,6 +30,7 @@
   "alreadyHaveAccount": "Already have an account?",
   "loginNow": "Log in",
   "successTitle": "Demo Sign Up Completed",
+  "registerSuccess": "Registration successful.",
   "successDesc": "Thanks for registering. This is a demo flow, so your account is not persisted yet.",
   "goLogin": "Go to Login",
   "goHome": "Back to Home",

@@ -1,59 +1,78 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { loginRequest } from "../../feature/auth/authSlice";
+import { I18N_ERROR_KEYS } from "../../util/i18nErrorKeys";
 import loginIcon from "../../assets/Login.svg";
 
-function LoginPage({ onSignIn }) {
+const AUTH_REDIRECT_MESSAGE_KEY = "auth_redirect_message_key";
+
+function LoginPage() {
   const { t } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {
+    loading,
+    error: reduxError,
+    isLoggedIn,
+  } = useSelector((state) => state.auth);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const authMessageShown = useRef(false);
 
-  const demoAccounts = [
-    {
-      role: "user",
-      plan: "FREE",
-      title: t("auth:freeAccount"),
-      email: "free@4s.edu",
-      password: "free123",
-    },
-    {
-      role: "user",
-      plan: "PRO",
-      title: t("auth:proAccount"),
-      email: "pro@4s.edu",
-      password: "pro123",
-    },
-    {
-      role: "admin",
-      plan: "PRO",
-      title: "Admin account",
-      email: "admin@4s.edu",
-      password: "admin123",
-    },
-  ];
+  useEffect(() => {
+    if (authMessageShown.current) {
+      return;
+    }
+
+    const storedMessageKey = localStorage.getItem(AUTH_REDIRECT_MESSAGE_KEY);
+    const messageKey = storedMessageKey || location.state?.authMessageKey;
+
+    if (!messageKey) {
+      return;
+    }
+
+    authMessageShown.current = true;
+    localStorage.removeItem(AUTH_REDIRECT_MESSAGE_KEY);
+    toast.warning(t(messageKey));
+
+    if (location.state?.authMessageKey) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate, t]);
+
+  // Navigate to home after successful login
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
 
   function handleSubmit(event) {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
+
     if (!normalizedEmail || !password.trim()) {
+      setError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
       return;
     }
 
-    const account = demoAccounts.find(
-      (item) => item.email === normalizedEmail && item.password === password,
+    dispatch(
+      loginRequest({
+        email: normalizedEmail,
+        password: password,
+      }),
     );
-    if (!account) {
-      setError(t("auth:invalidCredentials"));
-      return;
-    }
-
-    setError("");
-    onSignIn(account);
-    navigate(account.role === "admin" ? "/admin" : "/", { replace: true });
   }
+
+  // Use Redux error if available, otherwise use local error
+  const displayError = reduxError || error;
 
   return (
     <>
@@ -86,13 +105,14 @@ function LoginPage({ onSignIn }) {
               </label>
               <input
                 autoComplete="email"
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                 id="email"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={t("auth:emailPlaceholder")}
                 required
                 type="email"
                 value={email}
+                disabled={loading}
               />
             </div>
 
@@ -106,18 +126,20 @@ function LoginPage({ onSignIn }) {
               <div className="relative">
                 <input
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
                   id="password"
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={t("auth:passwordPlaceholder")}
                   required
                   type={showPassword ? "text" : "password"}
                   value={password}
+                  disabled={loading}
                 />
                 <button
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition disabled:opacity-50"
                   onClick={() => setShowPassword(!showPassword)}
                   type="button"
+                  disabled={loading}
                 >
                   {showPassword ? "👁️" : "👁️‍🗨️"}
                 </button>
@@ -125,61 +147,31 @@ function LoginPage({ onSignIn }) {
             </div>
 
             <button
-              className="mt-2 w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)]"
+              className="mt-2 w-full rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 text-xl font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
+              disabled={loading}
             >
-              {t("auth:signIn")}
+              {loading ? "Logging in..." : t("auth:signIn")}
             </button>
 
-            {error ? (
-              <p className="text-sm font-medium text-rose-300">{error}</p>
+            {displayError ? (
+              <p className="text-sm font-medium text-rose-300">
+                {displayError}
+              </p>
             ) : null}
           </form>
 
           <p className="mt-7 text-center text-lg text-slate-300">
             {t("auth:noAccount")}{" "}
             <button
-              className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69]"
+              className="font-semibold text-[#ecc741] transition hover:text-[#ffdf69] disabled:opacity-50"
               onClick={() => navigate("/sign-up")}
               type="button"
+              disabled={loading}
             >
               {t("auth:signUp")}
             </button>
           </p>
-
-          <div className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-4">
-            <h2 className="mb-3 text-sm font-semibold tracking-wide text-amber-200">
-              {t("auth:demoTitle")}
-            </h2>
-            <div className="space-y-3">
-              {demoAccounts.map((account) => (
-                <article
-                  key={account.plan}
-                  className={`rounded-xl border p-3 ${
-                    account.plan === "FREE"
-                      ? "border-emerald-400/70 bg-gradient-to-b from-emerald-500/15 to-[#12263f]/80"
-                      : "border-[#ecc741]/70 bg-gradient-to-b from-[#ecc741]/15 to-[#12263f]/80"
-                  }`}
-                >
-                  <p
-                    className={`text-sm font-bold ${account.plan === "FREE" ? "text-emerald-400" : "text-[#ecc741]"}`}
-                  >
-                    {account.role === "admin"
-                      ? "ADMIN "
-                      : account.plan === "PRO"
-                        ? "\u{1F451} "
-                        : ""}
-                    {account.plan}
-                  </p>
-                  <p className="text-sm text-slate-100">{account.title}</p>
-                  <p className="mt-1 text-xs text-slate-300">
-                    {t("auth:emailWord")}: {account.email} -{" "}
-                    {t("auth:passWord")}: {account.password}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
         </section>
       </main>
     </>
