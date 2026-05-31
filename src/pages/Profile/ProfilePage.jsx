@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import fourSLogo from "../../assets/logo-4s.png";
 import globeIcon from "../../assets/Globe.svg";
+import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest } from "../../feature/auth/authSlice";
+import { validatePassword } from "../../validation/authValidation";
 
 const SKILL_KEYS = [
   { id: "creativity", value: 75 },
@@ -32,26 +35,66 @@ const INTEREST_KEYS = [
 function ProfilePage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
 
+  const { user, avatarUploading, loading } = useSelector((state) => state.auth);
+
   const [form, setForm] = useState({
-    fullName: "Nguyen Van A",
-    email: "nguyenvana@email.com",
-    phone: "+84 912 345 678",
-    birthYear: "2005",
+    fullName: "",
+    email: "",
+    phone: "",
+    birthYear: "",
     currentGrade: "grade12",
     gpa: "8.5",
     mathScore: "85",
     englishScore: "80",
     scienceScore: "90",
-    preferredLocation: "Ho Chi Minh City",
+    preferredLocation: "",
     maxTuition: "50",
     studyMode: "fullTime",
     language: "vietnamese",
   });
+
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [changeForm, setChangeForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+  const [changePasswordErrors, setChangePasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        fullName: user.username || "",
+        email: user.email || "",
+        phone: user.phoneNumber || "",
+        birthYear: user.dob ? new Date(user.dob).getFullYear().toString() : "",
+        preferredLocation: user.address || "",
+      }));
+    }
+  }, [user]);
+
   const [selectedInterests, setSelectedInterests] = useState(["software", "ai"]);
   const [isEditing, setIsEditing] = useState(false);
   const [hoveredSkillId, setHoveredSkillId] = useState("");
+  const [avatarError, setAvatarError] = useState(false);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.avatarUrl]);
+
+  const getInitials = (name) => {
+    if (!name) return "?";
+    return name.trim().charAt(0).toUpperCase();
+  };
+
   const [skillScores, setSkillScores] = useState(
     () =>
       SKILL_KEYS.reduce((acc, item) => {
@@ -142,9 +185,70 @@ function ProfilePage() {
   }
 
   function handleSave() {
+    if (!user) return;
+
+    let dob = null;
+    if (form.birthYear) {
+      const year = parseInt(form.birthYear, 10);
+      if (!isNaN(year) && year > 1900 && year < 2100) {
+        dob = new Date(Date.UTC(year, 0, 1)).toISOString();
+      }
+    }
+
+    if (!dob && user.dob) {
+      const parsedDate = new Date(user.dob);
+      if (!isNaN(parsedDate.getTime())) {
+        dob = parsedDate.toISOString();
+      }
+    }
+
+    const updatePayload = {
+      username: form.fullName,
+      email: form.email,
+      phoneNumber: form.phone,
+      dob: dob,
+      address: form.preferredLocation,
+    };
+
+    dispatch(
+      updateProfileRequest({
+        id: user.userId,
+        data: updatePayload,
+        onSuccess: () => {
+          setHoveredSkillId("");
+          setIsEditing(false);
+        },
+      })
+    );
+  }
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    dispatch(
+      uploadAvatarRequest({
+        file,
+        onSuccess: () => {
+          setAvatarError(false);
+        },
+      })
+    );
+  };
+
+  function handleCancel() {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        fullName: user.username || "",
+        email: user.email || "",
+        phone: user.phoneNumber || "",
+        birthYear: user.dob ? new Date(user.dob).getFullYear().toString() : "",
+        preferredLocation: user.address || "",
+      }));
+    }
     setHoveredSkillId("");
     setIsEditing(false);
-    toast.success(t("profile:edit.saveSuccess"));
   }
 
   function handleLanguageChange(language) {
@@ -154,6 +258,53 @@ function ProfilePage() {
   function handleStartEdit() {
     setHoveredSkillId("");
     setIsEditing(true);
+  }
+
+  function handleChangePasswordSubmit(e) {
+    e.preventDefault();
+    
+    let currentErr = "";
+    if (!changeForm.currentPassword.trim()) {
+      currentErr = t("auth:currentPasswordRequired") || "Current password is required";
+    }
+    
+    const newErr = validatePassword(changeForm.newPassword, t);
+    
+    let confirmErr = "";
+    if (!changeForm.confirmNewPassword.trim()) {
+      confirmErr = t("auth:passwordRequired") || "Password is required";
+    } else if (changeForm.newPassword !== changeForm.confirmNewPassword) {
+      confirmErr = t("auth:passwordMismatch") || "Passwords do not match";
+    }
+
+    if (currentErr || newErr || confirmErr) {
+      setChangePasswordErrors({
+        currentPassword: currentErr,
+        newPassword: newErr,
+        confirmNewPassword: confirmErr,
+      });
+      return;
+    }
+    setChangePasswordErrors({
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    });
+
+    dispatch(
+      changePasswordRequest({
+        currentPassword: changeForm.currentPassword,
+        newPassword: changeForm.newPassword,
+        onSuccess: () => {
+          setChangeForm({
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: "",
+          });
+          setShowChangePassword(false);
+        },
+      })
+    );
   }
 
   return (
@@ -203,13 +354,22 @@ function ProfilePage() {
               {t("profile:edit.openDashboard")}
             </button>
             {isEditing ? (
-              <button
-                className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-4 py-2 text-sm font-bold text-[#082339] transition hover:brightness-110"
-                onClick={handleSave}
-                type="button"
-              >
-                {t("profile:edit.saveChanges")}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10"
+                  onClick={handleCancel}
+                  type="button"
+                >
+                  {t("profile:edit.cancel")}
+                </button>
+                <button
+                  className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-4 py-2 text-sm font-bold text-[#082339] transition hover:brightness-110"
+                  onClick={handleSave}
+                  type="button"
+                >
+                  {t("profile:edit.saveChanges")}
+                </button>
+              </div>
             ) : (
               <button
                 className="rounded-xl border border-[#ecc741]/45 bg-[#ecc741]/14 px-4 py-2 text-sm font-semibold text-[#f3d459] transition hover:bg-[#ecc741]/24"
@@ -225,13 +385,57 @@ function ProfilePage() {
 
       <section className="mx-auto w-[min(1120px,94vw)] py-7">
         <div className="space-y-5">
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.personal")}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.phone")} onChange={(value) => updateField("phone", value)} value={form.phone} />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6 flex flex-col md:flex-row items-center gap-6">
+            <div className="relative group flex flex-col items-center gap-2">
+              <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-gradient-to-br from-[#ffe06e]/10 to-[#e2bb28]/10 flex items-center justify-center">
+                {avatarUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+                    <div className="relative h-10 w-10 flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-[#0ed8ab] animate-spin"></div>
+                      <svg className="h-4 w-4 text-[#0ed8ab] animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+                {user?.avatarUrl && !avatarError ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="User avatar"
+                    className="h-full w-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <span className="font-['Sora'] text-3xl font-bold text-[#f3d459]">
+                    {getInitials(user?.username)}
+                  </span>
+                )}
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+              </div>
+              <span className="text-[10px] text-slate-400">
+                {locale === "vi" ? "Click để đổi ảnh" : "Click to change"}
+              </span>
+            </div>
+
+            <div className="flex-1 w-full">
+              <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.personal")}</h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.phone")} onChange={(value) => updateField("phone", value)} value={form.phone} />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
+              </div>
             </div>
           </article>
 
@@ -359,6 +563,120 @@ function ProfilePage() {
                 value={form.language}
               />
             </div>
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => {
+                setShowChangePassword(!showChangePassword);
+                setChangePasswordErrors({
+                  currentPassword: "",
+                  newPassword: "",
+                  confirmNewPassword: "",
+                });
+              }}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#f3d459]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                {t("auth:changePassword")}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showChangePassword ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+             {showChangePassword && (
+              <form onSubmit={handleChangePasswordSubmit} className="mt-6 space-y-4 border-t border-white/10 pt-5">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <label className="mb-2 block text-sm text-slate-300">{t("auth:currentPasswordLabel")}</label>
+                    <input
+                      type="password"
+                      className={`w-full rounded-xl border bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none disabled:opacity-50 ${
+                        changePasswordErrors.currentPassword ? "border-rose-500 focus:border-rose-500" : "border-white/12 focus:border-[#ecc741]"
+                      }`}
+                      placeholder={t("auth:currentPasswordPlaceholder")}
+                      value={changeForm.currentPassword}
+                      onChange={(e) => {
+                        setChangeForm(prev => ({ ...prev, currentPassword: e.target.value }));
+                        setChangePasswordErrors(prev => ({ ...prev, currentPassword: "" }));
+                      }}
+                      disabled={loading}
+                      required
+                    />
+                    {changePasswordErrors.currentPassword && (
+                      <p className="mt-1 text-xs text-rose-400">
+                        {changePasswordErrors.currentPassword}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm text-slate-300">{t("auth:newPasswordLabel")}</label>
+                    <input
+                      type="password"
+                      className={`w-full rounded-xl border bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none disabled:opacity-50 ${
+                        changePasswordErrors.newPassword ? "border-rose-500 focus:border-rose-500" : "border-white/12 focus:border-[#ecc741]"
+                      }`}
+                      placeholder={t("auth:newPasswordPlaceholder")}
+                      value={changeForm.newPassword}
+                      onChange={(e) => {
+                        setChangeForm(prev => ({ ...prev, newPassword: e.target.value }));
+                        setChangePasswordErrors(prev => ({ ...prev, newPassword: "" }));
+                      }}
+                      disabled={loading}
+                      required
+                    />
+                    {changePasswordErrors.newPassword && (
+                      <p className="mt-1 text-xs text-rose-400">
+                        {changePasswordErrors.newPassword}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm text-slate-300">{t("auth:confirmNewPasswordLabel")}</label>
+                    <input
+                      type="password"
+                      className={`w-full rounded-xl border bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none disabled:opacity-50 ${
+                        changePasswordErrors.confirmNewPassword ? "border-rose-500 focus:border-rose-500" : "border-white/12 focus:border-[#ecc741]"
+                      }`}
+                      placeholder={t("auth:confirmNewPasswordPlaceholder")}
+                      value={changeForm.confirmNewPassword}
+                      onChange={(e) => {
+                        setChangeForm(prev => ({ ...prev, confirmNewPassword: e.target.value }));
+                        setChangePasswordErrors(prev => ({ ...prev, confirmNewPassword: "" }));
+                      }}
+                      disabled={loading}
+                      required
+                    />
+                    {changePasswordErrors.confirmNewPassword && (
+                      <p className="mt-1 text-xs text-rose-400">
+                        {changePasswordErrors.confirmNewPassword}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="rounded-xl bg-gradient-to-r from-[#ecc741] to-[#e2bb28] px-5 py-2.5 text-sm font-bold text-[#082339] shadow-lg transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? t("auth:updating") : t("auth:updatePassword")}
+                  </button>
+                </div>
+              </form>
+            )}
           </article>
         </div>
       </section>

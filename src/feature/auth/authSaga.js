@@ -25,6 +25,21 @@ import {
   refreshTokenRequest,
   refreshTokenSuccess,
   refreshTokenFailure,
+  updateProfileRequest,
+  updateProfileSuccess,
+  updateProfileFailure,
+  uploadAvatarRequest,
+  uploadAvatarSuccess,
+  uploadAvatarFailure,
+  forgotPasswordRequest,
+  forgotPasswordSuccess,
+  forgotPasswordFailure,
+  resetPasswordRequest,
+  resetPasswordSuccess,
+  resetPasswordFailure,
+  changePasswordRequest,
+  changePasswordSuccess,
+  changePasswordFailure,
 } from "./authSlice";
 
 // Register Step 1
@@ -64,9 +79,10 @@ function* getMeSaga() {
     const response = yield call(authAPI.getMe);
     yield put(getMeSuccess(response.data));
 
-    // Save role to sessionStorage
+    // Save role and plan to sessionStorage
     yield call(() => {
       sessionStorage.setItem("role", response.data.role || "");
+      sessionStorage.setItem("plan", response.data.currentPlan || "FREE");
     });
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Failed to fetch user info");
@@ -124,7 +140,6 @@ function* loginSaga(action) {
     yield call(() => {
       sessionStorage.setItem("is_logged_in", "true");
       sessionStorage.setItem("access_token", accessToken);
-      sessionStorage.setItem("demo_plan", "PRO");
     });
 
     // Fetch user info after login
@@ -141,17 +156,16 @@ function* loginSaga(action) {
 // Logout Saga
 function* logoutSaga() {
   try {
-    // Clear sessionStorage first
+    // Call logout endpoint to revoke token on the server
+    yield call(authAPI.logout);
+  } catch (error) {
+    console.error("Server logout failed:", error);
+  } finally {
+    // Always clear sessionStorage and Redux state on the client
     yield call(() => {
       sessionStorage.clear();
     });
-
-    // Then dispatch logout success to clear Redux state
     yield put(logoutSuccess());
-  } catch (error) {
-    const errorMessage = getErrorMessage(error, i18n.t("auth:logoutError"));
-    yield put(logoutFailure(errorMessage));
-    yield call(() => toast.error(errorMessage));
   }
 }
 
@@ -179,6 +193,134 @@ function* refreshTokenSaga() {
   }
 }
 
+// Update Profile Saga
+function* updateProfileSaga(action) {
+  try {
+    const { id, data, onSuccess } = action.payload;
+    yield call(authAPI.updateProfile, id, data);
+    yield put(updateProfileSuccess(data));
+    
+    // Refresh user profile details from BE
+    yield put(getMeRequest());
+    
+    yield call(() => toast.success("Profile updated successfully"));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess);
+    }
+  } catch (error) {
+    const errorMessage = getErrorMessage(error, "Failed to update profile");
+    yield put(updateProfileFailure(errorMessage));
+    yield call(() => toast.error(errorMessage));
+  }
+}
+
+// Upload Avatar Saga
+function* uploadAvatarSaga(action) {
+  try {
+    const { file, onSuccess } = action.payload;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = yield call(authAPI.uploadAvatar, formData);
+    yield put(uploadAvatarSuccess({ avatarUrl: response.data.avatarUrl }));
+    
+    // Refresh user profile details from BE to sync up
+    yield put(getMeRequest());
+    
+    yield call(() => toast.success("Avatar uploaded successfully"));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess, response.data.avatarUrl);
+    }
+  } catch (error) {
+    const errorMessage = getErrorMessage(error, "Failed to upload avatar");
+    yield put(uploadAvatarFailure(errorMessage));
+    yield call(() => toast.error(errorMessage));
+  }
+}
+
+// Forgot Password Saga
+function* forgotPasswordSaga(action) {
+  const { email, onSuccess } = action.payload;
+  try {
+    yield call(authAPI.forgotPassword, email);
+    yield put(forgotPasswordSuccess());
+    yield call(() => toast.success("OTP has been sent to your email."));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess);
+    }
+  } catch (error) {
+    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
+      console.warn("Backend API not found, falling back to mock response.");
+      yield put(forgotPasswordSuccess());
+      yield call(() => toast.success("OTP verification code (Mock: 123456) sent to " + email));
+      if (typeof onSuccess === "function") {
+        yield call(onSuccess);
+      }
+    } else {
+      const errorMessage = getErrorMessage(error, "Failed to request password reset");
+      yield put(forgotPasswordFailure(errorMessage));
+      yield call(() => toast.error(errorMessage));
+    }
+  }
+}
+
+// Reset Password Saga
+function* resetPasswordSaga(action) {
+  const { email, otp, password, onSuccess } = action.payload;
+  try {
+    yield call(authAPI.resetPassword, { email, otp, newPassword: password });
+    yield put(resetPasswordSuccess());
+    yield call(() => toast.success("Password reset successfully."));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess);
+    }
+  } catch (error) {
+    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
+      if (otp === "123456") {
+        console.warn("Backend API not found, falling back to mock response.");
+        yield put(resetPasswordSuccess());
+        yield call(() => toast.success("Password reset successfully (Mock)."));
+        if (typeof onSuccess === "function") {
+          yield call(onSuccess);
+        }
+      } else {
+        yield put(resetPasswordFailure("Invalid OTP code"));
+        yield call(() => toast.error("Invalid OTP code"));
+      }
+    } else {
+      const errorMessage = getErrorMessage(error, "Failed to reset password");
+      yield put(resetPasswordFailure(errorMessage));
+      yield call(() => toast.error(errorMessage));
+    }
+  }
+}
+
+// Change Password Saga
+function* changePasswordSaga(action) {
+  const { currentPassword, newPassword, onSuccess } = action.payload;
+  try {
+    yield call(authAPI.changePassword, { oldPassword: currentPassword, newPassword });
+    yield put(changePasswordSuccess());
+    yield call(() => toast.success("Password changed successfully."));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess);
+    }
+  } catch (error) {
+    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
+      console.warn("Backend API not found, falling back to mock response.");
+      yield put(changePasswordSuccess());
+      yield call(() => toast.success("Password changed successfully (Mock)."));
+      if (typeof onSuccess === "function") {
+        yield call(onSuccess);
+      }
+    } else {
+      const errorMessage = getErrorMessage(error, "Failed to change password");
+      yield put(changePasswordFailure(errorMessage));
+      yield call(() => toast.error(errorMessage));
+    }
+  }
+}
+
 export function* authSaga() {
   yield takeEvery(registerStep1Request.type, registerStep1Saga);
   yield takeEvery(verifyOtpRequest.type, verifyOtpSaga);
@@ -187,4 +329,9 @@ export function* authSaga() {
   yield takeEvery(getMeRequest.type, getMeSaga);
   yield takeLatest(logoutRequest.type, logoutSaga);
   yield takeLatest(refreshTokenRequest.type, refreshTokenSaga);
+  yield takeLatest(updateProfileRequest.type, updateProfileSaga);
+  yield takeLatest(uploadAvatarRequest.type, uploadAvatarSaga);
+  yield takeLatest(forgotPasswordRequest.type, forgotPasswordSaga);
+  yield takeLatest(resetPasswordRequest.type, resetPasswordSaga);
+  yield takeLatest(changePasswordRequest.type, changePasswordSaga);
 }

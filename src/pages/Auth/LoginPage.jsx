@@ -117,12 +117,21 @@ function LoginPage() {
             </div>
 
             <div>
-              <label
-                className="mb-2 block text-base font-semibold text-slate-200"
-                htmlFor="password"
-              >
-                {t("auth:passwordLabel")}
-              </label>
+              <div className="mb-2 flex items-center justify-between">
+                <label
+                  className="text-base font-semibold text-slate-200"
+                  htmlFor="password"
+                >
+                  {t("auth:passwordLabel")}
+                </label>
+                <button
+                  onClick={() => navigate("/forgot-password")}
+                  type="button"
+                  className="text-sm font-semibold text-[#ecc741] transition hover:text-[#ffdf69]"
+                >
+                  {t("auth:forgotPassword")}
+                </button>
+              </div>
               <div className="relative">
                 <input
                   autoComplete="current-password"

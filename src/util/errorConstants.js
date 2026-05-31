@@ -43,8 +43,18 @@ export const getErrorMessage = (
     return error;
   }
 
-  if (error?.response?.data?.message) {
-    return error.response.data.message;
+  // Handle Axios timeout error
+  if (error?.code === "ECONNABORTED" && error?.message?.toLowerCase().includes("timeout")) {
+    return "Timeout exceeded. Please try again.";
+  }
+
+  if (error?.response?.data) {
+    if (typeof error.response.data === "string") {
+      return error.response.data;
+    }
+    if (error.response.data.message) {
+      return error.response.data.message;
+    }
   }
 
   if (error?.message) {

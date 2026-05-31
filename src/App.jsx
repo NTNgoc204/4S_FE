@@ -1,14 +1,17 @@
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { logoutRequest } from "./feature/auth/authSlice";
+import { logoutRequest, getMeRequest } from "./feature/auth/authSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/Auth/LoginPage";
 import SignUpPage from "./pages/Auth/SignUpPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import AboutPage from "./pages/About/AboutPage";
 import ChatPage from "./pages/Chat/ChatPage";
 import ConsultationPage from "./pages/Consultation/ConsultationPage";
@@ -30,6 +33,13 @@ function App() {
 
   // Get auth state from Redux
   const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
+
+  // Tự động khôi phục thông tin user từ BE khi reload trang (F5) nếu đã đăng nhập
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(getMeRequest());
+    }
+  }, [dispatch, isLoggedIn]);
 
   function handleLogout() {
     dispatch(logoutRequest());
@@ -54,6 +64,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/for-schools" element={<ForSchoolsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
           <Route path="/not-found" element={<NotFoundPage />} />
