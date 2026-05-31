@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getPlansRequest, createPaymentRequest, resetPaymentState } from "../../feature/plan/planSlice";
+import { getPlansRequest, createPaymentRequest, cancelPaymentRequest, resetPaymentState } from "../../feature/plan/planSlice";
 import { getMeRequest } from "../../feature/auth/authSlice";
 import { addNotificationRequest } from "../../feature/notification/notificationSlice";
 
@@ -61,6 +61,19 @@ function CheckoutPage() {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(countdownIntervalRef.current);
+            if (paymentInfo?.transactionCode) {
+              dispatch(cancelPaymentRequest({ code: paymentInfo.transactionCode }));
+              dispatch(
+                addNotificationRequest({
+                  titleKey: "notifications:payment.expired.title",
+                  titleDefault: "Thanh toán hết hạn",
+                  messageKey: "notifications:payment.expired.message",
+                  messageDefault: "Phiên thanh toán cho gói {{plan}} đã hết hạn và bị hủy bỏ.",
+                  messageParams: { plan: paymentInfo.planName },
+                  type: "warning",
+                })
+              );
+            }
             setStep("expired");
             return 0;
           }
@@ -99,12 +112,11 @@ function CheckoutPage() {
         // Add to notification system
         dispatch(
           addNotificationRequest({
-            title: t("notifications:payment.success.title", "Thanh toán thành công"),
-            message: t(
-              "notifications:payment.success.message",
-              "Gói {{plan}} của bạn đã được kích hoạt thành công!",
-              { plan: paymentInfo.planName }
-            ),
+            titleKey: "notifications:payment.success.title",
+            titleDefault: "Thanh toán thành công",
+            messageKey: "notifications:payment.success.message",
+            messageDefault: "Gói {{plan}} của bạn đã được kích hoạt thành công!",
+            messageParams: { plan: paymentInfo.planName },
             type: "success",
           })
         );

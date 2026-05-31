@@ -7,7 +7,7 @@ function HomePage() {
   const outletContext = useOutletContext()
   const isLoggedIn = outletContext?.isLoggedIn ?? false
   const currentPlan = String(outletContext?.currentPlan ?? '').toLowerCase()
-  const isProAccount = currentPlan === 'pro'
+  const isProAccount = currentPlan !== 'free' && currentPlan !== ''
 
   const featureCards = [
     {

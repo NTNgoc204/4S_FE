@@ -88,7 +88,8 @@ function ProtectedRoute({
     );
   }
 
-  if (requirePro && normalizedPlan !== "pro") {
+  const isPaidPlan = normalizedPlan !== "free" && normalizedPlan !== "";
+  if (requirePro && !isPaidPlan) {
     return <Navigate replace to={unauthorizedTo} />;
   }
 

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   PolarAngleAxis,
@@ -62,8 +63,8 @@ const RECOMMENDATIONS = [
 function SkillDashboardPage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
-  const outletContext = useOutletContext();
-  const currentPlan = String(outletContext?.currentPlan ?? "").toLowerCase();
+  const reduxPlan = useSelector((state) => state.auth.plan);
+  const currentPlan = String(reduxPlan ?? "").toLowerCase();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
 
   const radarData = useMemo(
@@ -77,7 +78,8 @@ function SkillDashboardPage() {
   );
 
   function handleNewConsultation() {
-    navigate(currentPlan === "pro" ? "/consultation" : "/chat");
+    const isPaidPlan = currentPlan !== "free" && currentPlan !== "";
+    navigate(isPaidPlan ? "/consultation" : "/chat");
   }
 
   function handleDetail(school) {

@@ -1,0 +1,29 @@
+{
+  "title": "Thông báo",
+  "empty": "Không có thông báo nào",
+  "actions": {
+    "markAllRead": "Đọc tất cả",
+    "clearAll": "Xóa tất cả"
+  },
+  "time": {
+    "justNow": "Vừa xong",
+    "minutes": "{{count}} phút trước",
+    "hours": "{{count}} giờ trước",
+    "days": "{{count}} ngày trước"
+  },
+  "payment": {
+    "success": {
+      "title": "Thanh toán thành công",
+      "message": "Gói {{plan}} của bạn đã được kích hoạt thành công!"
+    },
+    "expired": {
+      "title": "Thanh toán hết hạn",
+      "message": "Phiên thanh toán cho gói {{plan}} đã hết hạn và bị hủy bỏ."
+    },
+    "confirmedToast": "Xác nhận thanh toán thành công!",
+    "cancelledToast": "Phiên thanh toán đã hết hạn và bị hủy bỏ.",
+    "cancelFailedToast": "Không thể hủy thanh toán",
+    "createFailedToast": "Không thể tạo yêu cầu thanh toán",
+    "confirmFailedToast": "Xác nhận thanh toán thất bại"
+  }
+}

@@ -12,4 +12,7 @@ export const planAPI = {
 
   // Confirm payment request (called from fake payment portal)
   confirmPayment: (code) => apiClient.post(`/api/payment/confirm?code=${code}`),
+
+  // Cancel payment request (called when timer expires or manual cancellation)
+  cancelPayment: (code) => apiClient.post(`/api/payment/cancel?code=${code}`),
 };

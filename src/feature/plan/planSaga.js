@@ -1,5 +1,6 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { toast } from "react-toastify";
+import i18n from "../../i18n/i18n";
 import { planAPI } from "./planAPI";
 import { getErrorMessage } from "../../util/errorConstants";
 import {
@@ -12,6 +13,9 @@ import {
   confirmPaymentRequest,
   confirmPaymentSuccess,
   confirmPaymentFailure,
+  cancelPaymentRequest,
+  cancelPaymentSuccess,
+  cancelPaymentFailure,
 } from "./planSlice";
 
 // Fetch all plans from DB
@@ -44,7 +48,7 @@ function* confirmPaymentSaga(action) {
     const { code, onSuccess } = action.payload;
     yield call(planAPI.confirmPayment, code);
     yield put(confirmPaymentSuccess());
-    yield call(() => toast.success("Payment confirmed successfully!"));
+    yield call(() => toast.success(i18n.t("notifications:payment.confirmedToast", "Payment confirmed successfully!")));
     if (typeof onSuccess === "function") {
       yield call(onSuccess);
     }
@@ -55,8 +59,22 @@ function* confirmPaymentSaga(action) {
   }
 }
 
+// Cancel payment transaction
+function* cancelPaymentSaga(action) {
+  try {
+    const { code } = action.payload;
+    yield call(planAPI.cancelPayment, code);
+    yield put(cancelPaymentSuccess());
+    yield call(() => toast.info(i18n.t("notifications:payment.cancelledToast", "Payment session has expired and been cancelled.")));
+  } catch (error) {
+    const errorMessage = getErrorMessage(error, "Failed to cancel payment");
+    yield put(cancelPaymentFailure(errorMessage));
+  }
+}
+
 export function* planSaga() {
   yield takeLatest(getPlansRequest.type, getPlansSaga);
   yield takeLatest(createPaymentRequest.type, createPaymentSaga);
   yield takeLatest(confirmPaymentRequest.type, confirmPaymentSaga);
+  yield takeLatest(cancelPaymentRequest.type, cancelPaymentSaga);
 }

@@ -760,8 +760,51 @@ function GuidedQuizPage() {
     window.sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(nextState))
   }, [activeIndex, answers, insights, profile])
 
-  function buildInsight(option) {
-    const profile = INSIGHT_PROFILES[option.profile] ?? INSIGHT_PROFILES.balanced
+  const getDominantProfileForCategory = (categoryId) => {
+    const questionIndices = categoryId === 'personality' 
+      ? [0, 1, 2, 3, 4] 
+      : categoryId === 'learning' 
+      ? [5, 6, 7, 8, 9] 
+      : [10, 11, 12, 13, 14];
+
+    const counts = {};
+    questionIndices.forEach(idx => {
+      const q = QUESTIONS[idx];
+      if (q) {
+        const ansId = answers[q.id];
+        if (ansId) {
+          const option = q.options.find(o => o.id === ansId);
+          if (option?.profile) {
+            counts[option.profile] = (counts[option.profile] || 0) + 1;
+          }
+        }
+      }
+    });
+
+    let dominant = 'balanced';
+    let max = 0;
+    Object.entries(counts).forEach(([profile, count]) => {
+      if (count > max) {
+        max = count;
+        dominant = profile;
+      }
+    });
+    return dominant;
+  };
+
+  function buildInsight(option, qIndex) {
+    let dominantProfile = option?.profile || 'balanced';
+    
+    // Use the category's dominant profile if it's the end of a category
+    if (qIndex === 4) {
+      dominantProfile = getDominantProfileForCategory('personality');
+    } else if (qIndex === 9) {
+      dominantProfile = getDominantProfileForCategory('learning');
+    } else if (qIndex === 14) {
+      dominantProfile = getDominantProfileForCategory('decision');
+    }
+
+    const profile = INSIGHT_PROFILES[dominantProfile] ?? INSIGHT_PROFILES.balanced;
     if (locale === 'vi') {
       return `Bạn có xu hướng ${profile.personality.vi}. Bạn phù hợp với ${profile.interest.vi}, và hiện tại ${profile.brain.vi}.`
     }
@@ -782,23 +825,34 @@ function GuidedQuizPage() {
       return next
     })
 
-    setIsThinking(true)
-    setThinkingQuestionId(question.id)
+    const qIndex = QUESTIONS.findIndex((q) => q.id === question.id)
+    const isEndOfCategory = qIndex === 4 || qIndex === 9 || qIndex === 14
 
-    const insightTimer = window.setTimeout(() => {
-      setInsights((prev) => ({
-        ...prev,
-        [question.id]: true,
-      }))
-    }, 320)
+    if (isEndOfCategory) {
+      setIsThinking(true)
+      setThinkingQuestionId(question.id)
 
-    const nextTimer = window.setTimeout(() => {
-      setActiveIndex((prev) => Math.min(prev + 1, QUESTIONS.length - 1))
-      setThinkingQuestionId('')
-      setIsThinking(false)
-    }, 900)
+      const insightTimer = window.setTimeout(() => {
+        setInsights((prev) => ({
+          ...prev,
+          [question.id]: true,
+        }))
+      }, 400)
 
-    timeoutRef.current.push(insightTimer, nextTimer)
+      const nextTimer = window.setTimeout(() => {
+        setActiveIndex((prev) => Math.min(prev + 1, QUESTIONS.length - 1))
+        setThinkingQuestionId('')
+        setIsThinking(false)
+      }, 1500)
+
+      timeoutRef.current.push(insightTimer, nextTimer)
+    } else {
+      // Direct fast transition for non-end-of-category questions
+      const nextTimer = window.setTimeout(() => {
+        setActiveIndex((prev) => Math.min(prev + 1, QUESTIONS.length - 1))
+      }, 250)
+      timeoutRef.current.push(nextTimer)
+    }
   }
 
   function handleViewDetail(school) {
@@ -841,6 +895,8 @@ function GuidedQuizPage() {
           text={text}
           thinkingQuestionId={thinkingQuestionId}
           visibleQuestions={visibleQuestions}
+          recommendations={recommendations}
+          onViewDetail={handleViewDetail}
         />
         <QuizRightPanel
           onViewDetail={handleViewDetail}
@@ -850,6 +906,8 @@ function GuidedQuizPage() {
           questionCount={QUESTIONS.length}
           recommendations={recommendations}
           text={text}
+          answers={answers}
+          questions={QUESTIONS}
         />
       </section>
     </main>

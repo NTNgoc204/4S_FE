@@ -1,0 +1,29 @@
+{
+  "title": "Notifications",
+  "empty": "No notifications",
+  "actions": {
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutes": "{{count}}m ago",
+    "hours": "{{count}}h ago",
+    "days": "{{count}}d ago"
+  },
+  "payment": {
+    "success": {
+      "title": "Payment Successful",
+      "message": "Your {{plan}} plan has been activated successfully!"
+    },
+    "expired": {
+      "title": "Payment Expired",
+      "message": "The payment session for {{plan}} has expired and been cancelled."
+    },
+    "confirmedToast": "Payment confirmed successfully!",
+    "cancelledToast": "Payment session has expired and been cancelled.",
+    "cancelFailedToast": "Failed to cancel payment",
+    "createFailedToast": "Failed to create payment request",
+    "confirmFailedToast": "Payment confirmation failed"
+  }
+}
