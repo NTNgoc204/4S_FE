@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import sparklesIcon from '../../assets/Sparkles.svg'
 import { SCORE_KEYS, UNIVERSITIES, getUniversityById, rankUniversities } from '../../data/universities'
@@ -167,9 +168,9 @@ function readChatState() {
 function ChatPage() {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
-  const outletContext = useOutletContext()
-  const currentPlan = String(outletContext?.currentPlan ?? '').toLowerCase()
-  const isProAccount = currentPlan === 'pro'
+  const reduxPlan = useSelector((state) => state.auth.plan)
+  const currentPlan = String(reduxPlan ?? '').toLowerCase()
+  const isProAccount = currentPlan !== 'free' && currentPlan !== ''
   const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
   const text = UI_TEXT[locale]
 

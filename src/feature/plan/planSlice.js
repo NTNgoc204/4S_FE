@@ -10,6 +10,9 @@ const initialState = {
   confirmPaymentLoading: false,
   confirmPaymentSuccess: false,
   confirmPaymentError: null,
+  cancelPaymentLoading: false,
+  cancelPaymentSuccess: false,
+  cancelPaymentError: null,
 };
 
 const planSlice = createSlice({
@@ -60,6 +63,21 @@ const planSlice = createSlice({
       state.confirmPaymentError = action.payload;
     },
 
+    // Cancel payment (called when timer expires or manually cancelled)
+    cancelPaymentRequest: (state) => {
+      state.cancelPaymentLoading = true;
+      state.cancelPaymentSuccess = false;
+      state.cancelPaymentError = null;
+    },
+    cancelPaymentSuccess: (state) => {
+      state.cancelPaymentLoading = false;
+      state.cancelPaymentSuccess = true;
+    },
+    cancelPaymentFailure: (state, action) => {
+      state.cancelPaymentLoading = false;
+      state.cancelPaymentError = action.payload;
+    },
+
     // Reset payment states (when closed or finished)
     resetPaymentState: (state) => {
       state.paymentInfo = null;
@@ -82,6 +100,9 @@ export const {
   confirmPaymentRequest,
   confirmPaymentSuccess,
   confirmPaymentFailure,
+  cancelPaymentRequest,
+  cancelPaymentSuccess,
+  cancelPaymentFailure,
   resetPaymentState,
 } = planSlice.actions;
 

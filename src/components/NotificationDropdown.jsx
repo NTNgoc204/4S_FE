@@ -107,10 +107,12 @@ function NotificationDropdown({ isOpen, onClose }) {
                     noti.isRead ? "text-slate-300 font-normal" : "text-slate-100 font-semibold"
                   }`}
                 >
-                  {noti.title}
+                  {noti.titleKey ? t(noti.titleKey, noti.titleDefault || "") : noti.title}
                 </p>
                 <p className="mt-1 text-xs text-slate-400 leading-normal">
-                  {noti.message}
+                  {noti.messageKey
+                    ? t(noti.messageKey, { defaultValue: noti.messageDefault || "", ...noti.messageParams })
+                    : noti.message}
                 </p>
                 <p className="mt-1 text-[10px] text-slate-500">
                   {formatRelativeTime(noti.createdAt)}
