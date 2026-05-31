@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import globeIcon from "../assets/Globe.svg";
 import fourSLogo from "../assets/logo-4s.png";
+import NotificationDropdown from "./NotificationDropdown";
 
 function Header({
   isLoggedIn = false,
@@ -15,6 +16,11 @@ function Header({
 }) {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Get notification state
+  const { unreadCount } = useSelector((state) => state.notification);
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
 
   // Get auth state from Redux
   const reduxAuth = useSelector((state) => state.auth);
@@ -155,6 +161,24 @@ function Header({
                   Admin
                 </button>
               ) : null}
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotiOpen(!isNotiOpen)}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105"
+                  type="button"
+                >
+                  <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-lg animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationDropdown isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} />
+              </div>
+
               <button
                 aria-label="User profile"
                 className="relative overflow-hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f] transition hover:scale-105"

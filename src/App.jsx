@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { logoutRequest, getMeRequest } from "./feature/auth/authSlice";
+import { loadNotificationsRequest } from "./feature/notification/notificationSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -26,6 +27,8 @@ import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
 import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
+import CheckoutPage from "./pages/Payment/CheckoutPage";
+import MockPaymentPortal from "./pages/Payment/MockPaymentPortal";
 
 function App() {
   const { t } = useTranslation();
@@ -34,8 +37,9 @@ function App() {
   // Get auth state from Redux
   const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
 
-  // Tự động khôi phục thông tin user từ BE khi reload trang (F5) nếu đã đăng nhập
+  // Tự động khôi phục thông tin user và thông báo khi load trang
   useEffect(() => {
+    dispatch(loadNotificationsRequest());
     if (isLoggedIn) {
       dispatch(getMeRequest());
     }
@@ -85,6 +89,7 @@ function App() {
             }
           >
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/dashboard" element={<SkillDashboardPage />} />
             <Route
               path="/consultation"
@@ -137,6 +142,8 @@ function App() {
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
         </Route>
+
+        <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />
 
         {/* Catch all - phải ở cuối cùng */}
         <Route path="*" element={<Navigate replace to="/not-found" />} />
