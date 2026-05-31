@@ -250,7 +250,9 @@ function CheckoutPage() {
             {/* QR Card */}
             <div className="inline-block rounded-2xl bg-white p-4 mb-6 shadow-xl">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentInfo.QrUrl || paymentInfo.qrUrl)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                  `${window.location.origin}/mock-payment-portal?code=${paymentInfo.transactionCode}&amount=${paymentInfo.amount}&plan=${paymentInfo.planName}`
+                )}`}
                 alt="Payment QR Code"
                 className="h-48 w-48 mx-auto object-contain"
               />
