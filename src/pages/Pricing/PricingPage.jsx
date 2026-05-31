@@ -1,15 +1,28 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { getPlansRequest } from '../../feature/plan/planSlice'
 
 function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const { t } = useTranslation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  
   const activePlanId = String(currentPlan).toLowerCase()
+
+  const { plans: dbPlans } = useSelector((state) => state.plan)
+
+  useEffect(() => {
+    dispatch(getPlansRequest())
+  }, [dispatch])
 
   function getFeatures(key) {
     const features = t(key, { returnObjects: true })
     return Array.isArray(features) ? features : []
   }
 
-  const plans = [
+  const staticPlans = [
     {
       id: 'free',
       badge: '',
@@ -60,6 +73,30 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
       buttonClass: 'bg-gradient-to-br from-[#6f7bff] to-[#7f8cff] text-[#eff2ff] hover:brightness-110',
     },
   ]
+
+  const plans = staticPlans.map(staticPlan => {
+    const dbPlan = dbPlans.find(p => p.name?.toLowerCase() === staticPlan.id);
+    if (dbPlan) {
+      return {
+        ...staticPlan,
+        dbId: dbPlan.id,
+        price: dbPlan.price === 0 ? staticPlan.price : `$${dbPlan.price}`,
+        description: dbPlan.description || staticPlan.description,
+      };
+    }
+    return staticPlan;
+  });
+
+  const handlePlanClick = (plan) => {
+    if (!isLoggedIn) {
+      navigate('/login', { state: { from: '/pricing' } })
+      return
+    }
+    if (plan.id === 'free') {
+      return
+    }
+    navigate(`/checkout?planId=${plan.dbId || plan.id}`)
+  }
 
   return (
     <>
@@ -125,7 +162,11 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
                     {t('pricing:currentPlanCta')}
                   </button>
                 ) : (
-                  <button className={`w-full rounded-2xl px-6 py-3.5 text-xl font-semibold transition ${plan.buttonClass}`} type="button">
+                  <button
+                    className={`w-full rounded-2xl px-6 py-3.5 text-xl font-semibold transition ${plan.buttonClass}`}
+                    type="button"
+                    onClick={() => handlePlanClick(plan)}
+                  >
                     {plan.cta}
                   </button>
                 )}

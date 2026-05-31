@@ -1,14 +1,18 @@
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { logoutRequest } from "./feature/auth/authSlice";
+import { logoutRequest, getMeRequest } from "./feature/auth/authSlice";
+import { loadNotificationsRequest } from "./feature/notification/notificationSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/Auth/LoginPage";
 import SignUpPage from "./pages/Auth/SignUpPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import AboutPage from "./pages/About/AboutPage";
 import ChatPage from "./pages/Chat/ChatPage";
 import ConsultationPage from "./pages/Consultation/ConsultationPage";
@@ -23,6 +27,8 @@ import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
 import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
 import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
+import CheckoutPage from "./pages/Payment/CheckoutPage";
+import MockPaymentPortal from "./pages/Payment/MockPaymentPortal";
 
 function App() {
   const { t } = useTranslation();
@@ -30,6 +36,14 @@ function App() {
 
   // Get auth state from Redux
   const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
+
+  // Tự động khôi phục thông tin user và thông báo khi load trang
+  useEffect(() => {
+    dispatch(loadNotificationsRequest());
+    if (isLoggedIn) {
+      dispatch(getMeRequest());
+    }
+  }, [dispatch, isLoggedIn]);
 
   function handleLogout() {
     dispatch(logoutRequest());
@@ -54,6 +68,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/for-schools" element={<ForSchoolsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
           <Route path="/not-found" element={<NotFoundPage />} />
@@ -73,6 +89,7 @@ function App() {
             }
           >
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/dashboard" element={<SkillDashboardPage />} />
             <Route
               path="/consultation"
@@ -125,6 +142,8 @@ function App() {
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
         </Route>
+
+        <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />
 
         {/* Catch all - phải ở cuối cùng */}
         <Route path="*" element={<Navigate replace to="/not-found" />} />

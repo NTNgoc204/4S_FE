@@ -21,4 +21,28 @@ export const authAPI = {
 
   // Get current user info (requires bearer token)
   getMe: () => apiClient.get("/api/Auth/me"),
+
+  // Logout: Revoke refresh token and clear session
+  logout: () => apiClient.post("/api/Auth/logout"),
+
+  // Update user profile (PUT /api/Users/{id})
+  updateProfile: (id, data) => apiClient.put(`/api/Users/${id}`, data),
+
+  // Upload avatar (POST /api/avatar/upload)
+  uploadAvatar: (formData) =>
+    apiClient.post("/api/avatar/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
+  // Forgot password (POST /api/Auth/forgot-password)
+  forgotPassword: (email) =>
+    apiClient.post("/api/Auth/forgot-password", { email }),
+
+  // Reset password (POST /api/Auth/reset-password)
+  resetPassword: (data) => apiClient.post("/api/Auth/reset-password", data),
+
+  // Change password (PUT /api/Auth/change-password)
+  changePassword: (data) => apiClient.put("/api/Auth/change-password", data),
 };

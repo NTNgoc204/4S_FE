@@ -4,13 +4,14 @@ const initialState = {
   isLoggedIn: sessionStorage.getItem("is_logged_in") === "true",
   user: null,
   token: sessionStorage.getItem("access_token") || null,
-  plan: "PRO",
+  plan: sessionStorage.getItem("plan") || "",
   role: sessionStorage.getItem("role") || "",
   loading: false,
   error: null,
   refreshTokenError: null,
   verifyToken: null,
   registerStep1Success: false,
+  avatarUploading: false,
 };
 
 const resetAuthState = (state) => {
@@ -24,6 +25,7 @@ const resetAuthState = (state) => {
   state.verifyToken = null;
   state.registerStep1Success = false;
   state.loading = false;
+  state.avatarUploading = false;
 };
 
 const authSlice = createSlice({
@@ -84,7 +86,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.isLoggedIn = true;
       state.token = action.payload.token;
-      state.plan = "PRO";
+      state.plan = "";
     },
     loginFailure: (state, action) => {
       state.loading = false;
@@ -100,6 +102,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.user = action.payload;
       state.role = action.payload.role || "";
+      state.plan = action.payload.currentPlan || "FREE";
     },
     getMeFailure: (state, action) => {
       state.loading = false;
@@ -130,6 +133,80 @@ const authSlice = createSlice({
       state.refreshTokenError = action.payload;
     },
 
+    // Update Profile
+    updateProfileRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateProfileSuccess: (state, action) => {
+      state.loading = false;
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
+    updateProfileFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    // Upload Avatar
+    uploadAvatarRequest: (state) => {
+      state.loading = true;
+      state.avatarUploading = true;
+      state.error = null;
+    },
+    uploadAvatarSuccess: (state, action) => {
+      state.loading = false;
+      state.avatarUploading = false;
+      if (state.user) {
+        state.user.avatarUrl = action.payload.avatarUrl;
+      }
+    },
+    uploadAvatarFailure: (state, action) => {
+      state.loading = false;
+      state.avatarUploading = false;
+      state.error = action.payload;
+    },
+
+    // Forgot Password
+    forgotPasswordRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    forgotPasswordSuccess: (state) => {
+      state.loading = false;
+    },
+    forgotPasswordFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    // Reset Password
+    resetPasswordRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    resetPasswordSuccess: (state) => {
+      state.loading = false;
+    },
+    resetPasswordFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    // Change Password
+    changePasswordRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    changePasswordSuccess: (state) => {
+      state.loading = false;
+    },
+    changePasswordFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
     clearError: (state) => {
       state.error = null;
     },
@@ -158,6 +235,21 @@ export const {
   refreshTokenRequest,
   refreshTokenSuccess,
   refreshTokenFailure,
+  updateProfileRequest,
+  updateProfileSuccess,
+  updateProfileFailure,
+  uploadAvatarRequest,
+  uploadAvatarSuccess,
+  uploadAvatarFailure,
+  forgotPasswordRequest,
+  forgotPasswordSuccess,
+  forgotPasswordFailure,
+  resetPasswordRequest,
+  resetPasswordSuccess,
+  resetPasswordFailure,
+  changePasswordRequest,
+  changePasswordSuccess,
+  changePasswordFailure,
   clearError,
 } = authSlice.actions;
 

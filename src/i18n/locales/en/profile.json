@@ -5,6 +5,7 @@
     "openDashboard": "Open Skill Dashboard",
     "editProfile": "Edit",
     "saveChanges": "Save Changes",
+    "cancel": "Cancel",
     "saveSuccess": "Changed successfully.",
     "sections": {
       "personal": "Personal Information",
