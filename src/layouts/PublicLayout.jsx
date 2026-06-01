@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import SiteFooter from '../components/SiteFooter'
 
@@ -11,6 +11,11 @@ function PublicLayout({
   headerContainerClassName = 'w-[min(1120px,92vw)]',
 }) {
   const location = useLocation()
+  
+  if (isLoggedIn && String(currentRole).toLowerCase() === 'admin') {
+    return <Navigate replace to="/admin/dashboard" />
+  }
+
   const isLoginPage = location.pathname === '/login'
   const isPricingPage = location.pathname === '/pricing'
   const isUniversityDetailPage = location.pathname.startsWith('/university/')

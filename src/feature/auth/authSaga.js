@@ -81,8 +81,11 @@ function* getMeSaga() {
 
     // Save role and plan to sessionStorage
     yield call(() => {
-      sessionStorage.setItem("role", response.data.role || "");
-      sessionStorage.setItem("plan", response.data.currentPlan || "FREE");
+      const role = response.data.role || "";
+      sessionStorage.setItem("role", role);
+      if (String(role).toLowerCase() !== "admin") {
+        sessionStorage.setItem("plan", response.data.currentPlan || "FREE");
+      }
     });
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Failed to fetch user info");
