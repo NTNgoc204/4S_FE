@@ -213,6 +213,10 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
                   </>
                 )}
               </div>
+              {/* VAT note — only for paid plans with a real price */}
+              {!isPlansLoading && plan.planCode !== 'free' && plan.price !== t('pricing:plans.edu.price', 'Liên hệ') && plan.price !== '0 VND' ? (
+                <p className="mt-1.5 text-xs text-slate-500">(chưa bao gồm VAT)</p>
+              ) : null}
 
               <ul className="mt-7 space-y-3.5">
                 {plan.features.map((feature) => (

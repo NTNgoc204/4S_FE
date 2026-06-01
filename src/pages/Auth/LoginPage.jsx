@@ -18,6 +18,7 @@ function LoginPage() {
     loading,
     error: reduxError,
     isLoggedIn,
+    role,
   } = useSelector((state) => state.auth);
 
   const [email, setEmail] = useState("");
@@ -47,12 +48,17 @@ function LoginPage() {
     }
   }, [location.pathname, location.state, navigate, t]);
 
-  // Navigate to home after successful login
+  // Navigate to appropriate page after successful login
   useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/", { replace: true });
+    if (isLoggedIn && role) {
+      const normalizedRole = String(role).toLowerCase();
+      if (normalizedRole === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, role, navigate]);
 
   function handleSubmit(event) {
     event.preventDefault();

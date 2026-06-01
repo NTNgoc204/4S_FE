@@ -7,9 +7,8 @@ const NAV_ITEMS = [
   { label: "Pricing Management", to: "/admin/pricing" },
 ];
 
-function AdminLayout({ currentPlan = "", onLogout = () => {} }) {
+function AdminLayout({ onLogout = () => {} }) {
   const navigate = useNavigate();
-  const planLabel = String(currentPlan || "free").toUpperCase();
 
   function handleLogout() {
     onLogout();
@@ -48,11 +47,6 @@ function AdminLayout({ currentPlan = "", onLogout = () => {} }) {
             ))}
           </nav>
 
-          <div className="mt-7 rounded-2xl border border-[#ecc741]/25 bg-[#ecc741]/8 p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-[#f3d459]">Current Plan</p>
-            <p className="mt-1 font-['Sora'] text-2xl font-semibold">{planLabel}</p>
-            <p className="mt-1 text-sm text-slate-300">UI-only mode. All actions are local demo state.</p>
-          </div>
 
           <div className="mt-auto space-y-2">
             <button

@@ -101,8 +101,13 @@ const authSlice = createSlice({
     getMeSuccess: (state, action) => {
       state.loading = false;
       state.user = action.payload;
-      state.role = action.payload.role || "";
-      state.plan = action.payload.currentPlan || "FREE";
+      const role = action.payload.role || "";
+      state.role = role;
+      if (String(role).toLowerCase() === "admin") {
+        state.plan = "";
+      } else {
+        state.plan = action.payload.currentPlan || "FREE";
+      }
     },
     getMeFailure: (state, action) => {
       state.loading = false;

@@ -134,7 +134,7 @@ function App() {
               isAuthenticated={isLoggedIn}
               useRedux={true}
             >
-              <AdminLayout currentPlan={plan} onLogout={handleLogout} />
+              <AdminLayout onLogout={handleLogout} />
             </ProtectedRoute>
           }
         >

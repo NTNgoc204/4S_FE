@@ -243,6 +243,17 @@ function CheckoutPage() {
                     )}
                   </span>
                 </div>
+                {/* VAT row — only when there is a real numeric price */}
+                {!showPlanSkeleton && selectedPlan?.price > 0 && (
+                  <div className="flex items-center justify-between h-5">
+                    <span className="text-slate-400">
+                      {t("checkout:planInfo.vat", "VAT (10%)")}:
+                    </span>
+                    <span className="font-medium text-slate-300">
+                      {`+${Math.round(selectedPlan.price * 0.1).toLocaleString('vi-VN')} VND`}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between pt-2 border-t border-white/5 h-7">
                   <span className="text-slate-400 font-semibold">{t("checkout:planInfo.total", "Tổng tiền")}:</span>
                   <span className="text-lg font-bold text-slate-100">
@@ -251,7 +262,7 @@ function CheckoutPage() {
                     ) : selectedPlan?.price === 0 ? (
                       t('pricing:plans.edu.price', 'Liên hệ')
                     ) : selectedPlan?.price ? (
-                      `${selectedPlan.price.toLocaleString('vi-VN')} VND`
+                      `${Math.round(selectedPlan.price * 1.1).toLocaleString('vi-VN')} VND`
                     ) : (
                       "Custom"
                     )}
