@@ -210,13 +210,13 @@ function CheckoutPage() {
                 <div className="flex justify-between">
                   <span className="text-slate-400">{t("checkout:planInfo.price", "Đơn giá")}:</span>
                   <span className="font-medium text-slate-200">
-                    {selectedPlan?.price ? `$${selectedPlan.price}` : "Custom"} {selectedPlan?.price > 0 ? "/ month" : ""}
+                    {selectedPlan?.price ? `${selectedPlan.price.toLocaleString('vi-VN')} VND` : "Custom"} {selectedPlan?.price > 0 ? (selectedPlan?.name?.toLowerCase() === 'pro' ? "/ tháng" : "") : ""}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-white/5">
                   <span className="text-slate-400 font-semibold">{t("checkout:planInfo.total", "Tổng tiền")}:</span>
                   <span className="text-lg font-bold text-slate-100">
-                    {selectedPlan?.price ? `$${selectedPlan.price}` : "Custom"}
+                    {selectedPlan?.price ? `${selectedPlan.price.toLocaleString('vi-VN')} VND` : "Custom"}
                   </span>
                 </div>
               </div>
@@ -280,7 +280,7 @@ function CheckoutPage() {
             <div className="text-left rounded-xl bg-white/5 p-4 border border-white/5 space-y-2 mb-6 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-400">{t("checkout:paymentDetails.amount", "Số tiền")}:</span>
-                <span className="font-semibold text-slate-200">${paymentInfo.amount} USD</span>
+                <span className="font-semibold text-slate-200">{paymentInfo.amount ? `${paymentInfo.amount.toLocaleString('vi-VN')} VND` : ""}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">{t("checkout:paymentDetails.code", "Nội dung chuyển khoản")}:</span>

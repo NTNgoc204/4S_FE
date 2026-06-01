@@ -12,7 +12,7 @@
     "free": {
       "name": "Free",
       "description": "Perfect for exploring and getting started",
-      "price": "$0",
+      "price": "0 VND",
       "period": "/ forever",
       "cta": "Start Free",
       "features": [
@@ -41,7 +41,7 @@
     "edu": {
       "name": "Edu",
       "description": "For schools & educational institutions",
-      "price": "Custom",
+      "price": "Contact",
       "period": "",
       "badge": "For Schools",
       "cta": "Contact for Schools",

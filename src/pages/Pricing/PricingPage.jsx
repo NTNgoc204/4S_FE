@@ -74,28 +74,88 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
     },
   ]
 
-  const plans = staticPlans.map(staticPlan => {
-    const dbPlan = dbPlans.find(p => p.name?.toLowerCase() === staticPlan.id);
-    if (dbPlan) {
-      return {
-        ...staticPlan,
-        dbId: dbPlan.id,
-        price: dbPlan.price === 0 ? staticPlan.price : `$${dbPlan.price}`,
-        description: dbPlan.description || staticPlan.description,
-      };
-    }
-    return staticPlan;
-  });
+  const plans = dbPlans.length > 0
+    ? dbPlans.map(dbPlan => {
+        const nameLower = dbPlan.name?.toLowerCase() || '';
+        let styleConfig = {};
+        if (nameLower.includes('free')) {
+          styleConfig = {
+            id: 'free',
+            badge: '',
+            iconLabel: 'AI',
+            iconClass: 'bg-gradient-to-br from-[#1be6b4] to-[#00bb8f] text-[#e8fff7]',
+            borderClass: 'border-white/10',
+            cardClass: 'bg-gradient-to-b from-[#1e3552]/92 to-[#162c45]/94',
+            checkClass: 'text-[#0fe2a8]',
+            buttonClass: 'bg-[#184c56] text-[#0fe2a8] hover:bg-[#1c5a66]',
+            cta: t('pricing:plans.free.cta', 'Start Free'),
+            features: getFeatures('pricing:plans.free.features'),
+          };
+        } else if (nameLower.includes('pro')) {
+          styleConfig = {
+            id: 'pro',
+            badge: t('pricing:plans.pro.badge', 'Most Popular'),
+            iconLabel: 'PRO',
+            iconClass: 'bg-gradient-to-br from-[#ffe16d] to-[#deb320] text-[#0f2d4a]',
+            borderClass: 'border-[#ecc741]/45 shadow-[0_18px_40px_rgba(236,199,65,0.16)]',
+            cardClass: 'bg-gradient-to-b from-[#1f3654]/94 to-[#162d47]/96',
+            checkClass: 'text-[#ecc741]',
+            buttonClass: 'bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#112542] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(238,198,49,0.3)]',
+            cta: t('pricing:plans.pro.cta', 'Get Started'),
+            features: getFeatures('pricing:plans.pro.features'),
+          };
+        } else {
+          styleConfig = {
+            id: 'edu',
+            badge: t('pricing:plans.edu.badge', 'For Schools'),
+            iconLabel: 'EDU',
+            iconClass: 'bg-gradient-to-br from-[#7e8cff] to-[#6373f7] text-[#eef2ff]',
+            borderClass: 'border-[#7f8cff]/45 shadow-[0_18px_40px_rgba(127,140,255,0.18)]',
+            cardClass: 'bg-gradient-to-b from-[#1f3553]/92 to-[#172d47]/94',
+            checkClass: 'text-[#8b99ff]',
+            buttonClass: 'bg-gradient-to-br from-[#6f7bff] to-[#7f8cff] text-[#eff2ff] hover:brightness-110',
+            cta: t('pricing:plans.edu.cta', 'Contact for Schools'),
+            features: getFeatures('pricing:plans.edu.features'),
+          };
+        }
+
+        const planCode = nameLower.includes('free') ? 'free' : nameLower.includes('pro') ? 'pro' : 'edu';
+        let priceStr = '';
+        if (planCode === 'free') {
+          priceStr = t('pricing:plans.free.price', '0 VND');
+        } else {
+          if (dbPlan.price === 0) {
+            priceStr = t('pricing:plans.edu.price', 'Liên hệ');
+          } else {
+            priceStr = `${dbPlan.price.toLocaleString('vi-VN')} VND`;
+          }
+        }
+
+        return {
+          id: dbPlan.id,
+          planCode,
+          name: dbPlan.name,
+          description: dbPlan.description || t(`pricing:plans.${styleConfig.id}.description`),
+          price: priceStr,
+          period: planCode === 'free' ? t('pricing:plans.free.period', '/ trọn đời') : (planCode === 'pro' ? t('pricing:plans.pro.period', '/ tháng') : ''),
+          ...styleConfig,
+        };
+      })
+    : staticPlans.map(staticPlan => ({ ...staticPlan, planCode: staticPlan.id }));
+
+  // Sort plans so 'free' is always index 0, followed by 'pro', then 'edu' (or anything else)
+  const sortOrder = { 'free': 0, 'pro': 1, 'edu': 2 };
+  plans.sort((a, b) => (sortOrder[a.planCode] ?? 99) - (sortOrder[b.planCode] ?? 99));
 
   const handlePlanClick = (plan) => {
     if (!isLoggedIn) {
       navigate('/login', { state: { from: '/pricing' } })
       return
     }
-    if (plan.id === 'free') {
+    if (plan.planCode === 'free') {
       return
     }
-    navigate(`/checkout?planId=${plan.dbId || plan.id}`)
+    navigate(`/checkout?planId=${plan.id}`)
   }
 
   return (
@@ -132,7 +192,6 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
               </div>
 
               <h2 className="mt-5 font-['Sora'] text-[2.15rem] tracking-[-0.03em]">{plan.name}</h2>
-              <p className="mt-1 min-h-[56px] text-[1.02rem] text-slate-300">{plan.description}</p>
 
               <div className="mt-4 flex items-end gap-1">
                 <p className="font-['Sora'] text-[3.35rem] leading-none tracking-[-0.03em]">{plan.price}</p>
@@ -153,7 +212,7 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
               </ul>
 
               <div className="mt-auto pt-8">
-                {isLoggedIn && activePlanId === plan.id ? (
+                {isLoggedIn && activePlanId === plan.planCode ? (
                   <button
                     className="w-full cursor-default rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-xl font-semibold text-slate-200"
                     disabled

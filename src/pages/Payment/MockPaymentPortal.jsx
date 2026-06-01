@@ -18,9 +18,8 @@ function MockPaymentPortal() {
   const [simulatedProgress, setSimulatedProgress] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Compute VND amount dynamically (1 USD = 25,450 VND) for Vietnamese banking realism
-  const usdVal = parseFloat(amount || "0");
-  const vndVal = Math.round(usdVal * 25450);
+  // Amount is in VND
+  const vndVal = parseFloat(amount || "0");
   const formattedVnd = vndVal.toLocaleString("vi-VN");
 
   const handleConfirmTransfer = () => {
@@ -175,10 +174,7 @@ function MockPaymentPortal() {
                 </div>
                 <div className="flex justify-between border-b border-white/5 pb-2.5">
                   <span className="text-slate-400">Tổng số tiền thanh toán:</span>
-                  <div className="text-right">
-                    <span className="font-bold text-slate-100 text-sm block">${amount || "0.00"} USD</span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">~ {formattedVnd} VND</span>
-                  </div>
+                  <span className="font-bold text-[#ecc741] text-sm">{formattedVnd} VND</span>
                 </div>
                 <div className="flex justify-between pt-1">
                   <span className="text-slate-400">Nội dung chuyển khoản (Memo):</span>
