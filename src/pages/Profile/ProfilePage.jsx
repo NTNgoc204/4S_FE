@@ -7,6 +7,8 @@ import fourSLogo from "../../assets/logo-4s.png";
 import globeIcon from "../../assets/Globe.svg";
 import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest } from "../../feature/auth/authSlice";
 import { validatePassword } from "../../validation/authValidation";
+import Skeleton from "../../components/Skeleton";
+
 
 const SKILL_KEYS = [
   { id: "creativity", value: 75 },
@@ -57,6 +59,10 @@ function ProfilePage() {
   });
 
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showAcademic, setShowAcademic] = useState(false);
+  const [showSkills, setShowSkills] = useState(false);
+  const [showInterests, setShowInterests] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
   const [changeForm, setChangeForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -307,6 +313,8 @@ function ProfilePage() {
     );
   }
 
+  const isProfileLoading = loading && !user;
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_22%_16%,rgba(255,201,58,0.09),transparent_34%),radial-gradient(circle_at_75%_28%,rgba(15,226,168,0.1),transparent_35%),linear-gradient(160deg,#031124_0%,#071a35_40%,#041224_100%)] text-[#eaf2ff]">
       <header className="border-b border-white/10 bg-[#1d3551]/95">
@@ -398,7 +406,9 @@ function ProfilePage() {
                     </div>
                   </div>
                 )}
-                {user?.avatarUrl && !avatarError ? (
+                {isProfileLoading ? (
+                  <Skeleton className="h-full w-full absolute inset-0" borderRadius="16px" />
+                ) : user?.avatarUrl && !avatarError ? (
                   <img
                     src={user.avatarUrl}
                     alt="User avatar"
@@ -410,18 +420,20 @@ function ProfilePage() {
                     {getInitials(user?.username)}
                   </span>
                 )}
-                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100">
-                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                </label>
+                {!isProfileLoading && (
+                  <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100">
+                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                  </label>
+                )}
               </div>
               <span className="text-[10px] text-slate-400">
                 {locale === "vi" ? "Click để đổi ảnh" : "Click to change"}
@@ -431,138 +443,236 @@ function ProfilePage() {
             <div className="flex-1 w-full">
               <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.personal")}</h2>
               <div className="grid gap-4 md:grid-cols-2">
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.phone")} onChange={(value) => updateField("phone", value)} value={form.phone} />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
+                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
+                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
+                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.phone")} onChange={(value) => updateField("phone", value)} value={form.phone} />
+                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
               </div>
             </div>
           </article>
 
           <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.academic")}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FieldSelect
-                disabled={!isEditing}
-                label={t("profile:edit.fields.currentGrade")}
-                onChange={(value) => updateField("currentGrade", value)}
-                options={currentGradeOptions}
-                value={form.currentGrade}
-              />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.gpa")} onChange={(value) => updateField("gpa", value)} value={form.gpa} />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.mathScore")} onChange={(value) => updateField("mathScore", value)} value={form.mathScore} />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.englishScore")} onChange={(value) => updateField("englishScore", value)} value={form.englishScore} />
-              <div className="md:col-span-1">
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.scienceScore")} onChange={(value) => updateField("scienceScore", value)} value={form.scienceScore} />
-              </div>
-            </div>
-          </article>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => setShowAcademic(!showAcademic)}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#8b99ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
+                </svg>
+                {t("profile:edit.sections.academic")}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showAcademic ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.skills")}</h2>
-            <div className="space-y-4">
-              {skillRows.map((item) => (
-                <div key={item.id}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span>{item.label}</span>
-                    <span className="font-semibold text-[#0ed8ab]">{item.value}/100</span>
-                  </div>
-                  {isEditing ? (
-                    <input
-                      className={`mt-2 h-2 w-full cursor-pointer appearance-none rounded-full 
-                      [&::-webkit-slider-runnable-track]:h-2
-                      [&::-webkit-slider-runnable-track]:rounded-full
-                      [&::-webkit-slider-runnable-track]:bg-transparent
-                      [&::-webkit-slider-thumb]:appearance-none
-                      [&::-webkit-slider-thumb]:transition-all
-                      [&::-webkit-slider-thumb]:duration-150
-                      [&::-moz-range-track]:h-2
-                      [&::-moz-range-track]:rounded-full
-                      [&::-moz-range-track]:bg-transparent
-                      [&::-moz-range-thumb]:transition-all
-                      [&::-moz-range-thumb]:duration-150
-                      ${
-                        hoveredSkillId === item.id
-                          ? "[&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#15d4b0] [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#0f9e87] [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(21,212,176,0.18)] [&::-webkit-slider-thumb]:opacity-100 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#15d4b0] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-100"
-                          : "[&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent [&::-webkit-slider-thumb]:shadow-none [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-thumb]:opacity-0"
-                      }`}
-                      onMouseEnter={() => setHoveredSkillId(item.id)}
-                      onMouseLeave={() => setHoveredSkillId("")}
-                      onFocus={() => setHoveredSkillId(item.id)}
-                      onBlur={() => setHoveredSkillId("")}
-                      max={100}
-                      min={0}
-                      onChange={(event) => updateSkillScore(item.id, event.target.value)}
-                      step={1}
-                      style={{
-                        background: `linear-gradient(to right, #15d4b0 0%, #15d4b0 ${item.value}%, rgba(255,255,255,0.12) ${item.value}%, rgba(255,255,255,0.12) 100%)`,
-                      }}
-                      type="range"
-                      value={item.value}
-                    />
-                  ) : (
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/12">
-                      <span
-                        className="block h-full rounded-full bg-[#15d4b0]"
-                        style={{ width: `${item.value}%` }}
-                      />
-                    </div>
-                  )}
+            {showAcademic && (
+              <div className="grid gap-4 md:grid-cols-2 mt-5 border-t border-white/10 pt-5">
+                <FieldSelect
+                  disabled={!isEditing}
+                  label={t("profile:edit.fields.currentGrade")}
+                  onChange={(value) => updateField("currentGrade", value)}
+                  options={currentGradeOptions}
+                  value={form.currentGrade}
+                />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.gpa")} onChange={(value) => updateField("gpa", value)} value={form.gpa} />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.mathScore")} onChange={(value) => updateField("mathScore", value)} value={form.mathScore} />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.englishScore")} onChange={(value) => updateField("englishScore", value)} value={form.englishScore} />
+                <div className="md:col-span-1">
+                  <FieldInput disabled={!isEditing} label={t("profile:edit.fields.scienceScore")} onChange={(value) => updateField("scienceScore", value)} value={form.scienceScore} />
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </article>
 
           <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <h2 className="font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.interests")}</h2>
-            <p className="mt-2 text-sm text-slate-300">{t("profile:edit.interestHint")}</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {INTEREST_KEYS.map((id) => {
-                const active = selectedInterests.includes(id);
-                return (
-                  <button
-                    disabled={!isEditing}
-                    key={id}
-                    className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                      active
-                        ? "border-[#0ed8ab]/45 bg-[#0ed8ab]/16 text-[#0ed8ab]"
-                        : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-                    } ${!isEditing ? "cursor-not-allowed opacity-70" : ""}`}
-                    onClick={() => toggleInterest(id)}
-                    type="button"
-                  >
-                    {t(`profile:edit.interests.${id}`)}
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => setShowSkills(!showSkills)}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#0ed8ab]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {t("profile:edit.sections.skills")}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showSkills ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showSkills && (
+              <div className="space-y-4 mt-5 border-t border-white/10 pt-5">
+                {skillRows.map((item) => (
+                  <div key={item.id}>
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span>{item.label}</span>
+                      <span className="font-semibold text-[#0ed8ab]">{item.value}/100</span>
+                    </div>
+                    {isEditing ? (
+                      <input
+                        className={`mt-2 h-2 w-full cursor-pointer appearance-none rounded-full 
+                        [&::-webkit-slider-runnable-track]:h-2
+                        [&::-webkit-slider-runnable-track]:rounded-full
+                        [&::-webkit-slider-runnable-track]:bg-transparent
+                        [&::-webkit-slider-thumb]:appearance-none
+                        [&::-webkit-slider-thumb]:transition-all
+                        [&::-webkit-slider-thumb]:duration-150
+                        [&::-moz-range-track]:h-2
+                        [&::-moz-range-track]:rounded-full
+                        [&::-moz-range-track]:bg-transparent
+                        [&::-moz-range-thumb]:transition-all
+                        [&::-moz-range-thumb]:duration-150
+                        ${
+                          hoveredSkillId === item.id
+                            ? "[&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#15d4b0] [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#0f9e87] [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(21,212,176,0.18)] [&::-webkit-slider-thumb]:opacity-100 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#15d4b0] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-100"
+                            : "[&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent [&::-webkit-slider-thumb]:shadow-none [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-thumb]:opacity-0"
+                        }`}
+                        onMouseEnter={() => setHoveredSkillId(item.id)}
+                        onMouseLeave={() => setHoveredSkillId("")}
+                        onFocus={() => setHoveredSkillId(item.id)}
+                        onBlur={() => setHoveredSkillId("")}
+                        max={100}
+                        min={0}
+                        onChange={(event) => updateSkillScore(item.id, event.target.value)}
+                        step={1}
+                        style={{
+                          background: `linear-gradient(to right, #15d4b0 0%, #15d4b0 ${item.value}%, rgba(255,255,255,0.12) ${item.value}%, rgba(255,255,255,0.12) 100%)`,
+                        }}
+                        type="range"
+                        value={item.value}
+                      />
+                    ) : (
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/12">
+                        <span
+                          className="block h-full rounded-full bg-[#15d4b0]"
+                          style={{ width: `${item.value}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </article>
 
           <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.preferences")}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FieldInput
-                disabled={!isEditing}
-                label={t("profile:edit.fields.preferredLocation")}
-                onChange={(value) => updateField("preferredLocation", value)}
-                value={form.preferredLocation}
-              />
-              <FieldInput disabled={!isEditing} label={t("profile:edit.fields.maxTuition")} onChange={(value) => updateField("maxTuition", value)} value={form.maxTuition} />
-              <FieldSelect
-                disabled={!isEditing}
-                label={t("profile:edit.fields.studyMode")}
-                onChange={(value) => updateField("studyMode", value)}
-                options={studyModeOptions}
-                value={form.studyMode}
-              />
-              <FieldSelect
-                disabled={!isEditing}
-                label={t("profile:edit.fields.language")}
-                onChange={(value) => updateField("language", value)}
-                options={instructionLanguageOptions}
-                value={form.language}
-              />
-            </div>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => setShowInterests(!showInterests)}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#ffe16d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {t("profile:edit.sections.interests")}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showInterests ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showInterests && (
+              <div className="mt-5 border-t border-white/10 pt-5">
+                <p className="text-sm text-slate-300">{t("profile:edit.interestHint")}</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {INTEREST_KEYS.map((id) => {
+                    const active = selectedInterests.includes(id);
+                    return (
+                      <button
+                        disabled={!isEditing}
+                        key={id}
+                        className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                          active
+                            ? "border-[#0ed8ab]/45 bg-[#0ed8ab]/16 text-[#0ed8ab]"
+                            : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                        } ${!isEditing ? "cursor-not-allowed opacity-70" : ""}`}
+                        onClick={() => toggleInterest(id)}
+                        type="button"
+                      >
+                        {t(`profile:edit.interests.${id}`)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => setShowPreferences(!showPreferences)}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#7f8cff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                {t("profile:edit.sections.preferences")}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showPreferences ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showPreferences && (
+              <div className="grid gap-4 md:grid-cols-2 mt-5 border-t border-white/10 pt-5">
+                <FieldInput
+                  disabled={!isEditing}
+                  label={t("profile:edit.fields.preferredLocation")}
+                  onChange={(value) => updateField("preferredLocation", value)}
+                  value={form.preferredLocation}
+                />
+                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.maxTuition")} onChange={(value) => updateField("maxTuition", value)} value={form.maxTuition} />
+                <FieldSelect
+                  disabled={!isEditing}
+                  label={t("profile:edit.fields.studyMode")}
+                  onChange={(value) => updateField("studyMode", value)}
+                  options={studyModeOptions}
+                  value={form.studyMode}
+                />
+                <FieldSelect
+                  disabled={!isEditing}
+                  label={t("profile:edit.fields.language")}
+                  onChange={(value) => updateField("language", value)}
+                  options={instructionLanguageOptions}
+                  value={form.language}
+                />
+              </div>
+            )}
           </article>
 
           <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
@@ -684,50 +794,58 @@ function ProfilePage() {
   );
 }
 
-function FieldInput({ label, value, onChange, type = "text", disabled = false }) {
+function FieldInput({ label, value, onChange, type = "text", disabled = false, isLoading = false }) {
   return (
     <div>
       <label className="mb-2 block text-sm text-slate-300">{label}</label>
-      <input
-        className={`w-full rounded-xl border border-white/12 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 ${
-          disabled
-            ? "cursor-default bg-white/4"
-            : "bg-white/6 focus:border-[#ecc741] focus:outline-none"
-        }`}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        readOnly={disabled}
-        type={type}
-        value={value}
-      />
+      {isLoading ? (
+        <Skeleton height="38px" borderRadius="12px" className="w-full" />
+      ) : (
+        <input
+          className={`w-full rounded-xl border border-white/12 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 ${
+            disabled
+              ? "cursor-default bg-white/4"
+              : "bg-white/6 focus:border-[#ecc741] focus:outline-none"
+          }`}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          readOnly={disabled}
+          type={type}
+          value={value}
+        />
+      )}
     </div>
   );
 }
 
-function FieldSelect({ label, value, onChange, options, disabled = false }) {
+function FieldSelect({ label, value, onChange, options, disabled = false, isLoading = false }) {
   return (
     <div>
       <label className="mb-2 block text-sm text-slate-300">{label}</label>
-      <select
-        className={`w-full rounded-xl border border-white/12 px-3 py-2.5 text-sm text-slate-100 ${
-          disabled
-            ? "cursor-default bg-white/4"
-            : "bg-white/6 focus:border-[#ecc741] focus:outline-none"
-        }`}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        value={value}
-      >
-        {options.map((option) => (
-          <option
-            className="bg-[#203a59] text-slate-100"
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
+      {isLoading ? (
+        <Skeleton height="38px" borderRadius="12px" className="w-full" />
+      ) : (
+        <select
+          className={`w-full rounded-xl border border-white/12 px-3 py-2.5 text-sm text-slate-100 ${
+            disabled
+              ? "cursor-default bg-white/4"
+              : "bg-white/6 focus:border-[#ecc741] focus:outline-none"
+          }`}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          value={value}
+        >
+          {options.map((option) => (
+            <option
+              className="bg-[#203a59] text-slate-100"
+              key={option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 }

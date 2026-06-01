@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { getPlansRequest } from '../../feature/plan/planSlice'
+import Skeleton from '../../components/Skeleton'
+
 
 function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const { t } = useTranslation()
@@ -11,7 +13,7 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   
   const activePlanId = String(currentPlan).toLowerCase()
 
-  const { plans: dbPlans } = useSelector((state) => state.plan)
+  const { plans: dbPlans, loading } = useSelector((state) => state.plan)
 
   useEffect(() => {
     dispatch(getPlansRequest())
@@ -147,6 +149,8 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const sortOrder = { 'free': 0, 'pro': 1, 'edu': 2 };
   plans.sort((a, b) => (sortOrder[a.planCode] ?? 99) - (sortOrder[b.planCode] ?? 99));
 
+  const isPlansLoading = loading && dbPlans.length === 0;
+
   const handlePlanClick = (plan) => {
     if (!isLoggedIn) {
       navigate('/login', { state: { from: '/pricing' } })
@@ -191,11 +195,23 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
                 {plan.iconLabel}
               </div>
 
-              <h2 className="mt-5 font-['Sora'] text-[2.15rem] tracking-[-0.03em]">{plan.name}</h2>
+              {isPlansLoading ? (
+                <div className="mt-5 mb-2 h-[2.15rem] flex items-center">
+                  <Skeleton height="1.8rem" width="100px" />
+                </div>
+              ) : (
+                <h2 className="mt-5 font-['Sora'] text-[2.15rem] tracking-[-0.03em]">{plan.name}</h2>
+              )}
 
               <div className="mt-4 flex items-end gap-1">
-                <p className="font-['Sora'] text-[3.35rem] leading-none tracking-[-0.03em]">{plan.price}</p>
-                {plan.period ? <p className="pb-1 text-[1.06rem] text-slate-400">{plan.period}</p> : null}
+                {isPlansLoading ? (
+                  <Skeleton height="3.35rem" width="180px" />
+                ) : (
+                  <>
+                    <p className="font-['Sora'] text-[3.35rem] leading-none tracking-[-0.03em]">{plan.price}</p>
+                    {plan.period ? <p className="pb-1 text-[1.06rem] text-slate-400">{plan.period}</p> : null}
+                  </>
+                )}
               </div>
 
               <ul className="mt-7 space-y-3.5">
@@ -212,7 +228,15 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
               </ul>
 
               <div className="mt-auto pt-8">
-                {isLoggedIn && activePlanId === plan.planCode ? (
+                {isPlansLoading ? (
+                  <button
+                    className="w-full cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-xl font-semibold text-slate-200 flex items-center justify-center"
+                    disabled
+                    type="button"
+                  >
+                    <Skeleton height="1.5rem" width="120px" />
+                  </button>
+                ) : isLoggedIn && activePlanId === plan.planCode ? (
                   <button
                     className="w-full cursor-default rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-xl font-semibold text-slate-200"
                     disabled

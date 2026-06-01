@@ -1,7 +1,13 @@
 import { useTranslation } from "react-i18next";
+import { triggerMailWithFallback } from "../util/mailHelper";
 
 function SiteFooter() {
   const { t } = useTranslation();
+
+  const handleEmailClick = (e) => {
+    e.preventDefault();
+    triggerMailWithFallback(t("common:footer.emailVal"));
+  };
 
   return (
     <footer className="mt-12 border-t border-white/10 bg-[#020d1c]/90 py-10">
@@ -13,15 +19,17 @@ function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             <li>
               <span className="font-medium text-slate-200">{t("common:footer.emailLabel")}: </span>
-              <a className="transition hover:text-[#f2cb36]" href="mailto:support@careerpathai.com">
-                support@careerpathai.com
+              <a
+                className="transition hover:text-[#f2cb36] cursor-pointer"
+                href={`mailto:${t("common:footer.emailVal")}`}
+                onClick={handleEmailClick}
+              >
+                {t("common:footer.emailVal")}
               </a>
             </li>
             <li>
               <span className="font-medium text-slate-200">{t("common:footer.phoneLabel")}: </span>
-              <a className="transition hover:text-[#f2cb36]" href="tel:+84912345678">
-                +84 912 345 678
-              </a>
+              <span className="text-slate-300">+84 912 345 678</span>
             </li>
             <li>
               <span className="font-medium text-slate-200">{t("common:footer.addressLabel")}: </span>

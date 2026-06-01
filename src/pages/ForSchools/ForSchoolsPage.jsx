@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { triggerMailWithFallback } from "../../util/mailHelper";
+
 
 const BENEFIT_ICONS = {
   reach: (
@@ -51,6 +53,12 @@ function ForSchoolsPage() {
   const { t } = useTranslation();
   const benefits = ["reach", "quality", "transparent"];
   const steps = ["info", "review", "track", "maintain"];
+
+  const handleEmailClick = (e) => {
+    e.preventDefault();
+    triggerMailWithFallback(t("forSchools:cta.email"));
+  };
+
 
   return (
     <main className="mx-auto w-[min(1360px,96vw)] pb-14 pt-6">
@@ -132,12 +140,16 @@ function ForSchoolsPage() {
         <h2 className="font-['Sora'] text-4xl font-bold md:text-6xl">{t("forSchools:cta.title")}</h2>
         <p className="mx-auto mt-4 max-w-4xl text-lg text-slate-300 md:text-3xl">{t("forSchools:cta.subtitle")}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <a className="rounded-2xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-8 py-4 text-lg font-semibold text-[#102745] transition hover:brightness-105" href="mailto:schools@4s.edu">
+          <a
+            className="rounded-2xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-8 py-4 text-lg font-semibold text-[#102745] transition hover:brightness-105 cursor-pointer"
+            href={`mailto:${t("forSchools:cta.email")}`}
+            onClick={handleEmailClick}
+          >
             {t("forSchools:cta.email")}
           </a>
-          <a className="rounded-2xl border border-white/14 bg-white/6 px-8 py-4 text-lg font-semibold text-slate-200 transition hover:bg-white/10" href="tel:+84123456789">
+          <span className="rounded-2xl border border-white/14 bg-white/6 px-8 py-4 text-lg font-semibold text-slate-200 select-all">
             {t("forSchools:cta.phone")}
-          </a>
+          </span>
         </div>
         <p className="mt-6 text-sm text-slate-400">{t("forSchools:cta.note")}</p>
       </section>
