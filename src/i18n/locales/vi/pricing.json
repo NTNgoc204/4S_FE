@@ -12,7 +12,7 @@
     "free": {
       "name": "Free",
       "description": "Phù hợp để khám phá và bắt đầu",
-      "price": "$0",
+      "price": "0 VND",
       "period": "/ trọn đời",
       "cta": "Bắt Đầu Miễn Phí",
       "features": [
