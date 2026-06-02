@@ -21,6 +21,8 @@ import HomePage from "./pages/Home/HomePage";
 import AdminDashboardPage from "./pages/Admin/AdminDashboardPage";
 import AdminPricingPage from "./pages/Admin/AdminPricingPage";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
+import AdminRolesPage from "./pages/Admin/AdminRolesPage";
+import AdminFinancePage from "./pages/Admin/AdminFinancePage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
@@ -141,6 +143,8 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
+          <Route path="/admin/roles" element={<AdminRolesPage />} />
+          <Route path="/admin/finance" element={<AdminFinancePage />} />
         </Route>
 
         <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />

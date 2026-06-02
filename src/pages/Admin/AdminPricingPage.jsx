@@ -89,11 +89,11 @@ function AdminPricingPage() {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <header className="rounded-2xl border border-white/10 bg-[#153251]/82 p-5 md:p-6">
-        <h2 className="font-['Sora'] text-2xl font-semibold md:text-3xl">
+      <header className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm">
+        <h2 className="font-['Sora'] text-2xl font-semibold md:text-3xl text-slate-900">
           Pricing Management
         </h2>
-        <p className="mt-2 text-sm text-slate-300 md:text-base">
+        <p className="mt-2 text-sm text-slate-500 md:text-base">
           Edit plan name, description, and price.
         </p>
       </header>
@@ -103,8 +103,8 @@ function AdminPricingPage() {
       ) : (
         <section className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
           {/* Plan list */}
-          <article className="rounded-2xl border border-white/10 bg-[#183452]/82 p-4 md:p-5">
-            <h3 className="mb-4 font-['Sora'] text-lg font-semibold">Plans</h3>
+          <article className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm text-slate-800">
+            <h3 className="mb-4 font-['Sora'] text-lg font-semibold text-slate-900">Plans</h3>
             <div className="space-y-3">
               {adminPlans.map((plan) => {
                 const selected = plan.id === selectedPlanId;
@@ -112,18 +112,18 @@ function AdminPricingPage() {
                   <button
                     className={`w-full rounded-xl border p-3 text-left transition ${
                       selected
-                        ? "border-[#0ed8ab]/45 bg-[#0ed8ab]/14"
-                        : "border-white/10 bg-[#10253e]/72 hover:bg-[#10253e]"
+                        ? "border-teal-500 bg-teal-50/70 shadow-sm"
+                        : "border-slate-200 bg-white hover:bg-slate-50"
                     }`}
                     key={plan.id}
                     onClick={() => handleSelectPlan(plan.id)}
                     type="button"
                   >
-                    <p className="font-semibold text-slate-100">{plan.name}</p>
-                    <p className="mt-1 line-clamp-2 text-xs text-slate-400">
+                    <p className="font-semibold text-slate-800">{plan.name}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">
                       {plan.description || "—"}
                     </p>
-                    <p className="mt-2 text-sm font-medium text-[#0ed8ab]">
+                    <p className="mt-2 text-sm font-semibold text-teal-600">
                       {formatPrice(plan.price)}
                     </p>
                   </button>
@@ -131,23 +131,23 @@ function AdminPricingPage() {
               })}
 
               {adminPlans.length === 0 && (
-                <p className="text-sm text-slate-400">No plans found.</p>
+                <p className="text-sm text-slate-500">No plans found.</p>
               )}
             </div>
           </article>
 
           {/* Edit panel */}
           {selectedPlan ? (
-            <article className="rounded-2xl border border-white/10 bg-[#183452]/82 p-5">
+            <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm text-slate-800">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-['Sora'] text-xl font-semibold">Edit Plan</h3>
-                  <p className="mt-1 text-sm text-slate-300">
+                  <h3 className="font-['Sora'] text-xl font-semibold text-slate-900">Edit Plan</h3>
+                  <p className="mt-1 text-sm text-slate-500">
                     Changes are saved to the database when you click Save.
                   </p>
                 </div>
                 {dirty && (
-                  <span className="rounded-full border border-[#ecc741]/45 bg-[#ecc741]/14 px-2.5 py-1 text-xs font-semibold text-[#f3d459]">
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
                     Unsaved changes
                   </span>
                 )}
@@ -157,13 +157,13 @@ function AdminPricingPage() {
                 {/* Name */}
                 <div>
                   <label
-                    className="mb-1.5 block text-sm text-slate-300"
+                    className="mb-1.5 block text-sm font-medium text-slate-600"
                     htmlFor="plan-name"
                   >
                     Plan Name
                   </label>
                   <input
-                    className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
                     id="plan-name"
                     onChange={(e) => updateForm("name", e.target.value)}
                     type="text"
@@ -174,13 +174,13 @@ function AdminPricingPage() {
                 {/* Description */}
                 <div>
                   <label
-                    className="mb-1.5 block text-sm text-slate-300"
+                    className="mb-1.5 block text-sm font-medium text-slate-600"
                     htmlFor="plan-description"
                   >
                     Description
                   </label>
                   <textarea
-                    className="w-full resize-none rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none"
+                    className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
                     id="plan-description"
                     onChange={(e) => updateForm("description", e.target.value)}
                     rows={3}
@@ -191,20 +191,20 @@ function AdminPricingPage() {
                 {/* Price */}
                 <div>
                   <label
-                    className="mb-1.5 block text-sm text-slate-300"
+                    className="mb-1.5 block text-sm font-medium text-slate-600"
                     htmlFor="plan-price"
                   >
                     Price (VND)
                   </label>
                   <input
-                    className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
                     id="plan-price"
                     min="0"
                     onChange={(e) => updateForm("price", e.target.value)}
                     type="number"
                     value={form.price}
                   />
-                  <p className="mt-1.5 text-xs text-slate-400">
+                  <p className="mt-1.5 text-xs text-slate-500">
                     Preview: {formatPrice(form.price)}
                   </p>
                 </div>
@@ -212,7 +212,7 @@ function AdminPricingPage() {
 
               <div className="mt-6 flex justify-end">
                 <button
-                  className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-6 py-2.5 text-sm font-bold text-[#082339] transition hover:brightness-110 disabled:opacity-50"
+                  className="rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-50 shadow-sm"
                   disabled={updatePlanLoading || !dirty}
                   onClick={handleSave}
                   type="button"
@@ -234,16 +234,16 @@ function AdminPricingPage() {
 function SkeletonLoader() {
   return (
     <div className="grid animate-pulse gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-[#183452]/82 p-5">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         {[...Array(3)].map((_, i) => (
-          <div className="h-20 rounded-xl bg-white/8" key={i} />
+          <div className="h-20 rounded-xl bg-slate-100" key={i} />
         ))}
       </div>
-      <div className="space-y-4 rounded-2xl border border-white/10 bg-[#183452]/82 p-5">
-        <div className="h-6 w-40 rounded bg-white/8" />
-        <div className="h-10 rounded-xl bg-white/8" />
-        <div className="h-20 rounded-xl bg-white/8" />
-        <div className="h-10 rounded-xl bg-white/8" />
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="h-6 w-40 rounded bg-slate-100" />
+        <div className="h-10 rounded-xl bg-slate-100" />
+        <div className="h-20 rounded-xl bg-slate-100" />
+        <div className="h-10 rounded-xl bg-slate-100" />
       </div>
     </div>
   );

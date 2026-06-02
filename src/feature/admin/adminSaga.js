@@ -9,6 +9,12 @@ import {
   fetchRolesRequest,
   fetchRolesSuccess,
   fetchRolesFailure,
+  createRoleRequest,
+  createRoleSuccess,
+  createRoleFailure,
+  updateRoleRequest,
+  updateRoleSuccess,
+  updateRoleFailure,
   updateUserRequest,
   updateUserSuccess,
   updateUserFailure,
@@ -42,6 +48,40 @@ function* fetchRolesSaga() {
     yield put(fetchRolesSuccess(response.data ?? []));
   } catch (error) {
     yield put(fetchRolesFailure());
+  }
+}
+
+// ── Create role ─────────────────────────────────────────────────────────────
+function* createRoleSaga(action) {
+  const { payload, onSuccess } = action.payload;
+  try {
+    const response = yield call(adminAPI.createRole, payload);
+    yield put(createRoleSuccess(response.data ?? payload));
+    yield call(() => toast.success("Role created successfully."));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess, response.data ?? payload);
+    }
+  } catch (error) {
+    const msg = getErrorMessage(error, "Failed to create role");
+    yield put(createRoleFailure());
+    yield call(() => toast.error(msg));
+  }
+}
+
+// ── Update role ─────────────────────────────────────────────────────────────
+function* updateRoleSaga(action) {
+  const { id, patch, onSuccess } = action.payload;
+  try {
+    yield call(adminAPI.updateRole, id, patch);
+    yield put(updateRoleSuccess({ id, patch }));
+    yield call(() => toast.success("Role saved successfully."));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess);
+    }
+  } catch (error) {
+    const msg = getErrorMessage(error, "Failed to update role");
+    yield put(updateRoleFailure());
+    yield call(() => toast.error(msg));
   }
 }
 
@@ -108,6 +148,8 @@ function* updateAdminPlanSaga(action) {
 export function* adminSaga() {
   yield takeLatest(fetchUsersRequest.type, fetchUsersSaga);
   yield takeLatest(fetchRolesRequest.type, fetchRolesSaga);
+  yield takeEvery(createRoleRequest.type, createRoleSaga);
+  yield takeEvery(updateRoleRequest.type, updateRoleSaga);
   yield takeEvery(updateUserRequest.type, updateUserSaga);
   yield takeEvery(toggleUserStatusRequest.type, toggleUserStatusSaga);
   yield takeLatest(fetchAdminPlansRequest.type, fetchAdminPlansSaga);

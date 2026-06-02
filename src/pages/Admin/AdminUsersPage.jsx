@@ -33,6 +33,9 @@ function AdminUsersPage() {
     toggleStatusLoading,
   } = useSelector((state) => state.admin);
 
+  const currentUser = useSelector((state) => state.auth.user);
+  const currentUserId = currentUser?.userId;
+
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -129,49 +132,49 @@ function AdminUsersPage() {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <header className="rounded-2xl border border-white/10 bg-[#153251]/82 p-5 md:p-6">
-        <h2 className="font-['Sora'] text-2xl font-semibold md:text-3xl">
+      <header className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm">
+        <h2 className="font-['Sora'] text-2xl font-semibold md:text-3xl text-slate-900">
           User Management
         </h2>
-        <p className="mt-2 text-sm text-slate-300 md:text-base">
+        <p className="mt-2 text-sm text-slate-500 md:text-base">
           View, edit user details and toggle active status.
         </p>
       </header>
 
       {/* Summary cards */}
       <section className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Total Users" value={summary.total} valueClass="text-[#e8f2ff]" />
-        <SummaryCard label="Active" value={summary.active} valueClass="text-[#0ed8ab]" />
-        <SummaryCard label="Inactive" value={summary.inactive} valueClass="text-[#f3d459]" />
+        <SummaryCard label="Total Users" value={summary.total} valueClass="text-slate-900" />
+        <SummaryCard label="Active" value={summary.active} valueClass="text-teal-600" />
+        <SummaryCard label="Inactive" value={summary.inactive} valueClass="text-amber-600" />
       </section>
 
       {/* Filters */}
-      <article className="rounded-2xl border border-white/10 bg-[#183452]/82 p-4 md:p-5">
+      <article className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_180px]">
           <input
-            className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search by name, email, ID…"
             type="text"
             value={searchText}
           />
           <select
-            className="rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 focus:border-[#ecc741] focus:outline-none"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
             onChange={(e) => setStatusFilter(e.target.value)}
             value={statusFilter}
           >
-            <option className="bg-[#203a59]" value="all">All Status</option>
-            <option className="bg-[#203a59]" value="active">Active</option>
-            <option className="bg-[#203a59]" value="inactive">Inactive</option>
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
           <select
-            className="rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 focus:border-[#ecc741] focus:outline-none"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
             onChange={(e) => setRoleFilter(e.target.value)}
             value={roleFilter}
           >
-            <option className="bg-[#203a59]" value="all">All Roles</option>
+            <option value="all">All Roles</option>
             {roles.map((r) => (
-              <option className="bg-[#203a59]" key={r.id} value={r.name}>
+              <option key={r.id} value={r.name}>
                 {r.name}
               </option>
             ))}
@@ -184,10 +187,10 @@ function AdminUsersPage() {
         <SkeletonTable />
       ) : (
         <>
-          <article className="hidden overflow-hidden rounded-2xl border border-white/10 bg-[#183452]/82 md:block">
+          <article className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white md:block shadow-sm">
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="border-b border-white/10 text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                <thead className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.12em] text-slate-500 bg-slate-50 font-semibold">
                   <tr>
                     <th className="px-4 py-3">User</th>
                     <th className="px-4 py-3">Role</th>
@@ -206,18 +209,18 @@ function AdminUsersPage() {
                     </tr>
                   ) : (
                     filteredUsers.map((user) => (
-                      <tr className="border-b border-white/6 last:border-b-0" key={user.userId}>
+                      <tr className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors" key={user.userId}>
                         <td className="px-4 py-4">
-                          <p className="font-semibold text-slate-100">{user.username}</p>
-                          <p className="text-sm text-slate-400">{user.email}</p>
+                          <p className="font-semibold text-slate-900">{user.username}</p>
+                          <p className="text-sm text-slate-500">{user.email}</p>
                         </td>
-                        <td className="px-4 py-4 text-sm capitalize text-slate-300">
+                        <td className="px-4 py-4 text-sm capitalize text-slate-600">
                           {formatRole(user.roleName)}
                         </td>
-                        <td className="px-4 py-4 text-sm uppercase text-slate-200">
+                        <td className="px-4 py-4 text-sm uppercase text-slate-700 font-medium">
                           {user.planName ?? "—"}
                         </td>
-                        <td className="px-4 py-4 text-sm text-slate-300">
+                        <td className="px-4 py-4 text-sm text-slate-500">
                           {formatDate(user.createAt)}
                         </td>
                         <td className="px-4 py-4">
@@ -227,7 +230,8 @@ function AdminUsersPage() {
                           <div className="flex justify-end gap-2">
                             <EditActionButton onClick={() => openEditForm(user)} />
                             <ToggleStatusActionButton
-                              disabled={toggleStatusLoading === user.userId}
+                              disabled={user.userId === currentUserId}
+                              loading={toggleStatusLoading === user.userId}
                               isActive={user.isActive}
                               onClick={() => handleToggleStatus(user)}
                             />
@@ -245,25 +249,26 @@ function AdminUsersPage() {
           <section className="space-y-3 md:hidden">
             {filteredUsers.map((user) => (
               <article
-                className="rounded-2xl border border-white/10 bg-[#183452]/82 p-4"
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
                 key={user.userId}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-slate-100">{user.username}</p>
-                    <p className="text-sm text-slate-400">{user.email}</p>
+                    <p className="font-semibold text-slate-900">{user.username}</p>
+                    <p className="text-sm text-slate-500">{user.email}</p>
                   </div>
                   <StatusBadge isActive={user.isActive} />
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300">
-                  <p>Role: <span className="font-semibold">{formatRole(user.roleName)}</span></p>
-                  <p>Plan: <span className="font-semibold uppercase">{user.planName ?? "—"}</span></p>
-                  <p className="col-span-2">Joined: <span className="font-semibold">{formatDate(user.createAt)}</span></p>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                  <p>Role: <span className="font-semibold text-slate-800">{formatRole(user.roleName)}</span></p>
+                  <p>Plan: <span className="font-semibold uppercase text-slate-800">{user.planName ?? "—"}</span></p>
+                  <p className="col-span-2">Joined: <span className="font-semibold text-slate-800">{formatDate(user.createAt)}</span></p>
                 </div>
                 <div className="mt-3 flex gap-2">
                   <EditActionButton fullWidth onClick={() => openEditForm(user)} />
                   <ToggleStatusActionButton
-                    disabled={toggleStatusLoading === user.userId}
+                    disabled={user.userId === currentUserId}
+                    loading={toggleStatusLoading === user.userId}
                     fullWidth
                     isActive={user.isActive}
                     onClick={() => handleToggleStatus(user)}
@@ -277,15 +282,15 @@ function AdminUsersPage() {
 
       {/* Edit modal */}
       {isFormOpen ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[#020712]/75 px-3">
-          <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-[#173554] p-5">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-3">
+          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl text-slate-800">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="font-['Sora'] text-xl font-semibold">Edit User</h3>
-                <p className="mt-1 text-sm text-slate-300">{editingUser?.email}</p>
+                <h3 className="font-['Sora'] text-xl font-semibold text-slate-900">Edit User</h3>
+                <p className="mt-1 text-sm text-slate-500">{editingUser?.email}</p>
               </div>
               <button
-                className="rounded-lg border border-white/12 bg-white/6 px-2.5 py-1 text-sm text-slate-200 transition hover:bg-white/12"
+                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm text-slate-600 transition hover:bg-slate-50 hover:border-slate-300 shadow-sm"
                 onClick={closeForm}
                 type="button"
               >
@@ -335,14 +340,14 @@ function AdminUsersPage() {
 
             <div className="mt-5 flex justify-end gap-2">
               <button
-                className="rounded-lg border border-white/12 bg-white/6 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/12"
+                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50 hover:border-slate-300 shadow-sm"
                 onClick={closeForm}
                 type="button"
               >
                 Cancel
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-4 py-2 text-sm font-bold text-[#082339] transition hover:brightness-110 disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-teal-500 to-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-50 shadow-sm"
                 disabled={updateUserLoading}
                 onClick={handleSaveUser}
                 type="button"
@@ -362,8 +367,8 @@ function AdminUsersPage() {
 // ─────────────────────────────────────────────────────────────────────────────
 function SummaryCard({ label, value, valueClass }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-[#183452]/82 p-4 md:p-5">
-      <p className="text-sm text-slate-300">{label}</p>
+    <article className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
       <p className={`mt-2 font-['Sora'] text-3xl font-semibold ${valueClass}`}>{value}</p>
     </article>
   );
@@ -374,8 +379,8 @@ function StatusBadge({ isActive }) {
     <span
       className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] ${
         isActive
-          ? "border border-[#0ed8ab]/45 bg-[#0ed8ab]/16 text-[#0ed8ab]"
-          : "border border-[#ecc741]/45 bg-[#ecc741]/16 text-[#f3d459]"
+          ? "border border-teal-200 bg-teal-50 text-teal-700"
+          : "border border-amber-200 bg-amber-50 text-amber-700"
       }`}
     >
       {isActive ? "active" : "inactive"}
@@ -387,7 +392,7 @@ function EditActionButton({ onClick, fullWidth = false }) {
   const widthClass = fullWidth ? "flex-1" : "w-32";
   return (
     <button
-      className={`${widthClass} inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-white/12 bg-white/6 px-3 text-sm text-slate-200 transition hover:bg-white/12`}
+      className={`${widthClass} inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 transition hover:bg-slate-50 hover:border-slate-300 shadow-sm`}
       onClick={onClick}
       type="button"
     >
@@ -405,36 +410,37 @@ function EditActionButton({ onClick, fullWidth = false }) {
   );
 }
 
-function ToggleStatusActionButton({ isActive, onClick, fullWidth = false, disabled = false }) {
+function ToggleStatusActionButton({ isActive, onClick, fullWidth = false, disabled = false, loading = false }) {
   const widthClass = fullWidth ? "flex-1" : "w-32";
   return (
     <button
       className={`${widthClass} inline-flex h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition ${
         isActive
-          ? "border border-[#ecc741]/45 bg-[#ecc741]/14 text-[#f3d459] hover:bg-[#ecc741]/24"
-          : "border border-[#0ed8ab]/40 bg-[#0ed8ab]/14 text-[#0ed8ab] hover:bg-[#0ed8ab]/22"
-      } disabled:opacity-50`}
-      disabled={disabled}
+          ? "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100/80"
+          : "border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100/80"
+      } disabled:opacity-40 disabled:cursor-not-allowed shadow-sm`}
+      disabled={disabled || loading}
       onClick={onClick}
       type="button"
+      title={disabled && !loading ? "Bạn không thể tự khóa/kích hoạt tài khoản của chính mình" : undefined}
     >
       <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
         <path d="M12 4v7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
         <path d="M8 6.7a7 7 0 1 0 8 0" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
       </svg>
-      <span>{disabled ? "…" : isActive ? "Set Inactive" : "Set Active"}</span>
+      <span>{loading ? "…" : isActive ? "Set Inactive" : "Set Active"}</span>
     </button>
   );
 }
 
 function SkeletonTable() {
   return (
-    <article className="animate-pulse space-y-3 rounded-2xl border border-white/10 bg-[#183452]/82 p-5">
+    <article className="animate-pulse space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       {[...Array(4)].map((_, i) => (
         <div className="flex gap-4" key={i}>
-          <div className="h-10 flex-1 rounded-lg bg-white/8" />
-          <div className="h-10 w-24 rounded-lg bg-white/8" />
-          <div className="h-10 w-20 rounded-lg bg-white/8" />
+          <div className="h-10 flex-1 rounded-lg bg-slate-100" />
+          <div className="h-10 w-24 rounded-lg bg-slate-100" />
+          <div className="h-10 w-20 rounded-lg bg-slate-100" />
         </div>
       ))}
     </article>
@@ -444,9 +450,9 @@ function SkeletonTable() {
 function FormField({ label, value, onChange, type = "text" }) {
   return (
     <div>
-      <p className="mb-1.5 text-sm text-slate-300">{label}</p>
+      <p className="mb-1.5 text-sm font-medium text-slate-600">{label}</p>
       <input
-        className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
         onChange={(e) => onChange(e.target.value)}
         type={type}
         value={value}
@@ -458,14 +464,14 @@ function FormField({ label, value, onChange, type = "text" }) {
 function FormSelect({ label, value, onChange, options }) {
   return (
     <div>
-      <p className="mb-1.5 text-sm text-slate-300">{label}</p>
+      <p className="mb-1.5 text-sm font-medium text-slate-600">{label}</p>
       <select
-        className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 text-sm text-slate-100 focus:border-[#ecc741] focus:outline-none"
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
         onChange={(e) => onChange(e.target.value)}
         value={value}
       >
         {options.map((opt) => (
-          <option className="bg-[#203a59] text-slate-100" key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
         ))}

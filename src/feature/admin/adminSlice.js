@@ -8,6 +8,8 @@ const initialState = {
 
   roles: [],
   rolesLoading: false,
+  createRoleLoading: false,
+  updateRoleLoading: false,
 
   updateUserLoading: false,
   updateUserError: null,
@@ -51,6 +53,33 @@ const adminSlice = createSlice({
     },
     fetchRolesFailure: (state) => {
       state.rolesLoading = false;
+    },
+
+    // ── Create Role ────────────────────────────────────────
+    createRoleRequest: (state) => {
+      state.createRoleLoading = true;
+    },
+    createRoleSuccess: (state, action) => {
+      state.createRoleLoading = false;
+      state.roles = [action.payload, ...state.roles];
+    },
+    createRoleFailure: (state) => {
+      state.createRoleLoading = false;
+    },
+
+    // ── Update Role ────────────────────────────────────────
+    updateRoleRequest: (state) => {
+      state.updateRoleLoading = true;
+    },
+    updateRoleSuccess: (state, action) => {
+      state.updateRoleLoading = false;
+      const { id, patch } = action.payload;
+      state.roles = state.roles.map((role) =>
+        role.id === id ? { ...role, ...patch } : role,
+      );
+    },
+    updateRoleFailure: (state) => {
+      state.updateRoleLoading = false;
     },
 
     // ── Update User (edit form) ──────────────────────────────
@@ -126,6 +155,12 @@ export const {
   fetchRolesRequest,
   fetchRolesSuccess,
   fetchRolesFailure,
+  createRoleRequest,
+  createRoleSuccess,
+  createRoleFailure,
+  updateRoleRequest,
+  updateRoleSuccess,
+  updateRoleFailure,
   updateUserRequest,
   updateUserSuccess,
   updateUserFailure,
