@@ -27,4 +27,13 @@ export const adminAPI = {
   // ── Roles ────────────────────────────────────────────────
   // GET /api/Roles
   getRoles: () => apiClient.get("/api/Roles"),
+
+  // GET /api/Roles/{id}
+  getRoleById: (id) => apiClient.get(`/api/Roles/${id}`),
+
+  // POST /api/Roles
+  createRole: (data) => apiClient.post("/api/Roles", data),
+
+  // PUT /api/Roles/{id}
+  updateRole: (id, data) => apiClient.put(`/api/Roles/${id}`, data),
 };
