@@ -28,6 +28,11 @@ import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage"
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
 import AccountantInvoicesPage from "./pages/Accountant/AccountantInvoicesPage";
+import SchoolLayout from "./layouts/SchoolLayout";
+import SchoolDashboardPage from "./pages/SchoolManager/SchoolDashboardPage";
+import SchoolStudentsPage from "./pages/SchoolManager/SchoolStudentsPage";
+import SchoolEventsPage from "./pages/SchoolManager/SchoolEventsPage";
+import SchoolSettingsPage from "./pages/SchoolManager/SchoolSettingsPage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
@@ -170,6 +175,26 @@ function App() {
           <Route path="/accountant/expenses" element={<AccountantExpensesPage />} />
           <Route path="/accountant/transactions" element={<AccountantTransactionsPage />} />
           <Route path="/accountant/invoices" element={<AccountantInvoicesPage />} />
+        </Route>
+
+        {/* School Layout - cho school manager */}
+        <Route
+          element={
+            <ProtectedRoute
+              roles={["school_manager", "school"]}
+              currentRole={role}
+              isAuthenticated={isLoggedIn}
+              useRedux={true}
+            >
+              <SchoolLayout onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate replace to="/school/dashboard" />} />
+          <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
+          <Route path="/school/students" element={<SchoolStudentsPage />} />
+          <Route path="/school/events" element={<SchoolEventsPage />} />
+          <Route path="/school/settings" element={<SchoolSettingsPage />} />
         </Route>
 
         <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />
