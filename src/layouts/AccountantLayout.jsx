@@ -35,6 +35,11 @@ function AccountantLayout({ onLogout = () => {} }) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isVi = i18n.resolvedLanguage === "vi";
+  const isEnglish = i18n.resolvedLanguage !== "vi";
+
+  function handleLanguageChange(lang) {
+    i18n.changeLanguage(lang);
+  }
 
   const NAV_ITEMS = [
     { label: isVi ? "Dashboard & Báo cáo" : "Dashboard & Reports", to: "/accountant/dashboard" },
@@ -107,6 +112,32 @@ function AccountantLayout({ onLogout = () => {} }) {
                 <h1 className="font-['Sora'] text-xl font-semibold text-slate-900">
                   {isVi ? "Bảng Điều Phối Tài Chính 4S" : "4S Financial Console"}
                 </h1>
+              </div>
+
+              {/* Language Switcher */}
+              <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-sm">
+                <button
+                  className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
+                    isEnglish
+                      ? "bg-white text-teal-700 shadow-sm border border-slate-100"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                  onClick={() => handleLanguageChange("en")}
+                  type="button"
+                >
+                  EN
+                </button>
+                <button
+                  className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
+                    isEnglish
+                      ? "text-slate-500 hover:text-slate-800"
+                      : "bg-white text-teal-700 shadow-sm border border-slate-100"
+                  }`}
+                  onClick={() => handleLanguageChange("vi")}
+                  type="button"
+                >
+                  VI
+                </button>
               </div>
             </div>
 
