@@ -6,6 +6,11 @@ import {
   updateUserRequest,
   toggleUserStatusRequest,
 } from "../../feature/admin/adminSlice";
+import {
+  formatDateForBE,
+  formatDateForFE,
+  formatDateForInput,
+} from "../../util/dateHelper";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -16,8 +21,7 @@ function formatRole(roleName) {
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("vi-VN");
+  return formatDateForFE(dateStr);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -90,7 +94,7 @@ function AdminUsersPage() {
       address: user.address ?? "",
       phoneNumber: user.phoneNumber ?? "",
       gender: user.gender ?? "Other",
-      dob: user.dob ? user.dob.split("T")[0] : "",
+      dob: formatDateForInput(user.dob),
       roleId: user.roleId ?? "",
     });
     setIsFormOpen(true);
@@ -115,7 +119,7 @@ function AdminUsersPage() {
       address: form.address.trim() || undefined,
       phoneNumber: form.phoneNumber.trim() || undefined,
       gender: form.gender || undefined,
-      dob: form.dob || undefined,
+      dob: formatDateForBE(form.dob) || undefined,
       roleId: form.roleId || undefined,
     };
 
