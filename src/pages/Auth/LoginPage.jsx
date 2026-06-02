@@ -54,6 +54,8 @@ function LoginPage() {
       const normalizedRole = String(role).toLowerCase();
       if (normalizedRole === "admin") {
         navigate("/admin/dashboard", { replace: true });
+      } else if (normalizedRole === "accountant") {
+        navigate("/accountant/dashboard", { replace: true });
       } else {
         navigate("/", { replace: true });
       }

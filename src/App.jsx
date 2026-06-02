@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,6 +8,7 @@ import { logoutRequest, getMeRequest } from "./feature/auth/authSlice";
 import { loadNotificationsRequest } from "./feature/notification/notificationSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
+import AccountantLayout from "./layouts/AccountantLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/Auth/LoginPage";
 import SignUpPage from "./pages/Auth/SignUpPage";
@@ -23,6 +24,10 @@ import AdminPricingPage from "./pages/Admin/AdminPricingPage";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
 import AdminRolesPage from "./pages/Admin/AdminRolesPage";
 import AdminFinancePage from "./pages/Admin/AdminFinancePage";
+import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
+import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
+import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
+import AccountantInvoicesPage from "./pages/Accountant/AccountantInvoicesPage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
@@ -127,7 +132,7 @@ function App() {
           </Route>
         </Route>
 
-        {/* Admin Layout - cho admin users only */}
+        {/* Admin Layout - cho admin */}
         <Route
           element={
             <ProtectedRoute
@@ -145,6 +150,26 @@ function App() {
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
           <Route path="/admin/roles" element={<AdminRolesPage />} />
           <Route path="/admin/finance" element={<AdminFinancePage />} />
+        </Route>
+
+        {/* Accountant Layout - cho accountant */}
+        <Route
+          element={
+            <ProtectedRoute
+              roles={["accountant"]}
+              currentRole={role}
+              isAuthenticated={isLoggedIn}
+              useRedux={true}
+            >
+              <AccountantLayout onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate replace to="/accountant/dashboard" />} />
+          <Route path="/accountant/dashboard" element={<AccountantDashboardPage />} />
+          <Route path="/accountant/expenses" element={<AccountantExpensesPage />} />
+          <Route path="/accountant/transactions" element={<AccountantTransactionsPage />} />
+          <Route path="/accountant/invoices" element={<AccountantInvoicesPage />} />
         </Route>
 
         <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />

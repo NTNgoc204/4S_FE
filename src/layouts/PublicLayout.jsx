@@ -12,8 +12,14 @@ function PublicLayout({
 }) {
   const location = useLocation()
   
-  if (isLoggedIn && String(currentRole).toLowerCase() === 'admin') {
-    return <Navigate replace to="/admin/dashboard" />
+  if (isLoggedIn) {
+    const roleLower = String(currentRole).toLowerCase()
+    if (roleLower === 'admin') {
+      return <Navigate replace to="/admin/dashboard" />
+    }
+    if (roleLower === 'accountant') {
+      return <Navigate replace to="/accountant/dashboard" />
+    }
   }
 
   const isLoginPage = location.pathname === '/login'
