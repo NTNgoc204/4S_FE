@@ -1,0 +1,51 @@
+{
+  "title": "Confirm Registration Details",
+  "userInfo": {
+    "title": "Customer Information",
+    "name": "Full Name",
+    "email": "Email"
+  },
+  "planInfo": {
+    "title": "Plan Information",
+    "name": "Service Plan",
+    "price": "Price",
+    "total": "Total Amount"
+  },
+  "actions": {
+    "back": "Go Back",
+    "confirm": "Confirm Registration",
+    "loading": "Processing...",
+    "copy": "Copy"
+  },
+  "errors": {
+    "noPaymentInfo": "Transaction payment info not found!"
+  },
+  "expired": {
+    "toast": "The payment transaction has expired!"
+  },
+  "success": {
+    "toast": "Payment completed successfully!"
+  },
+  "qrcode": {
+    "title": "Scan QR Code for Payment",
+    "subtitle": "Please open your banking or e-wallet app to scan and pay.",
+    "generating": "Loading QR Code..."
+  },
+  "timer": {
+    "label": "Time Remaining"
+  },
+  "paymentDetails": {
+    "accountNumber": "Account Number",
+    "accountName": "Account Owner",
+    "amount": "Amount",
+    "code": "Transfer Description",
+    "bankName": "Bank"
+  },
+  "labels": {
+    "accountNumber": "Account Number",
+    "description": "Transfer Description"
+  },
+  "polling": {
+    "status": "Waiting for online payment confirmation..."
+  }
+}

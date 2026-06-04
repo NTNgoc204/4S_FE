@@ -1,0 +1,51 @@
+{
+  "title": "Xác nhận Thông tin Đăng ký",
+  "userInfo": {
+    "title": "Thông tin khách hàng",
+    "name": "Họ và tên",
+    "email": "Email"
+  },
+  "planInfo": {
+    "title": "Thông tin gói dịch vụ",
+    "name": "Gói đăng ký",
+    "price": "Đơn giá",
+    "total": "Tổng tiền"
+  },
+  "actions": {
+    "back": "Quay lại",
+    "confirm": "Xác nhận đăng ký",
+    "loading": "Đang xử lý...",
+    "copy": "Sao chép"
+  },
+  "errors": {
+    "noPaymentInfo": "Không tìm thấy thông tin giao dịch thanh toán!"
+  },
+  "expired": {
+    "toast": "Giao dịch thanh toán đã hết hạn!"
+  },
+  "success": {
+    "toast": "Thanh toán thành công!"
+  },
+  "qrcode": {
+    "title": "Quét mã QR để Thanh toán",
+    "subtitle": "Vui lòng mở ứng dụng ngân hàng hoặc ví điện tử để thanh toán.",
+    "generating": "Đang tải mã QR..."
+  },
+  "timer": {
+    "label": "Thời gian còn lại"
+  },
+  "paymentDetails": {
+    "accountNumber": "Số tài khoản",
+    "accountName": "Chủ tài khoản",
+    "amount": "Số tiền",
+    "code": "Nội dung chuyển khoản",
+    "bankName": "Ngân hàng"
+  },
+  "labels": {
+    "accountNumber": "Số tài khoản",
+    "description": "Nội dung chuyển khoản"
+  },
+  "polling": {
+    "status": "Đang chờ thanh toán trực tuyến..."
+  }
+}
