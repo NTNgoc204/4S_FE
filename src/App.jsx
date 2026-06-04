@@ -40,7 +40,7 @@ import GuidedQuizPage from "./pages/Quiz/GuidedQuizPage";
 import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import CheckoutPage from "./pages/Payment/CheckoutPage";
-import MockPaymentPortal from "./pages/Payment/MockPaymentPortal";
+import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 
 function App() {
   const { t } = useTranslation();
@@ -113,6 +113,7 @@ function App() {
           >
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/payment-qr" element={<PaymentQRPage />} />
             <Route path="/dashboard" element={<SkillDashboardPage />} />
             <Route
               path="/consultation"
@@ -206,7 +207,7 @@ function App() {
           <Route path="/school/settings" element={<SchoolSettingsPage />} />
         </Route>
 
-        <Route path="/mock-payment-portal" element={<MockPaymentPortal />} />
+
 
         {/* Catch all - phải ở cuối cùng */}
         <Route path="*" element={<Navigate replace to="/not-found" />} />
