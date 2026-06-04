@@ -8,6 +8,7 @@ let isHandlingUnauthorized = false;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
