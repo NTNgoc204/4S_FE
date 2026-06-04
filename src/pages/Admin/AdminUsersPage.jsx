@@ -10,6 +10,7 @@ import {
   formatDateForBE,
   formatDateForFE,
   formatDateForInput,
+  formatDateTimeForFE,
 } from "../../util/dateHelper";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,6 +23,24 @@ function formatRole(roleName) {
 
 function formatDate(dateStr) {
   return formatDateForFE(dateStr);
+}
+
+function formatDateTime(dateStr) {
+  return formatDateTimeForFE(dateStr);
+}
+
+function formatDateTimeSplit(dateStr) {
+  if (!dateStr) return { date: "—", time: "" };
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return { date: "—", time: "" };
+    const datePart = formatDateForFE(dateStr);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return { date: datePart, time: `${hours}:${minutes}` };
+  } catch (e) {
+    return { date: "—", time: "" };
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,13 +100,20 @@ function AdminUsersPage() {
 
   // ── Toggle active / inactive ────────────────────────────
   function handleToggleStatus(user) {
+    if (toggleStatusLoading === user.userId) return;
     dispatch(
-      toggleUserStatusRequest({ userId: user.userId, isActive: !user.isActive }),
+      toggleUserStatusRequest({
+        userId: user.userId,
+        isActive: !user.isActive,
+      }),
     );
   }
 
   // ── Open / close edit form ──────────────────────────────
   function openEditForm(user) {
+    const currentRole = roles.find(
+      (r) => (r.name ?? "").toLowerCase() === (user.roleName ?? "").toLowerCase()
+    );
     setEditingUser(user);
     setForm({
       username: user.username ?? "",
@@ -95,7 +121,7 @@ function AdminUsersPage() {
       phoneNumber: user.phoneNumber ?? "",
       gender: user.gender ?? "Other",
       dob: formatDateForInput(user.dob),
-      roleId: user.roleId ?? "",
+      roleId: currentRole ? currentRole.id : "",
     });
     setIsFormOpen(true);
   }
@@ -118,8 +144,8 @@ function AdminUsersPage() {
       username: form.username.trim() || undefined,
       address: form.address.trim() || undefined,
       phoneNumber: form.phoneNumber.trim() || undefined,
-      gender: form.gender || undefined,
-      dob: formatDateForBE(form.dob) || undefined,
+      gender: form.gender || editingUser.gender || "Other",
+      dob: formatDateForBE(form.dob) || formatDateForBE(editingUser.dob) || "2000-01-01T00:00:00.000Z",
       roleId: form.roleId || undefined,
     };
 
@@ -199,7 +225,7 @@ function AdminUsersPage() {
                     <th className="px-4 py-3">User</th>
                     <th className="px-4 py-3">Role</th>
                     <th className="px-4 py-3">Plan</th>
-                    <th className="px-4 py-3">Joined</th>
+                    <th className="px-4 py-3">Last Login</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
@@ -222,10 +248,34 @@ function AdminUsersPage() {
                           {formatRole(user.roleName)}
                         </td>
                         <td className="px-4 py-4 text-sm uppercase text-slate-700 font-medium">
-                          {user.planName ?? "—"}
+                          {String(user.roleName).toLowerCase() === "student" ? (user.planName ?? "—") : "—"}
                         </td>
-                        <td className="px-4 py-4 text-sm text-slate-500">
-                          {formatDate(user.createAt)}
+                        <td className="px-4 py-4">
+                          {(() => {
+                            const { date, time } = formatDateTimeSplit(user.lastLoginTime);
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1.5 text-slate-700">
+                                  <svg className="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                  </svg>
+                                  <span className="text-sm font-semibold tracking-tight">{date}</span>
+                                </div>
+                                {time && (
+                                  <div className="flex items-center gap-1.5 text-slate-500 pl-0.5">
+                                    <svg className="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                                      <circle cx="12" cy="12" r="10" />
+                                      <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    <span className="text-xs font-medium">{time}</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="px-4 py-4">
                           <StatusBadge isActive={user.isActive} />
@@ -265,8 +315,16 @@ function AdminUsersPage() {
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
                   <p>Role: <span className="font-semibold text-slate-800">{formatRole(user.roleName)}</span></p>
-                  <p>Plan: <span className="font-semibold uppercase text-slate-800">{user.planName ?? "—"}</span></p>
-                  <p className="col-span-2">Joined: <span className="font-semibold text-slate-800">{formatDate(user.createAt)}</span></p>
+                  <p>Plan: <span className="font-semibold uppercase text-slate-800">{String(user.roleName).toLowerCase() === "student" ? (user.planName ?? "—") : "—"}</span></p>
+                  <p className="col-span-2">
+                    Last Login:{" "}
+                    <span className="font-semibold text-slate-800">
+                      {(() => {
+                        const { date, time } = formatDateTimeSplit(user.lastLoginTime);
+                        return time ? `${date} ${time}` : date;
+                      })()}
+                    </span>
+                  </p>
                 </div>
                 <div className="mt-3 flex gap-2">
                   <EditActionButton fullWidth onClick={() => openEditForm(user)} />
