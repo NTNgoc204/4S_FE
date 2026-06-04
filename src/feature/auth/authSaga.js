@@ -21,7 +21,6 @@ import {
   getMeFailure,
   logoutRequest,
   logoutSuccess,
-  logoutFailure,
   refreshTokenRequest,
   refreshTokenSuccess,
   refreshTokenFailure,
@@ -41,6 +40,8 @@ import {
   changePasswordSuccess,
   changePasswordFailure,
 } from "./authSlice";
+
+const AUTH_REDIRECT_MESSAGE_KEY = "auth_redirect_message_key";
 
 // Register Step 1
 function* registerStep1Saga(action) {
@@ -195,6 +196,16 @@ function* refreshTokenSaga() {
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Session expired");
     yield put(refreshTokenFailure(errorMessage));
+    yield call(() => {
+      localStorage.setItem(AUTH_REDIRECT_MESSAGE_KEY, "auth:sessionExpired");
+      sessionStorage.clear();
+    });
+    yield put(logoutSuccess());
+    yield call(() => {
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    });
   }
 }
 
