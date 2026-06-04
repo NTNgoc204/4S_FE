@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { BrowserRouter, Navigate, Route, Routes, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
@@ -49,17 +49,28 @@ function App() {
   // Get auth state from Redux
   const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
 
-  // Tự động khôi phục thông tin user và thông báo khi load trang
+  // Track whether we have already fetched user info for the current session
+  const hasFetchedMe = useRef(false);
+
+  // Load notifications once on mount
   useEffect(() => {
     dispatch(loadNotificationsRequest());
-    if (isLoggedIn) {
+  }, [dispatch]);
+
+  // Fetch user info once when the user is (or becomes) logged in
+  useEffect(() => {
+    if (isLoggedIn && !hasFetchedMe.current) {
+      hasFetchedMe.current = true;
       dispatch(getMeRequest());
+    }
+    if (!isLoggedIn) {
+      // Reset so the next login triggers a fresh fetch
+      hasFetchedMe.current = false;
     }
   }, [dispatch, isLoggedIn]);
 
   function handleLogout() {
     dispatch(logoutRequest());
-    toast.success(t("auth:logoutSuccess"));
   }
 
   return (
@@ -170,7 +181,6 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate replace to="/accountant/dashboard" />} />
           <Route path="/accountant/dashboard" element={<AccountantDashboardPage />} />
           <Route path="/accountant/expenses" element={<AccountantExpensesPage />} />
           <Route path="/accountant/transactions" element={<AccountantTransactionsPage />} />
@@ -190,7 +200,6 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate replace to="/school/dashboard" />} />
           <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
           <Route path="/school/students" element={<SchoolStudentsPage />} />
           <Route path="/school/events" element={<SchoolEventsPage />} />

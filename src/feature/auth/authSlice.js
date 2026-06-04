@@ -12,6 +12,7 @@ const initialState = {
   verifyToken: null,
   registerStep1Success: false,
   avatarUploading: false,
+  justLoggedOut: false,
 };
 
 const resetAuthState = (state) => {
@@ -26,6 +27,7 @@ const resetAuthState = (state) => {
   state.registerStep1Success = false;
   state.loading = false;
   state.avatarUploading = false;
+  state.justLoggedOut = false;
 };
 
 const authSlice = createSlice({
@@ -81,9 +83,11 @@ const authSlice = createSlice({
     loginRequest: (state) => {
       state.loading = true;
       state.error = null;
+      state.justLoggedOut = false;
     },
     loginSuccess: (state, action) => {
-      state.loading = false;
+      // Keep loading = true: loginSaga calls getMeSaga right after this.
+      // loading will be cleared by getMeSuccess / getMeFailure.
       state.isLoggedIn = true;
       state.token = action.payload.token;
       state.plan = "";
@@ -120,6 +124,7 @@ const authSlice = createSlice({
     },
     logoutSuccess: (state) => {
       resetAuthState(state);
+      state.justLoggedOut = true;
     },
     logoutFailure: (state, action) => {
       state.loading = false;
