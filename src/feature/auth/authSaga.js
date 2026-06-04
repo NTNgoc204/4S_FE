@@ -169,6 +169,8 @@ function* logoutSaga() {
       sessionStorage.clear();
     });
     yield put(logoutSuccess());
+    // Show success toast — ProtectedRoute will navigate to /login via React Router (no reload)
+    yield call(() => toast.success(i18n.t("auth:logoutSuccess")));
   }
 }
 
