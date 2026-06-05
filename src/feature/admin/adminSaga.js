@@ -91,7 +91,6 @@ function* updateUserSaga(action) {
   try {
     yield call(adminAPI.updateUser, userId, patch);
     yield put(updateUserSuccess({ userId, patch }));
-    yield put(fetchUsersRequest()); // Refetch all users to sync the UI table with the BE
     yield call(() => toast.success("User updated successfully."));
     if (typeof onSuccess === "function") {
       yield call(onSuccess);
@@ -107,13 +106,8 @@ function* updateUserSaga(action) {
 function* toggleUserStatusSaga(action) {
   const { userId, isActive } = action.payload;
   try {
-    yield call(adminAPI.toggleUserActive, userId);
+    yield call(adminAPI.updateUser, userId, { isActive });
     yield put(toggleUserStatusSuccess({ userId, isActive }));
-    yield call(() =>
-      toast.success(
-        `User status updated to ${isActive ? "Active" : "Inactive"} successfully.`
-      )
-    );
   } catch (error) {
     const msg = getErrorMessage(error, "Failed to update user status");
     yield put(toggleUserStatusFailure());

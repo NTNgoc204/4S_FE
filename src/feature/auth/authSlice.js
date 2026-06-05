@@ -136,6 +136,7 @@ const authSlice = createSlice({
       state.refreshTokenError = null;
     },
     refreshTokenSuccess: (state, action) => {
+      state.isLoggedIn = true;
       state.token = action.payload.token;
       state.refreshTokenError = null;
     },
@@ -219,6 +220,7 @@ const authSlice = createSlice({
 
     clearError: (state) => {
       state.error = null;
+      state.refreshTokenError = null;
     },
   },
 });

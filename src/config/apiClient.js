@@ -28,6 +28,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+
 // Response interceptor
 apiClient.interceptors.response.use(
   (response) => {
@@ -47,6 +48,7 @@ apiClient.interceptors.response.use(
     ) {
       isHandlingUnauthorized = true;
       localStorage.setItem(AUTH_REDIRECT_MESSAGE_KEY, "auth:accessExpired");
+      localStorage.removeItem("was_logged_in");
       sessionStorage.clear();
 
       // Token expired or invalid - dispatch logoutRequest to trigger saga

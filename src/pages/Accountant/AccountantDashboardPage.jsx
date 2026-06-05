@@ -141,7 +141,6 @@ function AccountantDashboardPage() {
   }, [expenses]);
 
   const netProfit = totalRevenue - totalExpenses;
-  const vatCollected = Math.round(totalRevenue * 0.1);
   const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : "0";
 
   // Previous month comparison
@@ -212,10 +211,14 @@ function AccountantDashboardPage() {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">{text.vatCollected}</p>
-          <p className="mt-2 font-['Sora'] text-2xl font-semibold text-amber-600">{fmtVND(vatCollected)}</p>
+          <p className="text-sm font-medium text-slate-500">
+            {locale === "vi" ? "Giao dịch thành công" : "Successful Transactions"}
+          </p>
+          <p className="mt-2 font-['Sora'] text-2xl font-semibold text-[#0ed8ab]">
+            {incomes.filter((i) => i.status === "Success").length}
+          </p>
           <span className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-500">
-            {text.preTaxTotal}
+            {locale === "vi" ? `Trên tổng số ${incomes.length} giao dịch` : `Out of ${incomes.length} total transactions`}
           </span>
         </div>
 
@@ -409,16 +412,7 @@ function AccountantDashboardPage() {
                 <td className="px-4 py-3 text-right text-teal-600 font-semibold">{fmtVND(totalRevenue)}</td>
                 <td className="px-4 py-3 text-right text-slate-500">100.0%</td>
               </tr>
-              <tr>
-                <td className="px-4 py-3 pl-8 text-slate-500">{text.vatCollectedRow}</td>
-                <td className="px-4 py-3 text-right text-indigo-600">{fmtVND(vatCollected)}</td>
-                <td className="px-4 py-3 text-right text-slate-400">10.0%</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 text-slate-800">{text.netRevExclVat}</td>
-                <td className="px-4 py-3 text-right text-slate-700">{fmtVND(totalRevenue - vatCollected)}</td>
-                <td className="px-4 py-3 text-right text-slate-500">90.0%</td>
-              </tr>
+
               {groupedExpenses.map((item) => (
                 <tr key={item.category}>
                   <td className="px-4 py-3 pl-8 text-slate-500">{text.subExpense}{item.category}</td>

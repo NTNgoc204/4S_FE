@@ -17,7 +17,7 @@ const UI_TEXT = {
     statusSuccess: "Success (Thành công)",
     statusPending: "Pending (Chờ duyệt)",
     statusRefunded: "Refunded (Đã hoàn tiền)",
-    statusFailed: "Failed (Lỗi/Thất bại)",
+    statusExpired: "Expired (Hết hạn)",
     colTxId: "Mã GD",
     colStudent: "Học sinh / Email",
     colPlan: "Gói cước",
@@ -56,7 +56,7 @@ const UI_TEXT = {
     statusSuccess: "Success",
     statusPending: "Pending",
     statusRefunded: "Refunded",
-    statusFailed: "Failed",
+    statusExpired: "Expired",
     colTxId: "TXID",
     colStudent: "Student / Email",
     colPlan: "Plan",
@@ -90,21 +90,13 @@ const UI_TEXT = {
 };
 
 function AccountantTransactionsPage() {
-  const { incomes, setIncomes, invoices, setInvoices } = useOutletContext();
+  const { incomes, setIncomes } = useOutletContext();
   const { i18n } = useTranslation();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
   const text = UI_TEXT[locale];
 
   const [incSearchText, setIncSearchText] = useState("");
   const [incStatusFilter, setIncStatusFilter] = useState("all");
-
-  const [isInvModalOpen, setIsInvModalOpen] = useState(false);
-  const [invForm, setInvForm] = useState({
-    txId: "",
-    companyName: "",
-    taxCode: "",
-    billingAddress: "",
-  });
 
   // Filter incomes list
   const filteredIncomes = useMemo(() => {
@@ -140,39 +132,7 @@ function AccountantTransactionsPage() {
     }
   }
 
-  function openAddInvoice(tx) {
-    setInvForm({
-      txId: tx.id,
-      companyName: "",
-      taxCode: "",
-      billingAddress: "",
-    });
-    setIsInvModalOpen(true);
-  }
 
-  function handleSaveInvoice(e) {
-    e.preventDefault();
-    const matchedTx = incomes.find((i) => i.id === invForm.txId);
-    if (!matchedTx) {
-      toast.error(text.toastErrInvalidTx);
-      return;
-    }
-
-    const newInv = {
-      id: `INV-2026-${String(invoices.length + 1).padStart(3, "0")}`,
-      txId: matchedTx.id,
-      customerName: matchedTx.studentName,
-      companyName: invForm.companyName.trim() || "N/A",
-      taxCode: invForm.taxCode.trim() || "N/A",
-      amount: matchedTx.amount,
-      date: new Date().toISOString().split("T")[0],
-      status: "Issued",
-    };
-
-    setInvoices((prev) => [newInv, ...prev]);
-    toast.success(`${text.toastInvoiceSuccess.replace("Hóa đơn", `Hóa đơn ${newInv.id}`)}`);
-    setIsInvModalOpen(false);
-  }
 
   return (
     <div className="space-y-4 animate-fadeIn">
@@ -203,7 +163,7 @@ function AccountantTransactionsPage() {
             <option value="Success">{text.statusSuccess}</option>
             <option value="Pending">{text.statusPending}</option>
             <option value="Refunded">{text.statusRefunded}</option>
-            <option value="Failed">{text.statusFailed}</option>
+            <option value="Expired">{text.statusExpired}</option>
           </select>
         </div>
       </article>
@@ -258,7 +218,7 @@ function AccountantTransactionsPage() {
                             ? "bg-amber-50 text-amber-700 border border-amber-200"
                             : item.status === "Refunded"
                             ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                            : "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
                         }`}
                       >
                         {item.status}
@@ -276,22 +236,13 @@ function AccountantTransactionsPage() {
                           </button>
                         )}
                         {item.status === "Success" && (
-                          <>
-                            <button
-                              className="rounded-lg bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200 transition hover:bg-slate-100"
-                              onClick={() => openAddInvoice(item)}
-                              type="button"
-                            >
-                              {text.actionInvoice}
-                            </button>
-                            <button
-                              className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 transition hover:bg-rose-100"
-                              onClick={() => handleRefund(item.id)}
-                              type="button"
-                            >
-                              {text.actionRefund}
-                            </button>
-                          </>
+                          <button
+                            className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 transition hover:bg-rose-100"
+                            onClick={() => handleRefund(item.id)}
+                            type="button"
+                          >
+                            {text.actionRefund}
+                          </button>
                         )}
                       </div>
                     </td>
@@ -320,7 +271,7 @@ function AccountantTransactionsPage() {
                       ? "bg-amber-50 text-amber-700 border border-amber-200"
                       : item.status === "Refunded"
                       ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-                      : "bg-rose-50 text-rose-700 border border-rose-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
                   }`}
                 >
                   {item.status}
@@ -350,22 +301,13 @@ function AccountantTransactionsPage() {
                   </button>
                 )}
                 {item.status === "Success" && (
-                  <>
-                    <button
-                      className="rounded-lg bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-100"
-                      onClick={() => openAddInvoice(item)}
-                      type="button"
-                    >
-                      {text.actionInvoice}
-                    </button>
-                    <button
-                      className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 hover:bg-rose-100"
-                      onClick={() => handleRefund(item.id)}
-                      type="button"
-                    >
-                      {text.actionRefundMobile}
-                    </button>
-                  </>
+                  <button
+                    className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700 border border-rose-200 hover:bg-rose-100"
+                    onClick={() => handleRefund(item.id)}
+                    type="button"
+                  >
+                    {text.actionRefundMobile}
+                  </button>
                 )}
               </div>
             </article>
@@ -373,89 +315,6 @@ function AccountantTransactionsPage() {
         )}
       </section>
 
-      {/* VAT INVOICE GENERATION MODAL */}
-      {isInvModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-fadeIn">
-          <article className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-4">
-            <header className="flex items-center justify-between">
-              <h3 className="font-['Sora'] text-lg font-semibold text-slate-900">
-                {text.modalTitle}
-              </h3>
-              <button
-                className="text-slate-400 hover:text-slate-600 text-xl font-semibold focus:outline-none"
-                onClick={() => setIsInvModalOpen(false)}
-                type="button"
-              >
-                &times;
-              </button>
-            </header>
-
-            <form className="space-y-4" onSubmit={handleSaveInvoice}>
-              <div>
-                <p className="mb-1 text-xs text-slate-500 font-semibold uppercase">{text.labelTxId}</p>
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 focus:outline-none cursor-not-allowed shadow-sm font-mono"
-                  disabled
-                  type="text"
-                  value={invForm.txId}
-                />
-              </div>
-
-              <div>
-                <p className="mb-1.5 text-sm font-medium text-slate-600">{text.labelCompany}</p>
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 shadow-sm"
-                  onChange={(e) => setInvForm((prev) => ({ ...prev, companyName: e.target.value }))}
-                  placeholder={text.companyPlaceholder}
-                  required
-                  type="text"
-                  value={invForm.companyName}
-                />
-              </div>
-
-              <div>
-                <p className="mb-1.5 text-sm font-medium text-slate-600">{text.labelTaxCode}</p>
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 shadow-sm font-mono"
-                  onChange={(e) => setInvForm((prev) => ({ ...prev, taxCode: e.target.value }))}
-                  placeholder={text.taxCodePlaceholder}
-                  required
-                  type="text"
-                  value={invForm.taxCode}
-                />
-              </div>
-
-              <div>
-                <p className="mb-1.5 text-sm font-medium text-slate-600">{text.labelAddress}</p>
-                <input
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 shadow-sm"
-                  onChange={(e) => setInvForm((prev) => ({ ...prev, billingAddress: e.target.value }))}
-                  placeholder={text.addressPlaceholder}
-                  required
-                  type="text"
-                  value={invForm.billingAddress}
-                />
-              </div>
-
-              <footer className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <button
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-                  onClick={() => setIsInvModalOpen(false)}
-                  type="button"
-                >
-                  {text.btnCancel}
-                </button>
-                <button
-                  className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700 shadow-sm"
-                  type="submit"
-                >
-                  {text.btnSave}
-                </button>
-              </footer>
-            </form>
-          </article>
-        </div>
-      )}
     </div>
   );
 }

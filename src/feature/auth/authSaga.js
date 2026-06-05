@@ -140,10 +140,11 @@ function* loginSaga(action) {
       }),
     );
 
-    // Save auth data to sessionStorage
+    // Save auth data to sessionStorage and localStorage
     yield call(() => {
       sessionStorage.setItem("is_logged_in", "true");
       sessionStorage.setItem("access_token", accessToken);
+      localStorage.setItem("was_logged_in", "true");
     });
 
     // Fetch user info after login
@@ -165,9 +166,10 @@ function* logoutSaga() {
   } catch (error) {
     console.error("Server logout failed:", error);
   } finally {
-    // Always clear sessionStorage and Redux state on the client
+    // Always clear sessionStorage, localStorage, and Redux state on the client
     yield call(() => {
       sessionStorage.clear();
+      localStorage.removeItem("was_logged_in");
     });
     yield put(logoutSuccess());
     // Show success toast — ProtectedRoute will navigate to /login via React Router (no reload)
@@ -191,21 +193,18 @@ function* refreshTokenSaga() {
     yield put(refreshTokenSuccess({ token: newToken }));
 
     yield call(() => {
+      sessionStorage.setItem("is_logged_in", "true");
       sessionStorage.setItem("access_token", newToken);
+      localStorage.setItem("was_logged_in", "true");
     });
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Session expired");
     yield put(refreshTokenFailure(errorMessage));
     yield call(() => {
-      localStorage.setItem(AUTH_REDIRECT_MESSAGE_KEY, "auth:sessionExpired");
       sessionStorage.clear();
+      localStorage.removeItem("was_logged_in");
     });
     yield put(logoutSuccess());
-    yield call(() => {
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
-    });
   }
 }
 

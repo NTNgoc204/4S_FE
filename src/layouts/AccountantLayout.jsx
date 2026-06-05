@@ -1,7 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import fourSLogo from "../assets/logo-4s.png";
+import { planAPI } from "../feature/plan/planAPI";
+import { adminAPI } from "../feature/admin/adminAPI";
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
 
 const INITIAL_EXPENSES = [
   { id: 1, date: "2026-06-01", category: "AI API & Infrastructure (AI & Máy chủ)", amount: 68000000, description: "AWS hosting fee for core service & database backups", status: "Paid" },
@@ -25,11 +40,6 @@ const INITIAL_INCOMES = [
   { id: "TX1010", studentName: "Đặng Văn J", email: "vanj@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-05-30 16:20", status: "Success" },
 ];
 
-const INITIAL_INVOICES = [
-  { id: "INV-2026-001", txId: "TX1001", customerName: "Nguyễn Văn A", companyName: "Công ty TNHH Tư vấn Giáo dục A-Z", taxCode: "0109876543", amount: 150000, date: "2026-06-02", status: "Issued" },
-  { id: "INV-2026-002", txId: "TX1002", customerName: "Trần Thị B", companyName: "Công ty Cổ phần Thương mại B&B", taxCode: "0314785236", amount: 299000, date: "2026-06-02", status: "Pending" },
-  { id: "INV-2026-003", txId: "TX1004", customerName: "Phạm Minh D", companyName: "Hộ Kinh doanh Phạm Minh", taxCode: "8045612349", amount: 299000, date: "2026-06-02", status: "Issued" },
-];
 
 function AccountantLayout({ onLogout = () => {} }) {
   const navigate = useNavigate();
@@ -45,13 +55,62 @@ function AccountantLayout({ onLogout = () => {} }) {
     { label: isVi ? "Dashboard & Báo cáo" : "Dashboard & Reports", to: "/accountant/dashboard" },
     { label: isVi ? "Quản lý Khoản chi" : "Expense Management", to: "/accountant/expenses" },
     { label: isVi ? "Sổ giao dịch & Hoàn tiền" : "Transaction & Refund Ledger", to: "/accountant/transactions" },
-    { label: isVi ? "Quản lý Hóa đơn & VAT" : "Invoice & VAT Management", to: "/accountant/invoices" },
   ];
 
   // Shared in-memory states
   const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
-  const [incomes, setIncomes] = useState(INITIAL_INCOMES);
-  const [invoices, setInvoices] = useState(INITIAL_INVOICES);
+  const [incomes, setIncomes] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    async function fetchTransactions() {
+      try {
+        const [txRes, usersRes] = await Promise.all([
+          planAPI.getAllTransactions(),
+          adminAPI.getUsers().catch((err) => {
+            console.warn("Failed to fetch users in AccountantLayout:", err);
+            return { data: [] };
+          }),
+        ]);
+
+        if (!active) return;
+
+        const transactions = txRes.data || [];
+        const users = usersRes.data || [];
+
+        const userMap = {};
+        users.forEach((u) => {
+          userMap[u.userId] = u;
+        });
+
+        const mappedIncomes = transactions.map((tx) => {
+          const matchedUser = userMap[tx.userId];
+          return {
+            id: tx.transactionCode || tx.transactionId,
+            transactionId: tx.transactionId,
+            studentName: matchedUser ? matchedUser.username : "Người dùng ẩn danh",
+            email: matchedUser ? matchedUser.email : "n/a",
+            plan: tx.planName || "VIP Plan",
+            amount: tx.amount,
+            date: formatDate(tx.createdAt),
+            status: tx.status,
+          };
+        });
+
+        // Sort latest first
+        mappedIncomes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setIncomes(mappedIncomes);
+      } catch (err) {
+        console.error("Error loading Accountant transaction list:", err);
+      }
+    }
+    fetchTransactions();
+    return () => {
+      active = false;
+    };
+  }, []);
+
 
   function handleLogout() {
     onLogout();
@@ -169,7 +228,7 @@ function AccountantLayout({ onLogout = () => {} }) {
           </header>
 
           <main className="w-full flex-1 px-4 py-5 md:px-6 md:py-6">
-            <Outlet context={{ expenses, setExpenses, incomes, setIncomes, invoices, setInvoices }} />
+            <Outlet context={{ expenses, setExpenses, incomes, setIncomes }} />
           </main>
         </div>
       </div>
