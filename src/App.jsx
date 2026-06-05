@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { BrowserRouter, Navigate, Route, Routes, Outlet } from "react-router-dom";
+import { Navigate, Route, Routes, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { logoutRequest, getMeRequest } from "./feature/auth/authSlice";
+import { logoutRequest, getMeRequest, refreshTokenRequest, clearError } from "./feature/auth/authSlice";
 import { loadNotificationsRequest } from "./feature/notification/notificationSlice";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -44,9 +44,10 @@ import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 function App() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Get auth state from Redux
-  const { isLoggedIn, plan, role } = useSelector((state) => state.auth);
+  const { isLoggedIn, plan, role, refreshTokenError } = useSelector((state) => state.auth);
 
   // Track whether we have already fetched user info for the current session
   const hasFetchedMe = useRef(false);
@@ -55,6 +56,44 @@ function App() {
   useEffect(() => {
     dispatch(loadNotificationsRequest());
   }, [dispatch]);
+
+  // Silent refresh on mount if previously logged in
+  useEffect(() => {
+    const wasLoggedIn = localStorage.getItem("was_logged_in") === "true";
+    const hasToken = Boolean(sessionStorage.getItem("access_token"));
+
+    if (!isLoggedIn && !hasToken) {
+      if (wasLoggedIn) {
+        dispatch(refreshTokenRequest());
+      } else {
+        // Nếu không có trạng thái đăng nhập cũ và đang ở trang bảo mật, quay về trang chủ
+        const isPublicPath = [
+          "/",
+          "/login",
+          "/sign-up",
+          "/forgot-password",
+          "/reset-password",
+          "/for-schools",
+          "/about-us",
+          "/not-found",
+          "/pricing"
+        ].includes(window.location.pathname);
+
+        if (!isPublicPath) {
+          navigate("/");
+        }
+      }
+    }
+  }, [dispatch, isLoggedIn, navigate]);
+
+  // Handle session expired error reactively
+  useEffect(() => {
+    if (refreshTokenError) {
+      toast.error(t("auth:sessionExpired", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."));
+      dispatch(clearError());
+      navigate("/");
+    }
+  }, [refreshTokenError, navigate, dispatch, t]);
 
   // Fetch user info once when the user is (or becomes) logged in
   useEffect(() => {
@@ -73,7 +112,7 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         {/* Public Layout - cho public users + student users */}
         <Route
@@ -221,7 +260,7 @@ function App() {
         position="top-right"
         theme="dark"
       />
-    </BrowserRouter>
+    </>
   );
 }
 
