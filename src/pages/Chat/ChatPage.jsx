@@ -335,10 +335,40 @@ function ChatPage() {
     setMessages((prev) => [...prev, { id: createMessageId('user'), role: 'user', kind: 'user_manual', text: message }])
     setInputValue('')
 
+    // Hardcode school and recommendations based on keywords in the custom user input
+    let schoolId = 'hust'
+    let strengthKeys = ['engineering', 'tech']
+    let delta = { engineering: 2, tech: 1 }
+
+    const messageLower = message.toLowerCase()
+    if (messageLower.includes('it') || messageLower.includes('công nghệ') || messageLower.includes('lập trình') || messageLower.includes('máy tính') || messageLower.includes('phần mềm') || messageLower.includes('bách khoa') || messageLower.includes('hcmut')) {
+      schoolId = 'hcmut'
+      strengthKeys = ['tech', 'engineering']
+      delta = { tech: 3, engineering: 2 }
+    } else if (messageLower.includes('kinh doanh') || messageLower.includes('kinh tế') || messageLower.includes('tài chính') || messageLower.includes('marketing') || messageLower.includes('quản trị') || messageLower.includes('ngoại thương') || messageLower.includes('ftu')) {
+      schoolId = 'ftu'
+      strengthKeys = ['business', 'social']
+      delta = { business: 3, social: 2 }
+    } else if (messageLower.includes('thiết kế') || messageLower.includes('sáng tạo') || messageLower.includes('truyền thông') || messageLower.includes('design') || messageLower.includes('art') || messageLower.includes('rmit')) {
+      schoolId = 'rmit'
+      strengthKeys = ['creative', 'business']
+      delta = { creative: 3, business: 2 }
+    } else if (messageLower.includes('học phí') || messageLower.includes('tiền') || messageLower.includes('chi phí') || messageLower.includes('học bổng')) {
+      schoolId = 'ftu'
+      strengthKeys = ['business', 'social']
+      delta = { business: 2, social: 2 }
+    }
+
+    const nextProfile = mergeProfile(profile, delta)
+    setProfile(nextProfile)
+    setUserSignalCount((prev) => prev + 1)
+
     pushAssistantMessage(() => ({
       id: createMessageId('assistant'),
       role: 'assistant',
-      kind: 'assistant_demo',
+      kind: 'assistant_recommendation_detail',
+      schoolId,
+      strengthKeys,
     }))
   }
 
