@@ -15,4 +15,11 @@ export const planAPI = {
 
   // Cancel payment request (called when timer expires or manual cancellation)
   cancelPayment: (code) => apiClient.post(`/api/payment/cancel?code=${code}`),
+
+  // Fetch all payment transactions (Accountant role)
+  getAllTransactions: () => apiClient.get("/api/payment-history"),
+
+  // Fetch personal payment transactions (authorized student/user)
+  getMyTransactions: () => apiClient.get("/api/payment-history/my-history"),
 };
+

@@ -8,6 +8,9 @@ import globeIcon from "../../assets/Globe.svg";
 import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest } from "../../feature/auth/authSlice";
 import { validatePassword } from "../../validation/authValidation";
 import Skeleton from "../../components/Skeleton";
+import { planAPI } from "../../feature/plan/planAPI";
+import { formatDateTimeForFE } from "../../util/dateHelper";
+
 
 
 const SKILL_KEYS = [
@@ -63,6 +66,10 @@ function ProfilePage() {
   const [showSkills, setShowSkills] = useState(false);
   const [showInterests, setShowInterests] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showTransactionHistory, setShowTransactionHistory] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
+
   const [changeForm, setChangeForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -86,6 +93,23 @@ function ProfilePage() {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      setLoadingTransactions(true);
+      planAPI.getMyTransactions()
+        .then((res) => {
+          setTransactions(res.data || []);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch personal transaction history:", err);
+        })
+        .finally(() => {
+          setLoadingTransactions(false);
+        });
+    }
+  }, [user]);
+
 
   const [selectedInterests, setSelectedInterests] = useState(["software", "ai"]);
   const [isEditing, setIsEditing] = useState(false);
@@ -671,6 +695,96 @@ function ProfilePage() {
                   options={instructionLanguageOptions}
                   value={form.language}
                 />
+              </div>
+            )}
+          </article>
+
+          {/* Lịch sử giao dịch */}
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-left focus:outline-none"
+              onClick={() => setShowTransactionHistory(!showTransactionHistory)}
+            >
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                <svg className="h-5 w-5 text-[#0ed8ab]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                {locale === "vi" ? "Lịch sử mua gói & Giao dịch" : "Transaction & Subscription History"}
+              </h2>
+              <svg
+                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                  showTransactionHistory ? "rotate-180" : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showTransactionHistory && (
+              <div className="mt-5 border-t border-white/10 pt-5">
+                {loadingTransactions ? (
+                  <div className="space-y-3">
+                    <Skeleton height="35px" borderRadius="8px" className="w-full" />
+                    <Skeleton height="35px" borderRadius="8px" className="w-full" />
+                  </div>
+                ) : transactions.length === 0 ? (
+                  <p className="text-center py-4 text-sm text-slate-400">
+                    {locale === "vi" ? "Bạn chưa thực hiện giao dịch nào." : "No transactions found."}
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border border-white/5 bg-white/5">
+                    <table className="min-w-full text-sm">
+                      <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-300 bg-white/5 font-semibold">
+                        <tr>
+                          <th className="px-4 py-3">{locale === "vi" ? "Mã GD" : "TX Code"}</th>
+                          <th className="px-4 py-3">{locale === "vi" ? "Gói cước" : "Plan"}</th>
+                          <th className="px-4 py-3 text-right">{locale === "vi" ? "Số tiền" : "Amount"}</th>
+                          <th className="px-4 py-3">{locale === "vi" ? "Thời gian" : "Date"}</th>
+                          <th className="px-4 py-3">{locale === "vi" ? "Trạng thái" : "Status"}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-slate-300">
+                        {transactions.map((tx) => (
+                          <tr className="hover:bg-white/5 transition-colors" key={tx.transactionId}>
+                            <td className="px-4 py-3 font-semibold text-[#f3d459] font-mono whitespace-nowrap">
+                              {tx.transactionCode}
+                            </td>
+                            <td className="px-4 py-3 font-medium text-slate-200">
+                              {tx.planName || "VIP Plan"}
+                            </td>
+                            <td className="px-4 py-3 text-right font-semibold text-[#0ed8ab] whitespace-nowrap">
+                              {tx.amount ? `${tx.amount.toLocaleString("vi-VN")} VND` : "—"}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-slate-400">
+                              {formatDateTimeForFE(tx.createdAt, locale)}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span
+                                className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm ${
+                                  tx.status === "Success"
+                                    ? "bg-teal-500/10 text-teal-400 border border-teal-500/20"
+                                    : tx.status === "Pending"
+                                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                    : "bg-white/10 text-slate-400 border border-white/10"
+                                }`}
+                              >
+                                {tx.status === "Success"
+                                  ? (locale === "vi" ? "Thành công" : "Success")
+                                  : tx.status === "Pending"
+                                  ? (locale === "vi" ? "Đang chờ" : "Pending")
+                                  : (locale === "vi" ? "Hết hạn" : "Expired")}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </article>

@@ -11,9 +11,6 @@ export const adminAPI = {
   // PUT /api/Users/{id}
   updateUser: (id, data) => apiClient.put(`/api/Users/${id}`, data),
 
-  // PUT /api/Users/{id}/toggle-active
-  toggleUserActive: (id) => apiClient.put(`/api/Users/${id}/toggle-active`),
-
   // DELETE /api/Users/{id}
   deleteUser: (id) => apiClient.delete(`/api/Users/${id}`),
 

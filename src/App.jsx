@@ -27,7 +27,6 @@ import AdminFinancePage from "./pages/Admin/AdminFinancePage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
-import AccountantInvoicesPage from "./pages/Accountant/AccountantInvoicesPage";
 import SchoolLayout from "./layouts/SchoolLayout";
 import SchoolDashboardPage from "./pages/SchoolManager/SchoolDashboardPage";
 import SchoolStudentsPage from "./pages/SchoolManager/SchoolStudentsPage";
@@ -185,7 +184,6 @@ function App() {
           <Route path="/accountant/dashboard" element={<AccountantDashboardPage />} />
           <Route path="/accountant/expenses" element={<AccountantExpensesPage />} />
           <Route path="/accountant/transactions" element={<AccountantTransactionsPage />} />
-          <Route path="/accountant/invoices" element={<AccountantInvoicesPage />} />
         </Route>
 
         {/* School Layout - cho school manager */}
