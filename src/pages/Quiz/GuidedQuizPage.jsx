@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Helmet } from 'react-helmet-async'
 import { SCORE_KEYS, rankUniversities } from '../../data/universities'
 import QuizLeftPanel from './components/QuizLeftPanel'
 import QuizRightPanel from './components/QuizRightPanel'
+import { fetchQuestionsRequest, submitAnswersRequest } from '../../feature/question/questionSlice'
 
 const UI_TEXT = {
   en: {
@@ -677,13 +680,80 @@ function createEmptyProfile() {
   }
 }
 
+const getVectorFromScoreTag = (scoreTag) => {
+  const tag = (scoreTag || '').toLowerCase();
+  const vector = {
+    tech: 0,
+    business: 0,
+    engineering: 0,
+    creative: 0,
+    social: 0,
+    leftBrain: 0,
+    rightBrain: 0,
+  };
+  
+  if (tag === 'tech') {
+    vector.tech = 3;
+    vector.leftBrain = 2;
+  } else if (tag === 'engineering' || tag === 'practical' || tag === 'realistic' || tag === 'kỹ thuật' || tag === 'thực tế') {
+    vector.engineering = 3;
+    vector.leftBrain = 2;
+  } else if (tag === 'creative' || tag === 'artistic' || tag === 'nghệ thuật') {
+    vector.creative = 3;
+    vector.rightBrain = 2;
+  } else if (tag === 'social' || tag === 'xã hội') {
+    vector.social = 3;
+    vector.rightBrain = 2;
+  } else if (tag === 'business' || tag === 'enterprising' || tag === 'quản lý' || tag === 'doanh nhân') {
+    vector.business = 3;
+    vector.leftBrain = 1;
+    vector.rightBrain = 1;
+  } else if (tag === 'analytical' || tag === 'investigative' || tag === 'nghiên cứu') {
+    vector.tech = 2;
+    vector.engineering = 2;
+    vector.leftBrain = 2;
+  } else if (tag === 'conventional' || tag === 'nghiệp vụ') {
+    vector.business = 2;
+    vector.leftBrain = 2;
+  } else if (tag === 'leftbrain') {
+    vector.leftBrain = 3;
+  } else if (tag === 'rightbrain') {
+    vector.rightBrain = 3;
+  }
+  return vector;
+};
+
+const getProfileFromScoreTag = (scoreTag) => {
+  const tag = (scoreTag || '').toLowerCase();
+  if (tag === 'tech' || tag === 'investigative' || tag === 'analytical' || tag === 'nghiên cứu') return 'analytical';
+  if (tag === 'creative' || tag === 'artistic' || tag === 'nghệ thuật') return 'creative';
+  if (tag === 'social' || tag === 'xã hội') return 'social';
+  if (tag === 'engineering' || tag === 'practical' || tag === 'realistic' || tag === 'kỹ thuật' || tag === 'thực tế') return 'practical';
+  if (tag === 'business' || tag === 'enterprising' || tag === 'conventional' || tag === 'quản lý' || tag === 'doanh nhân' || tag === 'nghiệp vụ') return 'balanced';
+  return 'balanced';
+};
+
 function GuidedQuizPage() {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
   const text = UI_TEXT[locale]
 
   const cachedState = readQuizState()
+
+  // Load backend questions if available
+  const dynamicQuestions = useSelector((state) => state.question.questions)
+  const { submitLoading, submitSuccess } = useSelector((state) => state.question)
+  const { user } = useSelector((state) => state.auth)
+
+  useEffect(() => {
+    dispatch(fetchQuestionsRequest())
+  }, [dispatch])
+
+  const quizQuestions = useMemo(() => {
+    return dynamicQuestions && dynamicQuestions.length > 0 ? dynamicQuestions : QUESTIONS
+  }, [dynamicQuestions])
 
   const [answers, setAnswers] = useState(cachedState?.answers ?? {})
   const [insights, setInsights] = useState(cachedState?.insights ?? {})
@@ -696,8 +766,10 @@ function GuidedQuizPage() {
   const timeoutRef = useRef([])
 
   const answeredCount = Object.keys(answers).length
-  const isDone = answeredCount === QUESTIONS.length
-  const visibleQuestions = QUESTIONS.slice(0, Math.min(activeIndex + 1, QUESTIONS.length))
+  const isDone = answeredCount === quizQuestions.length
+  const visibleQuestions = useMemo(() => {
+    return quizQuestions.slice(0, Math.min(activeIndex + 1, quizQuestions.length))
+  }, [quizQuestions, activeIndex])
 
   const recommendations = useMemo(() => rankUniversities(profile), [profile])
 
@@ -760,6 +832,39 @@ function GuidedQuizPage() {
     window.sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(nextState))
   }, [activeIndex, answers, insights, profile])
 
+  // Submit answers to server when quiz is completed
+  useEffect(() => {
+    if (isDone && user) {
+      const alreadySubmitted = sessionStorage.getItem("quiz_answers_submitted") === "true";
+      if (!alreadySubmitted && !submitLoading && !submitSuccess) {
+        const userId = user.userId || user.id;
+        
+        const answersArray = Object.entries(answers).map(([qId, optId]) => {
+          const q = quizQuestions.find((item) => item.id === qId);
+          const opt = q?.options?.find((o) => o.id === optId);
+          const answerValue = opt?.code || opt?.id || optId;
+          
+          return {
+            questionId: qId,
+            answer: answerValue,
+          };
+        });
+
+        if (answersArray.length > 0) {
+          dispatch(
+            submitAnswersRequest({
+              userId,
+              answers: answersArray,
+              onSuccess: () => {
+                sessionStorage.setItem("quiz_answers_submitted", "true");
+              },
+            })
+          );
+        }
+      }
+    }
+  }, [isDone, user, answers, quizQuestions, dispatch, submitLoading, submitSuccess]);
+
   const getDominantProfileForCategory = (categoryId) => {
     const questionIndices = categoryId === 'personality' 
       ? [0, 1, 2, 3, 4] 
@@ -769,13 +874,14 @@ function GuidedQuizPage() {
 
     const counts = {};
     questionIndices.forEach(idx => {
-      const q = QUESTIONS[idx];
+      const q = quizQuestions[idx];
       if (q) {
         const ansId = answers[q.id];
         if (ansId) {
           const option = q.options.find(o => o.id === ansId);
-          if (option?.profile) {
-            counts[option.profile] = (counts[option.profile] || 0) + 1;
+          const optionProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag);
+          if (optionProfile) {
+            counts[optionProfile] = (counts[optionProfile] || 0) + 1;
           }
         }
       }
@@ -793,7 +899,7 @@ function GuidedQuizPage() {
   };
 
   function buildInsight(option, qIndex) {
-    let dominantProfile = option?.profile || 'balanced';
+    let dominantProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag) || 'balanced';
     
     // Use the category's dominant profile if it's the end of a category
     if (qIndex === 4) {
@@ -819,13 +925,14 @@ function GuidedQuizPage() {
     setAnswers((prev) => ({ ...prev, [question.id]: option.id }))
     setProfile((prev) => {
       const next = { ...prev }
-      Object.entries(option.vector).forEach(([key, value]) => {
+      const optionVector = option.vector || getVectorFromScoreTag(option.scoreTag)
+      Object.entries(optionVector).forEach(([key, value]) => {
         next[key] = (next[key] ?? 0) + value
       })
       return next
     })
 
-    const qIndex = QUESTIONS.findIndex((q) => q.id === question.id)
+    const qIndex = quizQuestions.findIndex((q) => q.id === question.id)
     const isEndOfCategory = qIndex === 4 || qIndex === 9 || qIndex === 14
 
     if (isEndOfCategory) {
@@ -840,7 +947,7 @@ function GuidedQuizPage() {
       }, 400)
 
       const nextTimer = window.setTimeout(() => {
-        setActiveIndex((prev) => Math.min(prev + 1, QUESTIONS.length - 1))
+        setActiveIndex((prev) => Math.min(prev + 1, quizQuestions.length - 1))
         setThinkingQuestionId('')
         setIsThinking(false)
       }, 1500)
@@ -849,7 +956,7 @@ function GuidedQuizPage() {
     } else {
       // Direct fast transition for non-end-of-category questions
       const nextTimer = window.setTimeout(() => {
-        setActiveIndex((prev) => Math.min(prev + 1, QUESTIONS.length - 1))
+        setActiveIndex((prev) => Math.min(prev + 1, quizQuestions.length - 1))
       }, 250)
       timeoutRef.current.push(nextTimer)
     }
@@ -868,49 +975,62 @@ function GuidedQuizPage() {
   }
 
   return (
-    <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] flex-col overflow-hidden py-3">
-      <div className="mb-3 flex justify-end">
-        <button
-          className="rounded-lg border border-white/12 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 md:text-sm"
-          onClick={() => navigate('/consultation')}
-          type="button"
-        >
-          {text.changeMode}
-        </button>
-      </div>
-      <section className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden rounded-2xl border border-white/12 bg-[#081a30]/62 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <QuizLeftPanel
-          activeIndex={activeIndex}
-          answers={answers}
-          buildInsight={buildInsight}
-          hemisphere={hemisphere}
-          insights={insights}
-          isDone={isDone}
-          isThinking={isThinking}
-          listRef={listRef}
-          locale={locale}
-          onSelect={onSelect}
-          questionCount={QUESTIONS.length}
-          strengths={strengths}
-          text={text}
-          thinkingQuestionId={thinkingQuestionId}
-          visibleQuestions={visibleQuestions}
-          recommendations={recommendations}
-          onViewDetail={handleViewDetail}
-        />
-        <QuizRightPanel
-          onViewDetail={handleViewDetail}
-          answeredCount={answeredCount}
-          isDone={isDone}
-          locale={locale}
-          questionCount={QUESTIONS.length}
-          recommendations={recommendations}
-          text={text}
-          answers={answers}
-          questions={QUESTIONS}
-        />
-      </section>
-    </main>
+    <>
+      <Helmet>
+        <title>{locale === 'vi' ? 'Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S' : 'Holland RIASEC Test - 4S Career Guidance'}</title>
+        <meta name="description" content={locale === 'vi' ? 'Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất.' : 'Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations.'} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:title" content={locale === 'vi' ? 'Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S' : 'Holland RIASEC Test - 4S Career Guidance'} />
+        <meta property="og:description" content={locale === 'vi' ? 'Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất.' : 'Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations.'} />
+        <meta property="og:url" content="https://4s.vercel.app/quiz" />
+        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+      </Helmet>
+      <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] flex-col overflow-hidden py-3">
+        <div className="mb-3 flex justify-end">
+          <button
+            className="rounded-lg border border-white/12 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 md:text-sm"
+            onClick={() => navigate('/consultation')}
+            type="button"
+          >
+            {text.changeMode}
+          </button>
+        </div>
+        <section className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden rounded-2xl border border-white/12 bg-[#081a30]/62 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <QuizLeftPanel
+            activeIndex={activeIndex}
+            answers={answers}
+            buildInsight={buildInsight}
+            hemisphere={hemisphere}
+            insights={insights}
+            isDone={isDone}
+            isThinking={isThinking}
+            listRef={listRef}
+            locale={locale}
+            onSelect={onSelect}
+            questionCount={quizQuestions.length}
+            strengths={strengths}
+            text={text}
+            thinkingQuestionId={thinkingQuestionId}
+            visibleQuestions={visibleQuestions}
+            recommendations={recommendations}
+            onViewDetail={handleViewDetail}
+            submitLoading={submitLoading}
+          />
+          <QuizRightPanel
+            onViewDetail={handleViewDetail}
+            answeredCount={answeredCount}
+            isDone={isDone}
+            locale={locale}
+            questionCount={quizQuestions.length}
+            recommendations={recommendations}
+            text={text}
+            answers={answers}
+            questions={quizQuestions}
+          />
+        </section>
+      </main>
+    </>
   )
 }
 

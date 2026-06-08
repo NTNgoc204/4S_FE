@@ -2,12 +2,14 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { getPlansRequest } from '../../feature/plan/planSlice'
 import Skeleton from '../../components/Skeleton'
 
 
 function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
   const dispatch = useDispatch()
   const navigate = useNavigate()
   
@@ -164,6 +166,16 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
 
   return (
     <>
+      <Helmet>
+        <title>{locale === 'vi' ? 'Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S' : 'Pricing Plans - 4S Career Guidance'}</title>
+        <meta name="description" content={locale === 'vi' ? 'Xem các gói dịch vụ Pro và Enterprise giúp bạn mở khóa đầy đủ tính năng tư vấn hướng nghiệp AI và tìm trường đại học phù hợp.' : 'View our pricing plans and unlock the full potential of AI career guidance and personalized university matching.'} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:title" content={locale === 'vi' ? 'Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S' : 'Pricing Plans - 4S Career Guidance'} />
+        <meta property="og:description" content={locale === 'vi' ? 'Xem các gói dịch vụ Pro và Enterprise giúp bạn mở khóa đầy đủ tính năng tư vấn hướng nghiệp AI và tìm trường đại học phù hợp.' : 'View our pricing plans and unlock the full potential of AI career guidance and personalized university matching.'} />
+        <meta property="og:url" content="https://4s.vercel.app/pricing" />
+        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+      </Helmet>
       <main className="mx-auto w-[min(1320px,95vw)] pb-16 pt-14 md:pt-20">
         <section className="text-center">
           <p className="mx-auto mb-7 inline-flex items-center rounded-full border border-[#ecc741]/30 bg-[#ecc741]/12 px-5 py-2 text-lg font-semibold text-[#ecc741]">

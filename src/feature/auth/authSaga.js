@@ -161,11 +161,7 @@ function* loginSaga(action) {
 // Logout Saga
 function* logoutSaga() {
   try {
-    // Call logout endpoint to revoke token on the server
-    yield call(authAPI.logout);
-  } catch (error) {
-    console.error("Server logout failed:", error);
-  } finally {
+    // Reverted backend logout API call as requested by user to prevent backend errors/hangs
     // Always clear sessionStorage, localStorage, and Redux state on the client
     yield call(() => {
       sessionStorage.clear();
@@ -174,6 +170,8 @@ function* logoutSaga() {
     yield put(logoutSuccess());
     // Show success toast — ProtectedRoute will navigate to /login via React Router (no reload)
     yield call(() => toast.success(i18n.t("auth:logoutSuccess")));
+  } catch (error) {
+    console.error("Local logout failed:", error);
   }
 }
 

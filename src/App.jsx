@@ -24,6 +24,7 @@ import AdminPricingPage from "./pages/Admin/AdminPricingPage";
 import AdminUsersPage from "./pages/Admin/AdminUsersPage";
 import AdminRolesPage from "./pages/Admin/AdminRolesPage";
 import AdminFinancePage from "./pages/Admin/AdminFinancePage";
+import AdminQuestionsPage from "./pages/Admin/AdminQuestionsPage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
@@ -202,6 +203,7 @@ function App() {
         >
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/questions" element={<AdminQuestionsPage />} />
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
           <Route path="/admin/roles" element={<AdminRolesPage />} />
           <Route path="/admin/finance" element={<AdminFinancePage />} />

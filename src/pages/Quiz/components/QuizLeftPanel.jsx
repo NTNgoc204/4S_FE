@@ -19,6 +19,7 @@ function QuizLeftPanel({
   visibleQuestions,
   recommendations = [],
   onViewDetail,
+  submitLoading = false,
 }) {
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
 
@@ -42,7 +43,7 @@ function QuizLeftPanel({
                 </span>
 
                 <div className="w-full max-w-[790px] rounded-2xl border border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98 p-4 md:p-5">
-                  <h3 className="font-['Sora'] text-lg md:text-[1.45rem]">{question.prompt[locale]}</h3>
+                  <h3 className="font-['Sora'] text-lg md:text-[1.45rem]">{question.prompt?.[locale] || question.content}</h3>
 
                   <div className="mt-4 grid grid-cols-1 gap-2.5 md:grid-cols-2">
                     {question.options.map((option) => {
@@ -60,7 +61,7 @@ function QuizLeftPanel({
                           onClick={() => onSelect(question, option)}
                           type="button"
                         >
-                          {option.label[locale]}
+                          {option.label?.[locale] || option.content}
                         </button>
                       )
                     })}
@@ -79,7 +80,7 @@ function QuizLeftPanel({
               {selectedOption ? (
                 <div className="mt-3 flex justify-end pr-1">
                   <div className="max-w-[520px] rounded-2xl border border-[#ecc741]/20 bg-gradient-to-br from-[#f4d040] to-[#debd34] px-4 py-2.5 text-sm font-semibold text-[#11243c] md:text-base">
-                    {selectedOption.label[locale]}
+                    {selectedOption.label?.[locale] || selectedOption.content}
                   </div>
                 </div>
               ) : null}
@@ -107,6 +108,17 @@ function QuizLeftPanel({
 
         {isDone ? (
           <div className="space-y-6">
+            {submitLoading && (
+              <div className="rounded-2xl border border-teal-500/30 bg-teal-950/20 p-4 flex items-center justify-center gap-3 text-[#0fe2a8]">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span className="font-semibold text-sm">
+                  {locale === 'vi' ? 'Đang lưu kết quả bài làm lên server...' : 'Saving your test results to server...'}
+                </span>
+              </div>
+            )}
             {/* Profile snapshot */}
             <article className="rounded-2xl border border-[#0ed8ab]/30 bg-gradient-to-br from-[#123552] to-[#102d47] p-5 md:p-6">
               <h3 className="font-['Sora'] text-xl md:text-[1.8rem]">{text.summaryTitle}</h3>

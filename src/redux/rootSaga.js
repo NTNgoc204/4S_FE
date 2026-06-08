@@ -3,7 +3,8 @@ import { authSaga } from "../feature/auth/authSaga";
 import { planSaga } from "../feature/plan/planSaga";
 import { notificationSaga } from "../feature/notification/notificationSaga";
 import { adminSaga } from "../feature/admin/adminSaga";
+import { questionSaga } from "../feature/question/questionSaga";
 
 export function* rootSaga() {
-  yield all([authSaga(), planSaga(), notificationSaga(), adminSaga()]);
+  yield all([authSaga(), planSaga(), notificationSaga(), adminSaga(), questionSaga()]);
 }
