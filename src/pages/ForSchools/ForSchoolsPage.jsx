@@ -56,6 +56,8 @@ function ForSchoolsPage() {
   const benefits = ["reach", "quality", "transparent"];
   const steps = ["info", "review", "track", "maintain"];
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+
   const handleEmailClick = (e) => {
     e.preventDefault();
     triggerMailWithFallback(t("forSchools:cta.email"));
@@ -71,8 +73,8 @@ function ForSchoolsPage() {
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Hợp Tác Tuyển Sinh & Hướng Nghiệp Cho Nhà Trường - 4S' : 'School Partnerships & Career Guidance - 4S'} />
         <meta property="og:description" content={locale === 'vi' ? 'Đồng hành cùng các trường THPT và Đại học để mang lại giải pháp hướng nghiệp bằng AI, tăng cơ hội kết nối học sinh chất lượng.' : 'Partner with high schools and universities to deliver AI-driven career guidance, increasing student outreach and enrollment.'} />
-        <meta property="og:url" content="https://4s.vercel.app/for-schools" />
-        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+        <meta property="og:url" content={`${siteUrl}/for-schools`} />
+        <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
       <main className="mx-auto w-[min(1360px,96vw)] pb-14 pt-6">
         <section className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_22%_14%,rgba(255,207,74,0.15),transparent_34%),radial-gradient(circle_at_75%_22%,rgba(15,226,168,0.16),transparent_36%),linear-gradient(180deg,rgba(3,24,43,0.92)_0%,rgba(5,25,44,0.86)_100%)] px-6 py-16 text-center md:px-12 md:py-24">
