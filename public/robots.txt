@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://4s-career.vercel.app/sitemap.xml
+Sitemap: https://4s-company.vercel.app/sitemap.xml
