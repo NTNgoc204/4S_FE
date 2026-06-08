@@ -11,6 +11,9 @@ function HomePage() {
   const currentPlan = String(outletContext?.currentPlan ?? '').toLowerCase()
   const isProAccount = currentPlan !== 'free' && currentPlan !== ''
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app'
+  const googleVerification = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION
+
   const featureCards = [
     {
       icon: 'AI',
@@ -71,19 +74,22 @@ function HomePage() {
         <title>{locale === 'vi' ? '4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh' : '4S - Smart Career Guidance & University Matching'}</title>
         <meta name="description" content={locale === 'vi' ? 'Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
         <meta name="keywords" content="hướng nghiệp, trắc nghiệm holland, chọn trường đại học, chọn ngành học, tư vấn học đường, career guidance, university matching, holland test" />
+        {googleVerification && (
+          <meta name="google-site-verification" content={googleVerification} />
+        )}
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh" />
         <meta property="og:description" content="Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế." />
-        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
-        <meta property="og:url" content="https://4s.vercel.app" />
+        <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
+        <meta property="og:url" content={siteUrl} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content="4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh" />
         <meta property="twitter:description" content="Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế." />
-        <meta property="twitter:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+        <meta property="twitter:image" content={`${siteUrl}/assets/logo-4s.png`} />
 
         {/* Schema JSON-LD */}
         <script type="application/ld+json">
@@ -91,8 +97,8 @@ function HomePage() {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
             "name": "4S Career Guidance",
-            "url": "https://4s.vercel.app",
-            "logo": "https://4s.vercel.app/assets/logo-4s.png",
+            "url": siteUrl,
+            "logo": `${siteUrl}/assets/logo-4s.png`,
             "description": "Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và AI.",
             "sameAs": []
           })}

@@ -974,6 +974,8 @@ function GuidedQuizPage() {
     })
   }
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+
   return (
     <>
       <Helmet>
@@ -983,8 +985,8 @@ function GuidedQuizPage() {
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S' : 'Holland RIASEC Test - 4S Career Guidance'} />
         <meta property="og:description" content={locale === 'vi' ? 'Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất.' : 'Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations.'} />
-        <meta property="og:url" content="https://4s.vercel.app/quiz" />
-        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+        <meta property="og:url" content={`${siteUrl}/quiz`} />
+        <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
       <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] flex-col overflow-hidden py-3">
         <div className="mb-3 flex justify-end">

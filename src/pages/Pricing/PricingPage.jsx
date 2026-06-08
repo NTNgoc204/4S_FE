@@ -153,6 +153,8 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
 
   const isPlansLoading = loading && dbPlans.length === 0;
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+
   const handlePlanClick = (plan) => {
     if (!isLoggedIn) {
       navigate('/login', { state: { from: '/pricing' } })
@@ -173,8 +175,8 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S' : 'Pricing Plans - 4S Career Guidance'} />
         <meta property="og:description" content={locale === 'vi' ? 'Xem các gói dịch vụ Pro và Enterprise giúp bạn mở khóa đầy đủ tính năng tư vấn hướng nghiệp AI và tìm trường đại học phù hợp.' : 'View our pricing plans and unlock the full potential of AI career guidance and personalized university matching.'} />
-        <meta property="og:url" content="https://4s.vercel.app/pricing" />
-        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+        <meta property="og:url" content={`${siteUrl}/pricing`} />
+        <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
       <main className="mx-auto w-[min(1320px,95vw)] pb-16 pt-14 md:pt-20">
         <section className="text-center">

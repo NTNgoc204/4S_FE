@@ -30,6 +30,8 @@ function AboutPage() {
   const isLoggedIn = Boolean(outletContext?.isLoggedIn);
   const values = ["data", "students", "guidance"];
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+
   return (
     <>
       <Helmet>
@@ -39,8 +41,8 @@ function AboutPage() {
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Về Chúng Tôi - Định Hướng Nghề Nghiệp 4S' : 'About Us - 4S Career Guidance'} />
         <meta property="og:description" content={locale === 'vi' ? 'Tìm hiểu về sứ mệnh, giá trị cốt lõi và đội ngũ phát triển đằng sau hệ thống định hướng nghề nghiệp thông minh 4S.' : 'Learn about the mission, core values, and development team behind the 4S smart career guidance system.'} />
-        <meta property="og:url" content="https://4s.vercel.app/about-us" />
-        <meta property="og:image" content="https://4s.vercel.app/assets/logo-4s.png" />
+        <meta property="og:url" content={`${siteUrl}/about-us`} />
+        <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
       <main className="mx-auto w-[min(1280px,94vw)] pb-14 pt-6">
       <section className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_24%_18%,rgba(255,207,74,0.14),transparent_34%),radial-gradient(circle_at_76%_22%,rgba(15,226,168,0.14),transparent_34%),linear-gradient(180deg,rgba(8,30,50,0.94)_0%,rgba(4,22,40,0.92)_100%)] px-6 py-16 text-center md:px-12 md:py-20">
