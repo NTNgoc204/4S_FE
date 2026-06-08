@@ -12,7 +12,6 @@ function HomePage() {
   const isProAccount = currentPlan !== 'free' && currentPlan !== ''
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app'
-  const googleVerification = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION
 
   const featureCards = [
     {
@@ -74,9 +73,6 @@ function HomePage() {
         <title>{locale === 'vi' ? '4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh' : '4S - Smart Career Guidance & University Matching'}</title>
         <meta name="description" content={locale === 'vi' ? 'Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
         <meta name="keywords" content="hướng nghiệp, trắc nghiệm holland, chọn trường đại học, chọn ngành học, tư vấn học đường, career guidance, university matching, holland test" />
-        {googleVerification && (
-          <meta name="google-site-verification" content={googleVerification} />
-        )}
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
