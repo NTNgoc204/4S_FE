@@ -1,11 +1,11 @@
-import { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { getPlansRequest } from '../../feature/plan/planSlice'
 import Skeleton from '../../components/Skeleton'
-
+import useScrollReveal from '../../hooks/useScrollReveal'
 
 function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const { t, i18n } = useTranslation()
@@ -14,12 +14,16 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const navigate = useNavigate()
   
   const activePlanId = String(currentPlan).toLowerCase()
-
   const { plans: dbPlans, loading } = useSelector((state) => state.plan)
+
+  const [openFaqIndex, setOpenFaqIndex] = useState(null)
 
   useEffect(() => {
     dispatch(getPlansRequest())
   }, [dispatch])
+
+  // Trigger scroll reveals
+  useScrollReveal()
 
   function getFeatures(key) {
     const features = t(key, { returnObjects: true })
@@ -30,51 +34,50 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
     {
       id: 'free',
       badge: '',
-      name: t('pricing:plans.free.name'),
-      description: t('pricing:plans.free.description'),
-      price: t('pricing:plans.free.price'),
-      period: t('pricing:plans.free.period'),
-      cta: t('pricing:plans.free.cta'),
+      name: t('pricing:plans.free.name', 'Gói Free'),
+      description: t('pricing:plans.free.description', 'Khám phá các bước cơ bản'),
+      price: 0,
+      period: t('pricing:plans.free.period', '/ trọn đời'),
+      cta: t('pricing:plans.free.cta', 'Trải nghiệm ngay'),
       features: getFeatures('pricing:plans.free.features'),
       iconLabel: 'AI',
       iconClass: 'bg-gradient-to-br from-[#1be6b4] to-[#00bb8f] text-[#e8fff7]',
-      borderClass: 'border-white/10',
-      cardClass: 'bg-gradient-to-b from-[#1e3552]/92 to-[#162c45]/94',
+      borderClass: 'border-white/10 hover:border-white/20',
+      cardClass: 'glass-card glass-card-hover',
       checkClass: 'text-[#0fe2a8]',
-      buttonClass: 'bg-[#184c56] text-[#0fe2a8] hover:bg-[#1c5a66]',
+      buttonClass: 'bg-white/5 border border-white/10 text-white hover:bg-white/10',
     },
     {
       id: 'pro',
-      badge: t('pricing:plans.pro.badge'),
-      name: t('pricing:plans.pro.name'),
-      description: t('pricing:plans.pro.description'),
-      price: t('pricing:plans.pro.price'),
-      period: t('pricing:plans.pro.period'),
-      cta: t('pricing:plans.pro.cta'),
+      badge: t('pricing:plans.pro.badge', 'Được Chọn Nhiều Nhất'),
+      name: t('pricing:plans.pro.name', 'Gói PRO'),
+      description: t('pricing:plans.pro.description', 'Tối ưu hóa hành trình hướng nghiệp'),
+      price: 99000,
+      period: t('pricing:plans.pro.period', '/ tháng'),
+      cta: t('pricing:plans.pro.cta', 'Nâng cấp PRO'),
       features: getFeatures('pricing:plans.pro.features'),
       iconLabel: 'PRO',
       iconClass: 'bg-gradient-to-br from-[#ffe16d] to-[#deb320] text-[#0f2d4a]',
-      borderClass: 'border-[#ecc741]/45 shadow-[0_18px_40px_rgba(236,199,65,0.16)]',
-      cardClass: 'bg-gradient-to-b from-[#1f3654]/94 to-[#162d47]/96',
+      borderClass: 'rainbow-glow',
+      cardClass: 'glass-card bg-[#0b172a]/60 shadow-[0_20px_50px_rgba(236,199,65,0.12)]',
       checkClass: 'text-[#ecc741]',
-      buttonClass:
-        'bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#112542] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(238,198,49,0.3)]',
+      buttonClass: 'bg-gradient-to-r from-[#ffe06e] to-[#ecc741] text-[#0f2d4a] hover:scale-[1.02] shadow-md hover:shadow-[#ecc741]/20',
     },
     {
       id: 'edu',
-      badge: t('pricing:plans.edu.badge'),
-      name: t('pricing:plans.edu.name'),
-      description: t('pricing:plans.edu.description'),
-      price: t('pricing:plans.edu.price'),
-      period: t('pricing:plans.edu.period'),
-      cta: t('pricing:plans.edu.cta'),
+      badge: t('pricing:plans.edu.badge', 'Dành Cho Trường Học'),
+      name: t('pricing:plans.edu.name', 'Gói EDU'),
+      description: t('pricing:plans.edu.description', 'Giải pháp trọn gói cho nhà trường'),
+      price: 0, // Contact
+      period: '',
+      cta: t('pricing:plans.edu.cta', 'Liên hệ Hợp tác'),
       features: getFeatures('pricing:plans.edu.features'),
       iconLabel: 'EDU',
       iconClass: 'bg-gradient-to-br from-[#7e8cff] to-[#6373f7] text-[#eef2ff]',
-      borderClass: 'border-[#7f8cff]/45 shadow-[0_18px_40px_rgba(127,140,255,0.18)]',
-      cardClass: 'bg-gradient-to-b from-[#1f3553]/92 to-[#172d47]/94',
+      borderClass: 'border-[#7f8cff]/30 hover:border-[#7f8cff]/55',
+      cardClass: 'glass-card glass-card-hover',
       checkClass: 'text-[#8b99ff]',
-      buttonClass: 'bg-gradient-to-br from-[#6f7bff] to-[#7f8cff] text-[#eff2ff] hover:brightness-110',
+      buttonClass: 'bg-gradient-to-r from-[#6f7bff] to-[#7f8cff] text-white hover:scale-[1.02] shadow-md hover:shadow-[#7f8cff]/20',
     },
   ]
 
@@ -88,71 +91,63 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
             badge: '',
             iconLabel: 'AI',
             iconClass: 'bg-gradient-to-br from-[#1be6b4] to-[#00bb8f] text-[#e8fff7]',
-            borderClass: 'border-white/10',
-            cardClass: 'bg-gradient-to-b from-[#1e3552]/92 to-[#162c45]/94',
+            borderClass: 'border-white/10 hover:border-white/20',
+            cardClass: 'glass-card glass-card-hover',
             checkClass: 'text-[#0fe2a8]',
-            buttonClass: 'bg-[#184c56] text-[#0fe2a8] hover:bg-[#1c5a66]',
-            cta: t('pricing:plans.free.cta', 'Start Free'),
+            buttonClass: 'bg-white/5 border border-white/10 text-white hover:bg-white/10',
+            cta: t('pricing:plans.free.cta', 'Trải nghiệm ngay'),
             features: getFeatures('pricing:plans.free.features'),
           };
         } else if (nameLower.includes('pro')) {
           styleConfig = {
             id: 'pro',
-            badge: t('pricing:plans.pro.badge', 'Most Popular'),
+            badge: t('pricing:plans.pro.badge', 'Khuyên Dùng'),
             iconLabel: 'PRO',
             iconClass: 'bg-gradient-to-br from-[#ffe16d] to-[#deb320] text-[#0f2d4a]',
-            borderClass: 'border-[#ecc741]/45 shadow-[0_18px_40px_rgba(236,199,65,0.16)]',
-            cardClass: 'bg-gradient-to-b from-[#1f3654]/94 to-[#162d47]/96',
+            borderClass: 'rainbow-glow',
+            cardClass: 'glass-card bg-[#0b172a]/60 shadow-[0_20px_50px_rgba(236,199,65,0.12)]',
             checkClass: 'text-[#ecc741]',
-            buttonClass: 'bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#112542] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(238,198,49,0.3)]',
-            cta: t('pricing:plans.pro.cta', 'Get Started'),
+            buttonClass: 'bg-gradient-to-r from-[#ffe06e] to-[#ecc741] text-[#0f2d4a] hover:scale-[1.02] shadow-md hover:shadow-[#ecc741]/20',
+            cta: t('pricing:plans.pro.cta', 'Nâng cấp PRO'),
             features: getFeatures('pricing:plans.pro.features'),
           };
         } else {
           styleConfig = {
             id: 'edu',
-            badge: t('pricing:plans.edu.badge', 'For Schools'),
+            badge: t('pricing:plans.edu.badge', 'Dành Cho Trường Học'),
             iconLabel: 'EDU',
             iconClass: 'bg-gradient-to-br from-[#7e8cff] to-[#6373f7] text-[#eef2ff]',
-            borderClass: 'border-[#7f8cff]/45 shadow-[0_18px_40px_rgba(127,140,255,0.18)]',
-            cardClass: 'bg-gradient-to-b from-[#1f3553]/92 to-[#172d47]/94',
+            borderClass: 'border-[#7f8cff]/30 hover:border-[#7f8cff]/55',
+            cardClass: 'glass-card glass-card-hover',
             checkClass: 'text-[#8b99ff]',
-            buttonClass: 'bg-gradient-to-br from-[#6f7bff] to-[#7f8cff] text-[#eff2ff] hover:brightness-110',
-            cta: t('pricing:plans.edu.cta', 'Contact for Schools'),
+            buttonClass: 'bg-gradient-to-r from-[#6f7bff] to-[#7f8cff] text-white hover:scale-[1.02] shadow-md hover:shadow-[#7f8cff]/20',
+            cta: t('pricing:plans.edu.cta', 'Liên hệ Hợp tác'),
             features: getFeatures('pricing:plans.edu.features'),
           };
         }
 
         const planCode = nameLower.includes('free') ? 'free' : nameLower.includes('pro') ? 'pro' : 'edu';
-        let priceStr = '';
-        if (planCode === 'free') {
-          priceStr = t('pricing:plans.free.price', '0 VND');
-        } else {
-          if (dbPlan.price === 0) {
-            priceStr = t('pricing:plans.edu.price', 'Liên hệ');
-          } else {
-            priceStr = `${dbPlan.price.toLocaleString('vi-VN')} VND`;
-          }
-        }
-
         return {
           id: dbPlan.id,
           planCode,
           name: dbPlan.name,
           description: dbPlan.description || t(`pricing:plans.${styleConfig.id}.description`),
-          price: priceStr,
+          rawPrice: dbPlan.price,
           period: planCode === 'free' ? t('pricing:plans.free.period', '/ trọn đời') : (planCode === 'pro' ? t('pricing:plans.pro.period', '/ tháng') : ''),
           ...styleConfig,
         };
       })
-    : staticPlans.map(staticPlan => ({ ...staticPlan, planCode: staticPlan.id }));
+    : staticPlans.map(staticPlan => ({ 
+        ...staticPlan, 
+        planCode: staticPlan.id,
+        rawPrice: staticPlan.id === 'pro' ? 99000 : 0
+      }));
 
-  // Sort plans so 'free' is always index 0, followed by 'pro', then 'edu' (or anything else)
+  // Sort plans: Free -> Pro -> Edu
   const sortOrder = { 'free': 0, 'pro': 1, 'edu': 2 };
   plans.sort((a, b) => (sortOrder[a.planCode] ?? 99) - (sortOrder[b.planCode] ?? 99));
 
   const isPlansLoading = loading && dbPlans.length === 0;
-
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
 
   const handlePlanClick = (plan) => {
@@ -166,6 +161,32 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
     navigate(`/checkout?planId=${plan.id}`)
   }
 
+  // Calculate formatted price
+  const getFormattedPrice = (plan) => {
+    if (plan.planCode === 'free') {
+      return t('pricing:plans.free.price', '0 VND')
+    }
+    if (plan.planCode === 'edu' || plan.rawPrice === 0) {
+      return t('pricing:plans.edu.price', 'Liên hệ')
+    }
+    return `${plan.rawPrice.toLocaleString('vi-VN')} VND`
+  }
+
+  const faqItems = [
+    {
+      q: locale === 'vi' ? 'Gói PRO có giới hạn số lượt kiểm tra không?' : 'Does the PRO plan limit the number of quiz attempts?',
+      a: locale === 'vi' ? 'Không. Khi đăng ký gói PRO, bạn được thực hiện không giới hạn số lượt trắc nghiệm Holland và nhận đánh giá AI đầy đủ.' : 'No. With a PRO subscription, you can take the Holland test and receive detailed AI analytics an unlimited number of times.'
+    },
+    {
+      q: locale === 'vi' ? 'Phương thức thanh toán được hỗ trợ là gì?' : 'What payment methods are supported?',
+      a: locale === 'vi' ? 'Chúng tôi hỗ trợ chuyển khoản ngân hàng nhanh qua mã QR (VietQR) và cổng thanh toán. Kích hoạt tài khoản lập tức sau khi giao dịch thành công.' : 'We support bank transfers via QR code (VietQR) and major payment gateways. Your account is upgraded instantly after payment succeeds.'
+    },
+    {
+      q: locale === 'vi' ? 'Quy trình dành cho đối tác Trường học (Gói EDU) như thế nào?' : 'How does school partnership (EDU Plan) work?',
+      a: locale === 'vi' ? 'Nhà trường vui lòng nhấn nút "Liên hệ hợp tác", đội ngũ 4S sẽ liên hệ trực tiếp để cung cấp tài khoản và dashboard phân tích cho học sinh toàn trường.' : 'Schools can click "Contact for Schools". Our team will reach out directly to set up individual logins and custom analytics dashboards for all students.'
+    }
+  ]
+
   return (
     <>
       <Helmet>
@@ -178,125 +199,214 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
         <meta property="og:url" content={`${siteUrl}/pricing`} />
         <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
-      <main className="mx-auto w-[min(1320px,95vw)] pb-16 pt-14 md:pt-20">
-        <section className="text-center">
-          <p className="mx-auto mb-7 inline-flex items-center rounded-full border border-[#ecc741]/30 bg-[#ecc741]/12 px-5 py-2 text-lg font-semibold text-[#ecc741]">
-            {t('pricing:hero.chip')}
-          </p>
-          <h1 className="font-['Sora'] text-[2.3rem] tracking-[-0.03em] md:text-[4.1rem]">{t('pricing:hero.title')}</h1>
-          <p className="mt-4 text-[1.18rem] text-slate-300 md:text-[1.45rem]">{t('pricing:hero.subtitle')}</p>
-        </section>
 
-        <section className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {plans.map((plan) => (
-            <article
-              key={plan.id}
-              className={`relative flex h-full flex-col rounded-[22px] border p-7 md:p-8 ${plan.borderClass} ${plan.cardClass}`}
-            >
-              {plan.badge ? (
-                <span
-                  className={`absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-5 py-1.5 text-sm font-bold ${
-                    plan.id === 'pro'
-                      ? 'bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] text-[#17314b]'
-                      : 'bg-gradient-to-br from-[#6f7bff] to-[#7f8cff] text-[#ecf0ff]'
-                  }`}
-                >
-                  {plan.badge}
-                </span>
-              ) : null}
+      <main className="relative overflow-x-hidden text-slate-100 pb-24 pt-24 md:pt-32">
+        {/* Liquid Background Blobs */}
+        <div className="glow-blob glow-blob-1 -left-20 top-20 h-[350px] w-[350px]" />
+        <div className="glow-blob glow-blob-2 right-10 top-40 h-[380px] w-[380px]" />
 
-              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl text-sm font-extrabold ${plan.iconClass}`}>
-                {plan.iconLabel}
-              </div>
+        <div className="relative z-10 mx-auto w-[min(1200px,92vw)] text-center">
+          
+          {/* Header section */}
+          <header className="max-w-3xl mx-auto mb-16 reveal-on-scroll">
+            <span className="inline-flex items-center rounded-full border border-[#ecc741]/30 bg-[#ecc741]/10 px-4 py-1.5 text-xs font-semibold tracking-wider text-[#ecc741] mb-6">
+              {t('pricing:hero.chip', 'BẢNG GIÁ DỊCH VỤ')}
+            </span>
+            <h1 className="font-display text-[2.5rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-[3.8rem] md:text-5xl">
+              {t('pricing:hero.title', 'Lựa chọn gói dịch vụ của bạn')}
+            </h1>
+            <p className="mt-6 text-base md:text-lg text-slate-300 leading-relaxed">
+              {t('pricing:hero.subtitle', 'Đầu tư nhỏ cho định hướng tương lai bền vững của bạn hoặc học sinh.')}
+            </p>
+          </header>
 
-              {isPlansLoading ? (
-                <div className="mt-5 mb-2 h-[2.15rem] flex items-center">
-                  <Skeleton height="1.8rem" width="100px" />
+          {/* Pricing cards grid */}
+          <section className="grid grid-cols-1 gap-8 md:grid-cols-3 items-stretch">
+            {plans.map((plan, index) => (
+              <article
+                key={plan.id}
+                className={`relative flex flex-col rounded-[32px] border p-8 transition-all duration-500 hover:scale-[1.02] ${plan.borderClass} ${plan.cardClass} reveal-on-scroll`}
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                {/* Popular / Focus badge */}
+                {plan.badge ? (
+                  <span
+                    className={`absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full px-5 py-1.5 text-xs font-extrabold uppercase tracking-wider shadow-md ${
+                      plan.planCode === 'pro'
+                        ? 'bg-gradient-to-r from-[#ffe06e] to-[#ecc741] text-[#17314b]'
+                        : 'bg-gradient-to-r from-[#6f7bff] to-[#7f8cff] text-[#ecf0ff]'
+                    }`}
+                  >
+                    {plan.badge}
+                  </span>
+                ) : null}
+
+                {/* Plan Icon */}
+                <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl text-base font-extrabold shadow-inner ${plan.iconClass}`}>
+                  {plan.iconLabel}
                 </div>
-              ) : (
-                <h2 className="mt-5 font-['Sora'] text-[2.15rem] tracking-[-0.03em]">{plan.name}</h2>
-              )}
 
-              <div className="mt-4 flex items-end gap-1">
+                {/* Plan Name */}
                 {isPlansLoading ? (
-                  <Skeleton height="3.35rem" width="180px" />
+                  <div className="mt-6 mb-2">
+                    <Skeleton height="1.8rem" width="120px" />
+                  </div>
                 ) : (
-                  <>
-                    <p className="font-['Sora'] text-[3.35rem] leading-none tracking-[-0.03em]">{plan.price}</p>
-                    {plan.period ? <p className="pb-1 text-[1.06rem] text-slate-400">{plan.period}</p> : null}
-                  </>
+                  <h2 className="mt-6 font-display text-2xl font-extrabold text-white tracking-tight text-left">{plan.name}</h2>
                 )}
-              </div>
-              {/* VAT note — only for paid plans with a real price */}
-              {!isPlansLoading && plan.planCode !== 'free' && plan.price !== t('pricing:plans.edu.price', 'Liên hệ') && plan.price !== '0 VND' ? (
-                <p className="mt-1.5 text-xs text-slate-500">(chưa bao gồm VAT)</p>
-              ) : null}
 
-              <ul className="mt-7 space-y-3.5">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-[1.05rem] text-slate-200">
-                    <span className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center ${plan.checkClass}`}>
-                      <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 20 20">
-                        <path d="m4.5 10.5 3.2 3.2L15.5 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                      </svg>
-                    </span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                {/* Plan Description */}
+                <p className="mt-2 text-xs text-slate-400 text-left leading-relaxed">{plan.description}</p>
 
-              <div className="mt-auto pt-8">
-                {isPlansLoading ? (
-                  <button
-                    className="w-full cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-xl font-semibold text-slate-200 flex items-center justify-center"
-                    disabled
-                    type="button"
+                {/* Plan Price */}
+                <div className="mt-6 flex items-baseline gap-1.5 border-b border-white/5 pb-6">
+                  {isPlansLoading ? (
+                    <Skeleton height="3.2rem" width="160px" />
+                  ) : (
+                    <>
+                      <span className="font-display text-[2.75rem] font-extrabold leading-none tracking-tight text-white">
+                        {getFormattedPrice(plan)}
+                      </span>
+                      {plan.period && (
+                        <span className="text-xs text-slate-400 font-medium">
+                          {plan.period}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* VAT note */}
+                {!isPlansLoading && plan.planCode !== 'free' && plan.rawPrice > 0 ? (
+                  <p className="mt-2 text-[10px] text-slate-500 text-left italic">
+                    {locale === 'vi' ? '* Giá trên chưa bao gồm thuế VAT' : '* Prices exclude VAT'}
+                  </p>
+                ) : null}
+
+                {/* Plan Features */}
+                <ul className="mt-8 space-y-4 flex-1">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3 text-xs sm:text-sm text-slate-300 text-left leading-snug">
+                      <span className={`mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-white/5 ${plan.checkClass}`}>
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA Action Button */}
+                <div className="mt-8 pt-6 border-t border-white/5">
+                  {isPlansLoading ? (
+                    <button
+                      className="w-full cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 py-4 text-sm font-bold text-slate-400 flex items-center justify-center"
+                      disabled
+                      type="button"
+                    >
+                      <Skeleton height="1.2rem" width="100px" />
+                    </button>
+                  ) : isLoggedIn && activePlanId === plan.planCode ? (
+                    <button
+                      className="w-full cursor-default rounded-2xl bg-emerald-500/10 border border-emerald-500/20 py-4 text-sm font-bold text-[#0fe2a8]"
+                      disabled
+                      type="button"
+                    >
+                      {t('pricing:currentPlanCta', 'Gói hiện tại của bạn')}
+                    </button>
+                  ) : isLoggedIn && (
+                    (activePlanId === 'pro' && plan.planCode === 'free') ||
+                    (activePlanId === 'edu' && (plan.planCode === 'free' || plan.planCode === 'pro'))
+                  ) ? (
+                    <button
+                      className="w-full cursor-not-allowed rounded-2xl border border-white/5 bg-white/2 py-4 text-sm font-bold text-slate-500"
+                      disabled
+                      type="button"
+                    >
+                      {plan.cta}
+                    </button>
+                  ) : (
+                    <button
+                      className={`w-full rounded-2xl py-4 text-sm font-bold transition-all duration-300 cursor-pointer ${plan.buttonClass}`}
+                      type="button"
+                      onClick={() => handlePlanClick(plan)}
+                    >
+                      {plan.cta}
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
+          </section>
+
+          {/* Money-back / Trust note */}
+          <p className="mt-12 text-sm text-slate-400 reveal-on-scroll">
+            🔒 {t('pricing:note', 'Hệ thống thanh toán bảo mật. Hỗ trợ kích hoạt dịch vụ tự động 24/7.')}
+          </p>
+
+          {/* Interactive FAQ Accordion Section */}
+          <section className="mt-24 max-w-4xl mx-auto reveal-on-scroll">
+            <h2 className="font-display text-2xl font-extrabold text-white tracking-tight mb-8">
+              {locale === 'vi' ? 'Câu hỏi thường gặp' : 'Frequently Asked Questions'}
+            </h2>
+            
+            <div className="space-y-4 text-left">
+              {faqItems.map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <article 
+                    key={idx}
+                    className="glass-card rounded-2xl border border-white/5 overflow-hidden transition-all duration-300"
                   >
-                    <Skeleton height="1.5rem" width="120px" />
-                  </button>
-                ) : isLoggedIn && activePlanId === plan.planCode ? (
-                  <button
-                    className="w-full cursor-default rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 text-xl font-semibold text-slate-200"
-                    disabled
-                    type="button"
-                  >
-                    {t('pricing:currentPlanCta')}
-                  </button>
-                ) : (
-                  <button
-                    className={`w-full rounded-2xl px-6 py-3.5 text-xl font-semibold transition ${plan.buttonClass}`}
-                    type="button"
-                    onClick={() => handlePlanClick(plan)}
-                  >
-                    {plan.cta}
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
-        </section>
+                    <button
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      type="button"
+                      className="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-sm sm:text-base text-white hover:bg-white/2 transition cursor-pointer"
+                    >
+                      <span>{faq.q}</span>
+                      <span className={`text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-white' : ''}`}>
+                        ▼
+                      </span>
+                    </button>
+                    
+                    <div 
+                      className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                        isOpen ? 'max-h-40 border-t border-white/5' : 'max-h-0'
+                      }`}
+                    >
+                      <p className="p-6 text-xs sm:text-sm text-slate-300 leading-relaxed bg-[#0a1424]/30">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
 
-        <p className="mt-10 text-center text-lg text-slate-400">{t('pricing:note')}</p>
+          {/* Custom School Cooperation / Partnership Section */}
+          <section className="mt-20 rounded-[32px] border border-white/10 bg-gradient-to-r from-[#172c44]/80 to-[#122238]/90 px-8 py-12 text-center md:px-12 relative overflow-hidden reveal-on-scroll shadow-2xl">
+            <div className="glow-blob glow-blob-3 right-0 bottom-0 h-48 w-48 opacity-20" />
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{t('pricing:questions.title')}</h2>
+            <p className="mt-3 text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">{t('pricing:questions.subtitle')}</p>
 
-        <section className="mt-10 rounded-[22px] border border-white/10 bg-gradient-to-b from-[#233a59]/90 to-[#1b304d]/95 px-6 py-10 text-center md:px-10">
-          <h2 className="font-['Sora'] text-[2.15rem] tracking-[-0.03em]">{t('pricing:questions.title')}</h2>
-          <p className="mt-2 text-[1.15rem] text-slate-300">{t('pricing:questions.subtitle')}</p>
-
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <button
-              className="rounded-2xl border border-white/15 bg-white/8 px-7 py-3 text-lg font-semibold text-slate-200 transition hover:bg-white/15"
-              type="button"
-            >
-              {t('pricing:questions.contact')}
-            </button>
-            <button
-              className="rounded-2xl border border-[#7f8cff]/45 bg-[#7f8cff]/18 px-7 py-3 text-lg font-semibold text-[#b9c1ff] transition hover:bg-[#7f8cff]/30"
-              type="button"
-            >
-              {t('pricing:questions.partnership')}
-            </button>
-          </div>
-        </section>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <button
+                className="rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-8 py-3.5 text-sm font-bold text-white transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02]"
+                type="button"
+              >
+                {t('pricing:questions.contact')}
+              </button>
+              <button
+                className="rounded-xl border border-[#7f8cff]/30 bg-[#7f8cff]/10 hover:bg-[#7f8cff]/20 px-8 py-3.5 text-sm font-bold text-[#b9c1ff] transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02]"
+                type="button"
+              >
+                {t('pricing:questions.partnership')}
+              </button>
+            </div>
+          </section>
+        </div>
       </main>
     </>
   )
