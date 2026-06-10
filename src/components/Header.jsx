@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
-import globeIcon from "../assets/Globe.svg";
 import fourSLogo from "../assets/logo-4s.png";
 import NotificationDropdown from "./NotificationDropdown";
 
@@ -28,7 +27,6 @@ function Header({
 
   // Use Redux auth if available, fallback to props
   const finalIsLoggedIn = reduxAuth.isLoggedIn ?? isLoggedIn;
-
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
@@ -67,37 +65,41 @@ function Header({
 
   return (
     <header
-      className={`${stickyHeader ? "sticky top-0 z-20" : ""} border-b border-white/10 bg-[#041326]/80 backdrop-blur-xl`}
+      className={`${
+        stickyHeader ? "sticky top-0 z-50" : ""
+      } border-b border-white/5 bg-[#041326]/60 backdrop-blur-md transition-all duration-300 shadow-md py-2.5`}
     >
-      <div
-        className={`flex min-h-18.5 mx-4 items-center justify-between gap-6`}
-      >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between gap-4">
+        {/* Brand logo & name */}
         <Link
-          className="inline-flex items-center gap-3 text-[#ecc741] no-underline"
+          className="inline-flex items-center gap-2 text-[#ecc741] no-underline transition-opacity duration-300 hover:opacity-90"
           to="/"
         >
           <img
             alt="4S logo"
-            className="h-[70px] w-[70px] object-contain"
+            className="h-[52px] w-[52px] object-contain"
             src={fourSLogo}
           />
-          <span className="font-['Sora'] text-xl font-bold">For Student</span>
+          <span className="font-display text-lg font-black tracking-tight text-white">
+            For Student
+          </span>
         </Link>
 
+        {/* Center menu links */}
         {showNav ? (
           <nav
             aria-label="Main navigation"
-            className="hidden items-center gap-6 lg:flex"
+            className="hidden lg:flex items-center gap-8"
           >
             {navItems.map((item) => (
               <NavLink
                 end={item.to === "/"}
                 key={item.to}
                 className={({ isActive }) =>
-                  `text-[0.95rem] no-underline transition ${
+                  `text-xs uppercase tracking-wider font-semibold no-underline transition-all duration-300 nav-link-underline ${
                     isActive
-                      ? "font-semibold text-[#f2cb36]"
-                      : "text-slate-300 hover:text-slate-100"
+                      ? "text-[#f2cb36] active"
+                      : "text-slate-400 hover:text-slate-100"
                   }`
                 }
                 to={item.to}
@@ -108,70 +110,71 @@ function Header({
           </nav>
         ) : null}
 
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
-            <img
-              alt=""
-              aria-hidden="true"
-              className="ml-2 mr-1 h-4 w-4 opacity-70"
-              src={globeIcon}
-            />
+        {/* Right buttons area */}
+        <div className="flex items-center gap-4">
+          
+          {/* Custom Compact Language Switch */}
+          <div className="relative inline-flex items-center bg-white/5 border border-white/10 rounded-full p-0.5 text-[10px] select-none shadow-inner">
             <button
-              className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
-                isEnglish
-                  ? "bg-white/15 text-slate-100"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-              onClick={() => handleLanguageChange("en")}
-              type="button"
-            >
-              {t("common:language.en")}
-            </button>
-            <button
-              className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
-                isEnglish
-                  ? "text-slate-400 hover:text-slate-200"
-                  : "bg-white/15 text-slate-100"
-              }`}
               onClick={() => handleLanguageChange("vi")}
               type="button"
+              className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                !isEnglish 
+                  ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
             >
-              {t("common:language.vi")}
+              VI
+            </button>
+            <button
+              onClick={() => handleLanguageChange("en")}
+              type="button"
+              className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                isEnglish 
+                  ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              EN
             </button>
           </div>
 
+          {/* User Auth Info */}
           {finalIsLoggedIn ? (
-            <>
+            <div className="flex items-center gap-3">
               {isAdmin ? (
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-rose-300/60 bg-rose-400/12 px-3 py-2 text-sm font-bold tracking-wide text-rose-300">
-                  <span>ADMIN</span>
+                <span className="inline-flex items-center rounded-lg border border-rose-300/40 bg-rose-400/10 px-2.5 py-1.5 text-[10px] font-black tracking-widest text-rose-300 shadow-inner">
+                  ADMIN
                 </span>
               ) : (String(reduxAuth.plan).toLowerCase() === "pro" || String(reduxAuth.plan).toLowerCase() === "vip") ? (
-                <span className="inline-flex items-end gap-1 rounded-lg border border-[#ecc741]/60 bg-[#ecc741]/15 px-3 pb-2 text-sm font-bold tracking-wide text-[#f4d040]">
-                  <span className="text-xl">{"\u{1F451}"}</span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-[#ecc741]/40 bg-[#ecc741]/10 px-2.5 py-1.5 text-[10px] font-black tracking-widest text-[#f4d040] shadow-inner">
+                  <span className="text-xs">👑</span>
                   <span>PRO</span>
                 </span>
               ) : null}
-              {isAdmin ? (
+
+              {isAdmin && (
                 <button
-                  className="rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 px-3 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25"
+                  className="rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/10 hover:bg-[#0ed8ab]/20 px-3.5 py-2 text-xs font-bold text-[#0ed8ab] transition cursor-pointer"
                   onClick={() => navigate("/admin/dashboard")}
                   type="button"
                 >
-                  Admin
+                  Admin Portal
                 </button>
-              ) : null}
+              )}
+
+              {/* Notification bell dropdown shortcut */}
               <div className="relative">
                 <button
                   onClick={() => setIsNotiOpen(!isNotiOpen)}
-                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105"
+                  className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
                   type="button"
                 >
-                  <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                   </svg>
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-lg animate-pulse">
+                    <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-md animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -179,9 +182,10 @@ function Header({
                 <NotificationDropdown isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} />
               </div>
 
+              {/* User Avatar */}
               <button
                 aria-label="User profile"
-                className="relative overflow-hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f] transition hover:scale-105"
+                className="relative overflow-hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f] transition hover:scale-105 cursor-pointer shadow-sm"
                 onClick={() => navigate("/profile")}
                 type="button"
               >
@@ -193,23 +197,25 @@ function Header({
                     onError={() => setImgError(true)}
                   />
                 ) : (
-                  <span className="font-['Sora'] text-sm font-bold">
+                  <span className="font-display text-xs font-bold">
                     {getInitials(user?.username)}
                   </span>
                 )}
               </button>
 
+              {/* Logout Button */}
               <button
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10 hover:text-white cursor-pointer shadow-sm"
                 onClick={handleLogoutClick}
                 type="button"
               >
                 {t("common:actions.logout")}
               </button>
-            </>
+            </div>
           ) : showGuestCta ? (
+            /* Guest login button */
             <button
-              className="hidden rounded-xl bg-gradient-to-br from-[#ffdd5d] to-[#e5bc23] px-6 py-3 font-semibold text-[#112542] shadow-[0_14px_30px_rgba(238,198,49,0.23)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_35px_rgba(238,198,49,0.3)] md:inline-flex"
+              className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-5 py-2.5 text-xs font-extrabold text-[#112542] shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-300 cursor-pointer"
               onClick={handleGetStartedClick}
               type="button"
             >
