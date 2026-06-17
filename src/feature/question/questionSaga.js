@@ -23,29 +23,49 @@ import {
 // Fetch Questions
 function* fetchQuestionsSaga() {
   try {
-    const [questionsRes, optionsRes] = yield all([
+    const [questionsRes, optionsRes, categoriesRes] = yield all([
       call(questionAPI.getAllQuestions),
       call(questionAPI.getAllOptions),
+      call(questionAPI.getAllCategories),
     ]);
 
     const questions = questionsRes.data || [];
     const options = optionsRes.data || [];
+    const categories = categoriesRes.data || [];
 
-    // Stitch options into their parent questions
-    const combinedQuestions = questions.map((q) => {
-      const questionOptions = options
-        .filter((opt) => opt.questionId === q.id)
-        .map((opt) => ({
-          ...opt,
-          code: opt.optionCode || opt.code || "",
-        }))
-        .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    // Sort categories by displayOrder
+    const sortedCategories = [...categories].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
-      return {
-        ...q,
-        options: questionOptions,
-      };
+    // Create a map of category ID to category index/name
+    const categoryMap = {};
+    sortedCategories.forEach((cat, index) => {
+      categoryMap[cat.id] = { ...cat, index };
     });
+
+    // Stitch options and sort questions by category display order first, then question display order
+    const combinedQuestions = questions
+      .map((q) => {
+        const questionOptions = options
+          .filter((opt) => opt.questionId === q.id)
+          .map((opt) => ({
+            ...opt,
+            code: opt.optionCode || opt.code || "",
+          }))
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+        return {
+          ...q,
+          options: questionOptions,
+          categoryIndex: categoryMap[q.categoryId]?.index ?? 999,
+          categoryName: categoryMap[q.categoryId]?.name || "",
+        };
+      })
+      .sort((a, b) => {
+        if (a.categoryIndex !== b.categoryIndex) {
+          return a.categoryIndex - b.categoryIndex;
+        }
+        return (a.displayOrder || 0) - (b.displayOrder || 0);
+      });
 
     yield put(fetchQuestionsSuccess(combinedQuestions));
   } catch (error) {

@@ -1,85 +1,7 @@
+import { useMemo } from 'react'
 import sparklesIcon from '../../../assets/Sparkles.svg'
 
-const CATEGORY_PROFILES = {
-  personality: {
-    analytical: {
-      vi: "Bạn có xu hướng tư duy logic, phân tích tốt và ngăn nắp. Bạn thích làm việc với dữ liệu và tìm kiếm giải pháp có cấu trúc.",
-      en: "You tend to be analytical, logical, and structured. You enjoy working with data and looking for methodical solutions."
-    },
-    creative: {
-      vi: "Bạn là người bay bổng, có tính sáng tạo cao và nhạy cảm nghệ thuật. Bạn thích các công việc cho phép tự do thể hiện ý tưởng độc đáo.",
-      en: "You are imaginative, highly creative, and artistically sensitive. You enjoy tasks that allow free expression of unique ideas."
-    },
-    social: {
-      vi: "Bạn là người hướng ngoại, hòa đồng và thích giao tiếp. Bạn có năng lực kết nối con người và phát huy tối đa sức mạnh tập thể.",
-      en: "You are outgoing, friendly, and communicative. You excel at connecting people and maximizing group synergy."
-    },
-    practical: {
-      vi: "Bạn là người có tư duy thực tế, rõ ràng và kiên định. Bạn yêu thích các công việc thực hành và giải quyết các bài toán cụ thể đời thực.",
-      en: "You are practical, clear-headed, and steady. You love hands-on work and solving real-world concrete problems."
-    },
-    action: {
-      vi: "Bạn là người quyết đoán, linh hoạt và định hướng hành động nhanh. Bạn thích thử nghiệm cái mới và rút kinh nghiệm trực tiếp.",
-      en: "You are decisive, flexible, and action-oriented. You enjoy experimenting with new ideas and learning by doing."
-    },
-    balanced: {
-      vi: "Bạn có tính cách cân bằng, kết hợp tốt giữa lý trí sắc bén và trực giác nhạy bén. Bạn linh hoạt ứng biến trong nhiều hoàn cảnh.",
-      en: "You have a balanced personality, blending sharp logic with keen intuition. You adapt flexibly to various situations."
-    }
-  },
-  learning: {
-    analytical: {
-      vi: "Phong cách học tập của bạn rất quy củ. Bạn tiếp thu tốt nhất qua sách vở, tài liệu chi tiết và các hệ thống lý thuyết khoa học.",
-      en: "Your learning style is highly methodical. You absorb information best through detailed documents and scientific theories."
-    },
-    creative: {
-      vi: "Bạn học hỏi nhanh nhất qua hình ảnh, ví dụ trực quan sinh động và liên tưởng sáng tạo chứ không thích các tài liệu khô khan.",
-      en: "You learn fastest through visuals, vivid illustrations, and creative associations rather than dry text."
-    },
-    social: {
-      vi: "Bạn tiếp thu kiến thức tốt nhất khi tham gia thảo luận nhóm, trao đổi ý kiến và học cùng với bạn bè đồng hành.",
-      en: "You acquire knowledge best when participating in group discussions, sharing ideas, and learning with peers."
-    },
-    practical: {
-      vi: "Bạn học bằng cách bắt tay vào làm. Việc tự học qua thực hành trực tiếp và chỉ dẫn thực tế giúp bạn nhớ lâu hơn.",
-      en: "You learn by doing. Self-study through direct practice and hands-on guidance helps you retain knowledge longer."
-    },
-    action: {
-      vi: "Bạn thích học qua các dự án thực tế, hành động nhanh và sửa sai liên tục để hoàn thiện kỹ năng một cách nhanh chóng.",
-      en: "You prefer learning through real projects, taking swift action, and iterating quickly to refine your skills."
-    },
-    balanced: {
-      vi: "Bạn có phương pháp tự học linh hoạt, cân bằng giữa việc đọc hiểu lý thuyết và dành thời gian thực hành củng cố.",
-      en: "You have a flexible self-learning method, balancing theoretical reading with hands-on practice."
-    }
-  },
-  decision: {
-    analytical: {
-      vi: "Khi ra quyết định, bạn luôn phân tích kỹ lưỡng, cân nhắc số liệu và dùng logic thay vì cảm xúc nhất thời.",
-      en: "When making decisions, you always analyze carefully, weigh the data, and rely on logic rather than temporary emotions."
-    },
-    creative: {
-      vi: "Bạn đưa ra lựa chọn dựa nhiều trên cảm xúc, trực giác và cảm hứng sáng tạo để tìm hướng đi độc đáo nhất.",
-      en: "You make choices based on emotions, intuition, and creative inspiration to find the most unique path."
-    },
-    social: {
-      vi: "Bạn coi trọng ý kiến tập thể và tác động xã hội khi đưa ra lựa chọn, luôn cố gắng đạt được sự đồng thuận cao.",
-      en: "You value collective opinions and social impact when making choices, always striving for consensus."
-    },
-    practical: {
-      vi: "Lựa chọn của bạn dựa trên trải nghiệm thực tế và tính khả thi cao, ưu tiên các giải pháp giải quyết trực tiếp vấn đề.",
-      en: "Your choices are based on practical experience and high feasibility, prioritizing direct problem-solving."
-    },
-    action: {
-      vi: "Bạn là người ra quyết định nhanh chóng, sẵn sàng hành động và linh hoạt điều chỉnh khi có tình huống mới phát sinh.",
-      en: "You are a quick decision maker, ready to act and adapt flexibly when new situations arise."
-    },
-    balanced: {
-      vi: "Bạn có tư duy ra quyết định chín chắn, cân nhắc hài hòa giữa phân tích logic và cảm quan trực giác cá nhân.",
-      en: "You have a mature decision-making style, harmonizing logical analysis with personal intuition."
-    }
-  }
-}
+
 
 const CATEGORIES = [
   {
@@ -111,14 +33,42 @@ const CATEGORIES = [
 function QuizRightPanel({ 
   answeredCount, 
   isDone, 
+  isThinking = false,
   locale, 
   onViewDetail, 
   questionCount, 
   recommendations, 
   text, 
   answers = {}, 
-  questions = [] 
+  questions = [],
+  insights = {},
+  isAiAnalyzing = false
 }) {
+
+  // Dynamically build categories from questions list if available
+  const quizCategories = useMemo(() => {
+    if (!questions || questions.length === 0 || !questions[0]?.categoryId) {
+      return CATEGORIES;
+    }
+    
+    const groups = {};
+    questions.forEach((q, index) => {
+      if (!q.categoryId) return;
+      if (!groups[q.categoryId]) {
+        groups[q.categoryId] = {
+          id: q.categoryId,
+          name: {
+            vi: q.categoryName || `Nhóm ${Object.keys(groups).length + 1}`,
+            en: q.categoryName || `Category ${Object.keys(groups).length + 1}`,
+          },
+          questionIndices: [],
+        };
+      }
+      groups[q.categoryId].questionIndices.push(index);
+    });
+    
+    return Object.values(groups).sort((a, b) => a.questionIndices[0] - b.questionIndices[0]);
+  }, [questions]);
 
   // Check category status
   const getCategoryStatus = (category) => {
@@ -134,32 +84,7 @@ function QuizRightPanel({
     return { status: 'locked', count: 0, total };
   };
 
-  // Find dominant profile for a category
-  const getDominantProfileForCategory = (category) => {
-    const counts = {};
-    category.questionIndices.forEach(idx => {
-      const q = questions[idx];
-      if (q) {
-        const ansId = answers[q.id];
-        if (ansId) {
-          const option = q.options.find(o => o.id === ansId);
-          if (option?.profile) {
-            counts[option.profile] = (counts[option.profile] || 0) + 1;
-          }
-        }
-      }
-    });
 
-    let dominant = 'balanced';
-    let max = 0;
-    Object.entries(counts).forEach(([profile, count]) => {
-      if (count > max) {
-        max = count;
-        dominant = profile;
-      }
-    });
-    return dominant;
-  };
 
   return (
     <aside className="flex min-h-0 flex-col bg-[#203a59]/93">
@@ -189,18 +114,16 @@ function QuizRightPanel({
           <div className="space-y-6">
             {/* Category Cards */}
             <div className="space-y-4">
-              {CATEGORIES.map((category) => {
+              {quizCategories.map((category, index) => {
                 const { status, count, total } = getCategoryStatus(category);
                 const isCategoryActive = status === 'active';
                 const isCategoryDone = status === 'done';
                 const isCategoryLocked = status === 'locked';
 
-                let dominantProfile = 'balanced';
-                let recommendationText = '';
-                if (isCategoryDone) {
-                  dominantProfile = getDominantProfileForCategory(category);
-                  recommendationText = CATEGORY_PROFILES[category.id]?.[dominantProfile]?.[locale] || '';
-                }
+                const lastIndex = category.questionIndices[category.questionIndices.length - 1];
+                const lastQuestion = questions[lastIndex];
+                const aiEval = lastQuestion ? insights[lastQuestion.id] : null;
+                const isGenerating = isCategoryDone && !aiEval;
 
                 return (
                   <article
@@ -237,11 +160,21 @@ function QuizRightPanel({
 
                     {/* Recommendation / Help Text */}
                     {isCategoryDone ? (
-                      <div className="mt-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3">
-                        <p className="text-xs leading-relaxed text-slate-200 italic">
-                          "{recommendationText}"
-                        </p>
-                      </div>
+                      isGenerating ? (
+                        <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 text-xs text-slate-400">
+                          <svg className="animate-spin h-3.5 w-3.5 text-[#ecc741]" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span>{locale === 'vi' ? 'AI đang phân tích...' : 'AI is analyzing...'}</span>
+                        </div>
+                      ) : (
+                        <div className="mt-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3">
+                          <p className="text-xs leading-relaxed text-slate-200 italic whitespace-pre-line">
+                            "{aiEval || (locale === 'vi' ? 'Không có đánh giá từ AI.' : 'No AI evaluation available.')}"
+                          </p>
+                        </div>
+                      )
                     ) : isCategoryActive ? (
                       <div className="mt-3">
                         <p className="text-xs text-slate-300">
@@ -276,19 +209,16 @@ function QuizRightPanel({
         )}
       </div>
 
-      <footer className="border-t border-white/10 p-4">
-        <button
-          className={`w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
-            isDone
-              ? 'bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110'
-              : 'cursor-not-allowed border border-white/10 bg-white/5 text-slate-500'
-          }`}
-          disabled={!isDone}
-          type="button"
-        >
-          {text.compareButton}
-        </button>
-      </footer>
+      {isDone && !isAiAnalyzing && (
+        <footer className="border-t border-white/10 p-4">
+          <button
+            className="w-full rounded-xl bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110 px-4 py-3 text-sm font-semibold transition cursor-pointer active:scale-95"
+            type="button"
+          >
+            {text.compareButton}
+          </button>
+        </footer>
+      )}
     </aside>
   )
 }

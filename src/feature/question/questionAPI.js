@@ -49,4 +49,10 @@ export const questionAPI = {
   submitUserAnswer: (data) => apiClient.post("/api/UserAnswers", data),
 
   deleteUserAnswer: (id) => apiClient.delete(`/api/UserAnswers/${id}`),
+
+  // AI Evaluations
+  evaluateCategory: (categoryId) => apiClient.post(`/api/AiEvaluations/evaluate/${categoryId}`, null, { timeout: 180000 }),
+
+  getEvaluation: (categoryId) => apiClient.get(`/api/AiEvaluations/${categoryId}`, { timeout: 180000 }),
 };
+
