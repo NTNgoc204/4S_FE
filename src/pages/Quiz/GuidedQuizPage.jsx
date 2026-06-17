@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Helmet } from 'react-helmet-async'
 import { toast } from 'react-toastify'
-import { SCORE_KEYS, rankUniversities } from '../../data/universities'
+
 import QuizLeftPanel from './components/QuizLeftPanel'
 import QuizRightPanel from './components/QuizRightPanel'
 import { fetchQuestionsRequest, submitAnswersRequest } from '../../feature/question/questionSlice'
@@ -694,7 +694,7 @@ const getVectorFromScoreTag = (scoreTag) => {
     leftBrain: 0,
     rightBrain: 0,
   };
-  
+
   if (tag === 'tech') {
     vector.tech = 3;
     vector.leftBrain = 2;
@@ -738,12 +738,12 @@ const getProfileFromScoreTag = (scoreTag) => {
 
 export const isOptionActuallyOther = (option) => {
   if (!option) return false;
-  
+
   if (option.label) {
     const vi = (option.label.vi || '').trim().toLowerCase();
     const en = (option.label.en || '').trim().toLowerCase();
     const otherKeywords = [
-      'khác', 'other', 'khác...', 'other...', 
+      'khác', 'other', 'khác...', 'other...',
       'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
       'khác (vui lòng ghi rõ)', 'other (please specify)',
       'vui lòng ghi rõ', 'please specify'
@@ -752,10 +752,10 @@ export const isOptionActuallyOther = (option) => {
       return true;
     }
   }
-  
+
   const content = (option.content || '').trim().toLowerCase();
   const contentKeywords = [
-    'khác', 'other', 'khác...', 'other...', 
+    'khác', 'other', 'khác...', 'other...',
     'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
     'khác (vui lòng ghi rõ)', 'other (please specify)',
     'vui lòng ghi rõ', 'please specify'
@@ -763,7 +763,7 @@ export const isOptionActuallyOther = (option) => {
   if (contentKeywords.includes(content) || content.startsWith('vui lòng nhập') || content.startsWith('please enter')) {
     return true;
   }
-  
+
   const optId = (option.id || '').toLowerCase();
   if (optId.startsWith('custom_other_') || optId === 'other' || optId === 'khác') {
     return true;
@@ -771,6 +771,41 @@ export const isOptionActuallyOther = (option) => {
 
   return false;
 };
+
+const mapBackendRecommendations = (data) => {
+  if (!data) return []
+  const top3 = data.top3Universities || data.Top3Universities || []
+  const next5 = data.next5Universities || data.Next5Universities || []
+
+  const mapUni = (uni, tier) => {
+    if (!uni) return null
+    const uniId = uni.universityId || uni.UniversityId
+    const uniName = uni.name || uni.Name
+    const uniShortName = uni.shortName || uni.ShortName || uniName
+    const uniLocation = uni.location || uni.Location
+    const uniRanking = uni.ranking ?? uni.Ranking ?? null
+    const uniAvatar = uni.avatar || uni.Avatar || null
+    const suitableMajors = uni.suitableMajors || uni.SuitableMajors || []
+
+    const majorVi = suitableMajors.map((m) => m.name || m.Name).join(', ') || ''
+    const majorEn = suitableMajors.map((m) => m.name || m.Name).join(', ') || ''
+
+    return {
+      id: uniId,
+      name: { vi: uniName, en: uniShortName },
+      major: { vi: majorVi, en: majorEn },
+      ranking: uniRanking,
+      tier,            // 'top3' | 'next5'
+      place: { vi: uniLocation, en: uniLocation },
+      avatar: uniAvatar,
+    }
+  }
+
+  const mappedTop3 = top3.map((uni) => mapUni(uni, 'top3')).filter(Boolean)
+  const mappedNext5 = next5.map((uni) => mapUni(uni, 'next5')).filter(Boolean)
+
+  return [...mappedTop3, ...mappedNext5]
+}
 
 function GuidedQuizPage() {
   const { i18n } = useTranslation()
@@ -792,7 +827,14 @@ function GuidedQuizPage() {
 
   const quizQuestions = useMemo(() => {
     const rawQuestions = dynamicQuestions && dynamicQuestions.length > 0 ? dynamicQuestions : QUESTIONS
-    return rawQuestions.map((q) => {
+    
+    // Filter out chatbot category to only show Holland questions
+    const hollandQuestions = rawQuestions.filter(q => 
+      q.categoryId !== 'b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' && 
+      q.categoryName !== 'Trò chuyện hướng nghiệp AI'
+    );
+
+    return hollandQuestions.map((q) => {
       const hasOther = q.options?.some(isOptionActuallyOther)
 
       if (hasOther) return q
@@ -821,6 +863,9 @@ function GuidedQuizPage() {
   const [isQuizLoading, setIsQuizLoading] = useState(false)
   const [syncingAnswers, setSyncingAnswers] = useState({})
   const [syncedQuestions, setSyncedQuestions] = useState({})
+  const [overallSummary, setOverallSummary] = useState(cachedState?.overallSummary ?? '')
+  const [aiRecommendations, setAiRecommendations] = useState(cachedState?.aiRecommendations ?? [])
+  const [isOverallLoading, setIsOverallLoading] = useState(false)
 
   const listRef = useRef(null)
   const timeoutRef = useRef([])
@@ -833,6 +878,8 @@ function GuidedQuizPage() {
 
   const isAiAnalyzing = useMemo(() => {
     if (isThinking) return true
+    if (isOverallLoading) return true
+    if (isDone) return false
 
     const categories = {}
     quizQuestions.forEach((q) => {
@@ -855,26 +902,22 @@ function GuidedQuizPage() {
     }
 
     return false
-  }, [isThinking, quizQuestions, answers, insights])
+  }, [isThinking, isOverallLoading, isDone, quizQuestions, answers, insights])
 
-  const recommendations = useMemo(() => rankUniversities(profile), [profile])
+  console.log("GuidedQuizPage State Debug:", {
+    isDone,
+    answeredCount,
+    quizQuestionsLength: quizQuestions.length,
+    isAiAnalyzing,
+    isThinking,
+    isOverallLoading,
+    insightsKeys: Object.keys(insights),
+    insightsValues: Object.values(insights),
+    answers
+  });
 
-  const strengths = useMemo(() => {
-    return SCORE_KEYS.map((key) => ({
-      key,
-      score: profile[key],
-      label: text.strengths[key],
-    }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 2)
-  }, [profile, text.strengths])
-
-  const hemisphere = useMemo(() => {
-    if (profile.leftBrain === profile.rightBrain) {
-      return text.brainBalanced
-    }
-    return profile.leftBrain > profile.rightBrain ? text.brainLeft : text.brainRight
-  }, [profile.leftBrain, profile.rightBrain, text.brainBalanced, text.brainLeft, text.brainRight])
+  // finalRecommendations: chỉ dùng data từ backend, không fallback hardcode
+  const finalRecommendations = aiRecommendations
 
   // Load progress from database if user is authenticated and dynamic questions are loaded
   useEffect(() => {
@@ -889,29 +932,55 @@ function GuidedQuizPage() {
         const answersRes = await questionAPI.getAllUserAnswers()
         const dbAnswers = answersRes.data?.data || []
 
+        // Submit dummy answers for any unanswered chatbot questions in the background
+        const chatbotQuestions = (dynamicQuestions || []).filter(q => 
+          q.categoryId === 'b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d' || 
+          q.categoryName === 'Trò chuyện hướng nghiệp AI'
+        );
+        const unansweredChatbotQuestions = chatbotQuestions.filter(q => {
+          const qId = q.id;
+          return !dbAnswers.some(ans => (ans.questionId || ans.QuestionId) === qId);
+        });
+
+        if (unansweredChatbotQuestions.length > 0) {
+          console.log(`Submitting dummy answers for ${unansweredChatbotQuestions.length} chatbot questions...`);
+          unansweredChatbotQuestions.forEach(async (q) => {
+            try {
+              await questionAPI.submitUserAnswer({
+                questionId: q.id,
+                answer: "Không"
+              });
+            } catch (err) {
+              console.warn("Failed to auto-submit dummy answer for chatbot question:", q.id, err);
+            }
+          });
+        }
+
         // 2. Map backend answers back to option IDs
         const restoredAnswers = {}
         const restoredSynced = {}
         dbAnswers.forEach((ans) => {
-          const q = quizQuestions.find((item) => item.id === ans.questionId)
+          const qId = ans.questionId || ans.QuestionId
+          const ansVal = ans.answer || ans.Answer
+          const q = quizQuestions.find((item) => item.id === qId)
           if (q) {
-            const opt = q.options?.find((o) => 
-              o.code === ans.answer || 
-              o.id === ans.answer || 
-              o.label?.vi === ans.answer || 
-              o.label?.en === ans.answer || 
-              o.content === ans.answer
+            const opt = q.options?.find((o) =>
+              o.code === ansVal ||
+              o.id === ansVal ||
+              o.label?.vi === ansVal ||
+              o.label?.en === ansVal ||
+              o.content === ansVal
             )
             if (opt) {
               const isCustomId = opt.id?.startsWith('custom_other_')
               if (isCustomId) {
-                restoredAnswers[q.id] = ans.answer
+                restoredAnswers[q.id] = ansVal
               } else {
                 restoredAnswers[q.id] = opt.id
               }
               restoredSynced[q.id] = true
             } else {
-              restoredAnswers[q.id] = ans.answer
+              restoredAnswers[q.id] = ansVal
               restoredSynced[q.id] = true
             }
           }
@@ -962,8 +1031,8 @@ function GuidedQuizPage() {
               if (evalRes.data?.success && evalRes.data?.data) {
                 const lastQuestion = qList[qList.length - 1]
                 const evalData = evalRes.data.data
-                const textVal = typeof evalData === 'string' 
-                  ? evalData 
+                const textVal = typeof evalData === 'string'
+                  ? evalData
                   : (evalData.evaluationText || '')
                 return {
                   questionId: lastQuestion.id,
@@ -1005,6 +1074,35 @@ function GuidedQuizPage() {
         })
 
         setInsights(restoredInsights)
+
+        const isAllDone = quizQuestions.length > 0 && quizQuestions.every((q) => restoredAnswers[q.id])
+        if (isAllDone) {
+          setIsOverallLoading(true)
+          try {
+            const overallRes = await questionAPI.getOverallSummary()
+            if (overallRes.data?.success && overallRes.data?.data) {
+              const summaryData = overallRes.data.data
+              setOverallSummary(summaryData.summaryText || summaryData.SummaryText || '')
+              const mapped = mapBackendRecommendations(summaryData)
+              setAiRecommendations(mapped)
+            }
+          } catch (err) {
+            // If overall summary is not found, trigger overall evaluation
+            try {
+              const genOverallRes = await questionAPI.evaluateOverall()
+              if (genOverallRes.data?.success && genOverallRes.data?.data) {
+                const summaryData = genOverallRes.data.data
+                setOverallSummary(summaryData.summaryText || summaryData.SummaryText || '')
+                const mapped = mapBackendRecommendations(summaryData)
+                setAiRecommendations(mapped)
+              }
+            } catch (genErr) {
+              console.error("Failed to auto-generate overall AI summary on mount:", genErr)
+            }
+          } finally {
+            setIsOverallLoading(false)
+          }
+        }
       } catch (error) {
         console.error("Failed to load user quiz progress from database:", error)
       } finally {
@@ -1053,9 +1151,11 @@ function GuidedQuizPage() {
       insights,
       profile,
       activeIndex,
+      overallSummary,
+      aiRecommendations,
     }
     window.sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(nextState))
-  }, [activeIndex, answers, insights, profile])
+  }, [activeIndex, answers, insights, profile, overallSummary, aiRecommendations])
 
 
   // Submit answers to server when quiz is completed (only for any unsynced answers)
@@ -1064,15 +1164,15 @@ function GuidedQuizPage() {
       const alreadySubmitted = sessionStorage.getItem("quiz_answers_submitted") === "true";
       if (!alreadySubmitted && !submitLoading && !submitSuccess) {
         const userId = user.userId || user.id;
-        
+
         // Filter answers that are not yet synced to database
         const unsyncedEntries = Object.entries(answers).filter(([qId]) => !syncedQuestions[qId]);
-        
+
         const answersArray = unsyncedEntries.map(([qId, optId]) => {
           const q = quizQuestions.find((item) => item.id === qId);
           const opt = q?.options?.find((o) => o.id === optId);
           const answerValue = opt ? (opt.label?.[locale] || opt.content || opt.code || opt.id) : optId;
-          
+
           return {
             questionId: qId,
             answer: answerValue,
@@ -1109,12 +1209,12 @@ function GuidedQuizPage() {
     const catQuestions = quizQuestions.filter(q => q.categoryId === categoryId);
     if (catQuestions.length === 0) {
       // Fallback to static indices if it's static questions
-      const questionIndices = categoryId === 'personality' 
-        ? [0, 1, 2, 3, 4] 
-        : categoryId === 'learning' 
-        ? [5, 6, 7, 8, 9] 
-        : [10, 11, 12, 13, 14];
-      
+      const questionIndices = categoryId === 'personality'
+        ? [0, 1, 2, 3, 4]
+        : categoryId === 'learning'
+          ? [5, 6, 7, 8, 9]
+          : [10, 11, 12, 13, 14];
+
       const counts = {};
       questionIndices.forEach(idx => {
         const q = quizQuestions[idx];
@@ -1166,7 +1266,7 @@ function GuidedQuizPage() {
 
   function buildInsight(option, qIndex) {
     let dominantProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag) || 'balanced';
-    
+
     // Use the category's dominant profile if it's the end of a category
     if (qIndex === 4 || (quizQuestions[qIndex] && isEndOfCategoryIndex(qIndex, 'personality'))) {
       dominantProfile = getDominantProfileForCategory(quizQuestions[qIndex]?.categoryId || 'personality');
@@ -1193,7 +1293,7 @@ function GuidedQuizPage() {
     }
     const q = quizQuestions[index];
     if (!q) return false;
-    
+
     // Group categories
     const categories = [];
     quizQuestions.forEach(item => {
@@ -1216,7 +1316,7 @@ function GuidedQuizPage() {
     const qIndex = quizQuestions.findIndex((q) => q.id === question.id)
     if (qIndex === -1) return
 
-    const isEndOfCategory = qIndex === quizQuestions.length - 1 || 
+    const isEndOfCategory = qIndex === quizQuestions.length - 1 ||
       (quizQuestions[qIndex + 1] && quizQuestions[qIndex].categoryId !== quizQuestions[qIndex + 1].categoryId);
 
     // Save answer to Backend incrementally
@@ -1255,7 +1355,7 @@ function GuidedQuizPage() {
 
     // Update local state answers (use customText if entered, otherwise option.id)
     setAnswers((prev) => ({ ...prev, [question.id]: customText || option.id }))
-    
+
     // Update local profile score vector
     setProfile((prev) => {
       const next = { ...prev }
@@ -1274,7 +1374,7 @@ function GuidedQuizPage() {
       if (user && question.categoryId) {
         // Short proactive delay to allow database transaction to completely commit
         await new Promise(resolve => setTimeout(resolve, 600));
-        
+
         let retries = 3;
         while (retries > 0) {
           try {
@@ -1299,7 +1399,7 @@ function GuidedQuizPage() {
       // Fallback if AI call failed, not logged in, or offline
       if (!evaluationText) {
         if (user) {
-          evaluationText = locale === 'vi' 
+          evaluationText = locale === 'vi'
             ? "Đã có lỗi xảy ra khi gọi AI phân tích chuyên mục này. Vui lòng bấm Tiếp tục để đi tiếp hoặc thử lại sau."
             : "An error occurred while generating AI analysis for this category. Please click Continue or try again later.";
         } else {
@@ -1311,6 +1411,39 @@ function GuidedQuizPage() {
         ...prev,
         [question.id]: evaluationText,
       }))
+
+      // If this was the last question of the whole quiz, generate overall summary
+      const isAllDone = quizQuestions.every((q) => q.id === question.id || answers[q.id])
+      if (isAllDone && user) {
+        setIsOverallLoading(true)
+        // Short proactive delay to allow database transaction to completely commit
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        
+        let overallRetries = 3;
+        while (overallRetries > 0) {
+          try {
+            const overallRes = await questionAPI.evaluateOverall()
+            if (overallRes.data?.success && overallRes.data?.data) {
+              const summaryData = overallRes.data.data
+              setOverallSummary(summaryData.summaryText || summaryData.SummaryText || '')
+              const mapped = mapBackendRecommendations(summaryData)
+              setAiRecommendations(mapped)
+              break;
+            }
+          } catch (overallErr) {
+            console.warn(`Attempt to generate overall AI summary failed. Retries left: ${overallRetries - 1}`, overallErr);
+            overallRetries--;
+            if (overallRetries === 0) {
+              console.error("Failed to generate overall AI summary after all retries:", overallErr);
+            } else {
+              // Wait 1.5 seconds before retrying
+              await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+          }
+        }
+        setIsOverallLoading(false)
+      }
+
       setThinkingQuestionId('')
       setIsThinking(false)
     } else {
@@ -1362,7 +1495,7 @@ function GuidedQuizPage() {
       <Helmet>
         <title>{locale === 'vi' ? 'Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S' : 'Holland RIASEC Test - 4S Career Guidance'}</title>
         <meta name="description" content={locale === 'vi' ? 'Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất.' : 'Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations.'} />
-        
+
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S' : 'Holland RIASEC Test - 4S Career Guidance'} />
         <meta property="og:description" content={locale === 'vi' ? 'Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất.' : 'Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations.'} />
@@ -1384,7 +1517,6 @@ function GuidedQuizPage() {
             activeIndex={activeIndex}
             answers={answers}
             buildInsight={buildInsight}
-            hemisphere={hemisphere}
             insights={insights}
             isDone={isDone}
             isThinking={isThinking}
@@ -1393,14 +1525,14 @@ function GuidedQuizPage() {
             locale={locale}
             onSelect={onSelect}
             questionCount={quizQuestions.length}
-            strengths={strengths}
             text={text}
             thinkingQuestionId={thinkingQuestionId}
             visibleQuestions={visibleQuestions}
-            recommendations={recommendations}
+            recommendations={finalRecommendations}
             onViewDetail={handleViewDetail}
             submitLoading={submitLoading}
             onContinue={handleContinue}
+            overallSummary={overallSummary}
           />
           <QuizRightPanel
             onViewDetail={handleViewDetail}
@@ -1410,7 +1542,7 @@ function GuidedQuizPage() {
             isAiAnalyzing={isAiAnalyzing}
             locale={locale}
             questionCount={quizQuestions.length}
-            recommendations={recommendations}
+            recommendations={finalRecommendations}
             text={text}
             answers={answers}
             questions={quizQuestions}

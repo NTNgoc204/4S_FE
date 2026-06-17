@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import sparklesIcon from '../../../assets/Sparkles.svg'
 
 
@@ -44,6 +45,7 @@ function QuizRightPanel({
   insights = {},
   isAiAnalyzing = false
 }) {
+  const navigate = useNavigate()
 
   // Dynamically build categories from questions list if available
   const quizCategories = useMemo(() => {
@@ -212,6 +214,7 @@ function QuizRightPanel({
       {isDone && !isAiAnalyzing && (
         <footer className="border-t border-white/10 p-4">
           <button
+            onClick={() => navigate('/dashboard', { state: { aiRecommendations: recommendations } })}
             className="w-full rounded-xl bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110 px-4 py-3 text-sm font-semibold transition cursor-pointer active:scale-95"
             type="button"
           >

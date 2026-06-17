@@ -54,5 +54,10 @@ export const questionAPI = {
   evaluateCategory: (categoryId) => apiClient.post(`/api/AiEvaluations/evaluate/${categoryId}`, null, { timeout: 180000 }),
 
   getEvaluation: (categoryId) => apiClient.get(`/api/AiEvaluations/${categoryId}`, { timeout: 180000 }),
+
+  // Overall AI Summaries & Recommendations
+  evaluateOverall: () => apiClient.post("/api/UserAiSummaries/evaluate", null, { timeout: 180000 }),
+
+  getOverallSummary: () => apiClient.get("/api/UserAiSummaries", { timeout: 180000 }),
 };
 
