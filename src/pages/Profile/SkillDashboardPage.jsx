@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -63,9 +63,16 @@ const RECOMMENDATIONS = [
 function SkillDashboardPage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const reduxPlan = useSelector((state) => state.auth.plan);
   const currentPlan = String(reduxPlan ?? "").toLowerCase();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
+
+  // Data từ quiz navigate state (aiRecommendations từ backend)
+  const aiRecommendations = location.state?.aiRecommendations ?? [];
+  const top3 = aiRecommendations.filter((s) => s.tier === 'top3');
+  const displayRecommendations = aiRecommendations.slice(0, 4);
+  const displayCompare = aiRecommendations.slice(0, 3);
 
   const radarData = useMemo(
     () =>
@@ -182,39 +189,51 @@ function SkillDashboardPage() {
               <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.topRecommendedSubtitle")}</p>
 
               <div className="mt-4 space-y-3">
-                {RECOMMENDATIONS.map((school) => (
-                  <article key={school.id} className="rounded-xl border border-white/10 bg-[#142c46]/95 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold text-slate-100">
-                          {SAVED_SCHOOLS.find((item) => item.id === school.id)?.name}
-                        </h3>
-                        <p className="text-sm text-slate-300">
-                          {t("profile:dashboard.recommended")}:{" "}
-                          <span className="font-semibold text-[#10deb3]">{school.major[locale]}</span>
-                        </p>
+                {displayRecommendations.length === 0 ? (
+                  <p className="text-sm text-slate-400 italic py-4 text-center">
+                    {locale === 'vi' ? 'Chưa có dữ liệu gợi ý. Hãy hoàn thành bài trắc nghiệm trước.' : 'No recommendations yet. Please complete the quiz first.'}
+                  </p>
+                ) : (
+                  displayRecommendations.map((school) => (
+                    <article key={school.id} className={`rounded-xl border p-4 ${
+                      school.tier === 'top3' ? 'border-[#ecc741]/25 bg-[#1a3352]/90' : 'border-white/10 bg-[#142c46]/95'
+                    }`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-semibold text-slate-100 truncate">
+                              {school.name[locale]}
+                            </h3>
+                            {school.tier === 'top3' && (
+                              <span className="shrink-0 rounded-full bg-[#ecc741]/20 px-2 py-0.5 text-xs font-semibold text-[#ecc741]">⭐ Top Gợi Ý</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-300 mt-0.5">
+                            {t("profile:dashboard.recommended")}:{" "}
+                            <span className="font-semibold text-[#10deb3]">{school.major[locale]}</span>
+                          </p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${
+                          school.tier === 'top3' ? 'bg-[#ecc741]/15 text-[#ecc741]' : 'bg-[#0ed8ab]/15 text-[#0ed8ab]'
+                        }`}>
+                          {school.tier === 'top3' ? (locale === 'vi' ? 'Rất phù hợp' : 'Best Fit') : (locale === 'vi' ? 'Phù hợp' : 'Good Fit')}
+                        </span>
                       </div>
-                      <span className="rounded-full bg-[#0ed8ab]/15 px-3 py-1 text-sm font-semibold text-[#0ed8ab]">
-                        {school.match}% Match
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-400">
-                      {school.tuition} - {school.location[locale]}
-                    </p>
-                    <div className="mt-3 flex justify-end gap-2">
-                      <button className="rounded-lg border border-white/12 bg-white/5 px-3 py-1.5 text-sm text-slate-300 transition hover:bg-white/10" type="button">
-                        {t("profile:dashboard.compare")}
-                      </button>
-                      <button
-                        className="rounded-lg bg-[#13cfa8] px-3 py-1.5 text-sm font-semibold text-[#082339] transition hover:brightness-110"
-                        onClick={() => handleDetail(school)}
-                        type="button"
-                      >
-                        {t("profile:dashboard.details")} {"->"}
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                      <p className="mt-2 text-sm text-slate-400">
+                        📍 {school.place[locale]}
+                      </p>
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button
+                          className="rounded-lg bg-[#13cfa8] px-3 py-1.5 text-sm font-semibold text-[#082339] transition hover:brightness-110"
+                          onClick={() => navigate(`/university/${school.id}`, { state: { from: '/dashboard' } })}
+                          type="button"
+                        >
+                          {t("profile:dashboard.details")} {"->"}
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
               </div>
             </article>
 
@@ -222,12 +241,23 @@ function SkillDashboardPage() {
               <h2 className="font-['Sora'] text-2xl font-semibold">{t("profile:dashboard.quickCompare")}</h2>
               <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.quickCompareSubtitle")}</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {SAVED_SCHOOLS.slice(0, 3).map((school) => (
-                  <div key={school.id} className="rounded-xl border border-white/12 bg-white/8 p-3">
-                    <p className="font-semibold">{school.name}</p>
-                    <p className="text-sm text-[#0ed8ab]">{school.match}% match</p>
-                  </div>
-                ))}
+                {displayCompare.length === 0 ? (
+                  <p className="text-sm text-slate-400 italic col-span-3">
+                    {locale === 'vi' ? 'Chưa có trường để so sánh.' : 'No schools to compare yet.'}
+                  </p>
+                ) : (
+                  displayCompare.map((school) => (
+                    <div key={school.id} className="rounded-xl border border-white/12 bg-white/8 p-3">
+                      <p className="font-semibold text-slate-100 text-sm leading-snug">{school.name[locale]}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{school.place[locale]}</p>
+                      <p className={`text-sm font-semibold mt-1 ${
+                        school.tier === 'top3' ? 'text-[#ecc741]' : 'text-[#0ed8ab]'
+                      }`}>
+                        {school.tier === 'top3' ? (locale === 'vi' ? '⭐ Top Gợi Ý' : '⭐ Top Pick') : (locale === 'vi' ? '✔ Phù Hợp' : '✔ Good Fit')}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
               <button className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#16d2ac] to-[#10bb98] px-4 py-3 font-semibold text-[#062a3f] transition hover:brightness-110" type="button">
                 {t("profile:dashboard.startComparison")}
