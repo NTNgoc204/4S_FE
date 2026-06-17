@@ -1,6 +1,42 @@
 import { useState } from 'react'
 import sparklesIcon from '../../../assets/Sparkles.svg'
 
+const isOptionActuallyOther = (option) => {
+  if (!option) return false;
+  
+  if (option.label) {
+    const vi = (option.label.vi || '').trim().toLowerCase();
+    const en = (option.label.en || '').trim().toLowerCase();
+    const otherKeywords = [
+      'khác', 'other', 'khác...', 'other...', 
+      'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
+      'khác (vui lòng ghi rõ)', 'other (please specify)',
+      'vui lòng ghi rõ', 'please specify'
+    ];
+    if (otherKeywords.includes(vi) || otherKeywords.includes(en) || vi.startsWith('vui lòng nhập') || en.startsWith('please enter')) {
+      return true;
+    }
+  }
+  
+  const content = (option.content || '').trim().toLowerCase();
+  const contentKeywords = [
+    'khác', 'other', 'khác...', 'other...', 
+    'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
+    'khác (vui lòng ghi rõ)', 'other (please specify)',
+    'vui lòng ghi rõ', 'please specify'
+  ];
+  if (contentKeywords.includes(content) || content.startsWith('vui lòng nhập') || content.startsWith('please enter')) {
+    return true;
+  }
+  
+  const optId = (option.id || '').toLowerCase();
+  if (optId.startsWith('custom_other_') || optId === 'other' || optId === 'khác') {
+    return true;
+  }
+
+  return false;
+};
+
 function QuizLeftPanel({
   activeIndex,
   answers,
@@ -9,6 +45,7 @@ function QuizLeftPanel({
   insights,
   isDone,
   isThinking,
+  isAiAnalyzing = false,
   listRef,
   locale,
   onSelect,
@@ -20,8 +57,21 @@ function QuizLeftPanel({
   recommendations = [],
   onViewDetail,
   submitLoading = false,
+  onContinue,
 }) {
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
+  const [customAnswers, setCustomAnswers] = useState({})
+  const [activeCustomQuestionId, setActiveCustomQuestionId] = useState('')
+  const [selectedCustomOption, setSelectedCustomOption] = useState(null)
+
+  const handleCustomSubmit = (question) => {
+    const customText = customAnswers[question.id]?.trim()
+    if (!customText) return
+    
+    onSelect(question, selectedCustomOption, customText)
+    setActiveCustomQuestionId('')
+    setSelectedCustomOption(null)
+  }
 
   return (
     <div className="flex min-h-0 flex-col border-r border-white/10">
@@ -32,7 +82,7 @@ function QuizLeftPanel({
         {visibleQuestions.map((question, index) => {
           const selectedOptionId = answers[question.id]
           const selectedOption = question.options.find((option) => option.id === selectedOptionId)
-          const progress = Math.round(((index + (selectedOption ? 1 : 0)) / questionCount) * 100)
+          const progress = Math.round(((index + (selectedOptionId ? 1 : 0)) / questionCount) * 100)
           const canAnswer = index === activeIndex && !isDone && !isThinking
 
           return (
@@ -47,7 +97,12 @@ function QuizLeftPanel({
 
                   <div className="mt-4 grid grid-cols-1 gap-2.5 md:grid-cols-2">
                     {question.options.map((option) => {
-                      const isSelected = selectedOptionId === option.id
+                      const isCustomOption = isOptionActuallyOther(option);
+
+                      const isSelected = selectedOptionId === option.id || 
+                        (isCustomOption && selectedOptionId && !question.options.some(o => o.id === selectedOptionId)) ||
+                        (isCustomOption && activeCustomQuestionId === question.id && selectedCustomOption?.id === option.id)
+                      
                       const disabled = Boolean(selectedOptionId) || !canAnswer
                       return (
                         <button
@@ -58,7 +113,14 @@ function QuizLeftPanel({
                               : 'border-white/12 bg-white/[0.03] text-slate-200 hover:border-[#ecc741]/40 hover:bg-[#ecc741]/10'
                           } ${disabled ? 'cursor-not-allowed opacity-70' : ''}`}
                           disabled={disabled}
-                          onClick={() => onSelect(question, option)}
+                          onClick={() => {
+                            if (isCustomOption) {
+                              setSelectedCustomOption(option)
+                              setActiveCustomQuestionId(question.id)
+                            } else {
+                              onSelect(question, option)
+                            }
+                          }}
                           type="button"
                         >
                           {option.label?.[locale] || option.content}
@@ -66,6 +128,42 @@ function QuizLeftPanel({
                       )
                     })}
                   </div>
+
+                  {/* Render custom input text field if active */}
+                  {activeCustomQuestionId === question.id && (
+                    <div className="mt-4 flex gap-2 items-center w-full">
+                      <input
+                        type="text"
+                        className="flex-1 rounded-xl border border-[#ecc741]/40 bg-[#081a30]/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-[#ecc741] transition"
+                        placeholder={locale === 'vi' ? 'Nhập câu trả lời của bạn...' : 'Enter your custom answer...'}
+                        value={customAnswers[question.id] || ''}
+                        onChange={(e) => setCustomAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleCustomSubmit(question)
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleCustomSubmit(question)}
+                        className="rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-4 py-2.5 text-sm font-bold text-[#11243b] transition hover:brightness-110"
+                        type="button"
+                      >
+                        {locale === 'vi' ? 'Xác nhận' : 'Confirm'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveCustomQuestionId('')
+                          setSelectedCustomOption(null)
+                        }}
+                        className="rounded-xl border border-white/12 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10"
+                        type="button"
+                      >
+                        {locale === 'vi' ? 'Hủy' : 'Cancel'}
+                      </button>
+                    </div>
+                  )}
 
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
                     <span>{text.questionProgress(Math.min(index + 1, questionCount), questionCount)}</span>
@@ -83,6 +181,12 @@ function QuizLeftPanel({
                     {selectedOption.label?.[locale] || selectedOption.content}
                   </div>
                 </div>
+              ) : selectedOptionId ? (
+                <div className="mt-3 flex justify-end pr-1">
+                  <div className="max-w-[520px] rounded-2xl border border-[#ecc741]/20 bg-gradient-to-br from-[#f4d040] to-[#debd34] px-4 py-2.5 text-sm font-semibold text-[#11243c] md:text-base">
+                    {selectedOptionId}
+                  </div>
+                </div>
               ) : null}
 
               {insights[question.id] ? (
@@ -90,9 +194,22 @@ function QuizLeftPanel({
                   <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
                     {'\u{1F451}'}
                   </span>
-                  <p className="rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/10 px-4 py-3 text-sm leading-6 text-slate-100 md:text-base">
-                    {selectedOption ? buildInsight(selectedOption, index) : ''}
-                  </p>
+                  <div className="flex-1">
+                    <p className="rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/10 px-4 py-3 text-sm leading-6 text-slate-100 md:text-base whitespace-pre-line">
+                      {typeof insights[question.id] === 'string' ? insights[question.id] : (selectedOption ? buildInsight(selectedOption, index) : '')}
+                    </p>
+                    
+                    {/* Render "Tiếp tục" button if this is the active index and it is not the last question */}
+                    {index === activeIndex && index < questionCount - 1 && (
+                      <button
+                        onClick={onContinue}
+                        className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-5 py-2.5 text-sm font-bold text-[#11243b] shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
+                        type="button"
+                      >
+                        {locale === 'vi' ? 'Tiếp tục chuyên mục tiếp theo ➔' : 'Continue to next category ➔'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : null}
 
@@ -106,7 +223,7 @@ function QuizLeftPanel({
           )
         })}
 
-        {isDone ? (
+        {isDone && !isAiAnalyzing ? (
           <div className="space-y-6">
             {submitLoading && (
               <div className="rounded-2xl border border-teal-500/30 bg-teal-950/20 p-4 flex items-center justify-center gap-3 text-[#0fe2a8]">

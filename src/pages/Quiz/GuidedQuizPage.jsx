@@ -3,10 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Helmet } from 'react-helmet-async'
+import { toast } from 'react-toastify'
 import { SCORE_KEYS, rankUniversities } from '../../data/universities'
 import QuizLeftPanel from './components/QuizLeftPanel'
 import QuizRightPanel from './components/QuizRightPanel'
 import { fetchQuestionsRequest, submitAnswersRequest } from '../../feature/question/questionSlice'
+import { questionAPI } from '../../feature/question/questionAPI'
+
 
 const UI_TEXT = {
   en: {
@@ -733,6 +736,42 @@ const getProfileFromScoreTag = (scoreTag) => {
   return 'balanced';
 };
 
+export const isOptionActuallyOther = (option) => {
+  if (!option) return false;
+  
+  if (option.label) {
+    const vi = (option.label.vi || '').trim().toLowerCase();
+    const en = (option.label.en || '').trim().toLowerCase();
+    const otherKeywords = [
+      'khác', 'other', 'khác...', 'other...', 
+      'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
+      'khác (vui lòng ghi rõ)', 'other (please specify)',
+      'vui lòng ghi rõ', 'please specify'
+    ];
+    if (otherKeywords.includes(vi) || otherKeywords.includes(en) || vi.startsWith('vui lòng nhập') || en.startsWith('please enter')) {
+      return true;
+    }
+  }
+  
+  const content = (option.content || '').trim().toLowerCase();
+  const contentKeywords = [
+    'khác', 'other', 'khác...', 'other...', 
+    'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
+    'khác (vui lòng ghi rõ)', 'other (please specify)',
+    'vui lòng ghi rõ', 'please specify'
+  ];
+  if (contentKeywords.includes(content) || content.startsWith('vui lòng nhập') || content.startsWith('please enter')) {
+    return true;
+  }
+  
+  const optId = (option.id || '').toLowerCase();
+  if (optId.startsWith('custom_other_') || optId === 'other' || optId === 'khác') {
+    return true;
+  }
+
+  return false;
+};
+
 function GuidedQuizPage() {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
@@ -752,7 +791,25 @@ function GuidedQuizPage() {
   }, [dispatch])
 
   const quizQuestions = useMemo(() => {
-    return dynamicQuestions && dynamicQuestions.length > 0 ? dynamicQuestions : QUESTIONS
+    const rawQuestions = dynamicQuestions && dynamicQuestions.length > 0 ? dynamicQuestions : QUESTIONS
+    return rawQuestions.map((q) => {
+      const hasOther = q.options?.some(isOptionActuallyOther)
+
+      if (hasOther) return q
+
+      const customOtherOption = {
+        id: `custom_other_${q.id}`,
+        content: 'Khác',
+        label: { vi: 'Khác', en: 'Other' },
+        scoreTag: 'balanced',
+        vector: { leftBrain: 0, rightBrain: 0 },
+      }
+
+      return {
+        ...q,
+        options: [...(q.options || []), customOtherOption],
+      }
+    })
   }, [dynamicQuestions])
 
   const [answers, setAnswers] = useState(cachedState?.answers ?? {})
@@ -761,6 +818,9 @@ function GuidedQuizPage() {
   const [activeIndex, setActiveIndex] = useState(cachedState?.activeIndex ?? 0)
   const [thinkingQuestionId, setThinkingQuestionId] = useState('')
   const [isThinking, setIsThinking] = useState(false)
+  const [isQuizLoading, setIsQuizLoading] = useState(false)
+  const [syncingAnswers, setSyncingAnswers] = useState({})
+  const [syncedQuestions, setSyncedQuestions] = useState({})
 
   const listRef = useRef(null)
   const timeoutRef = useRef([])
@@ -770,6 +830,32 @@ function GuidedQuizPage() {
   const visibleQuestions = useMemo(() => {
     return quizQuestions.slice(0, Math.min(activeIndex + 1, quizQuestions.length))
   }, [quizQuestions, activeIndex])
+
+  const isAiAnalyzing = useMemo(() => {
+    if (isThinking) return true
+
+    const categories = {}
+    quizQuestions.forEach((q) => {
+      if (q.categoryId) {
+        if (!categories[q.categoryId]) {
+          categories[q.categoryId] = []
+        }
+        categories[q.categoryId].push(q)
+      }
+    })
+
+    for (const [catId, qList] of Object.entries(categories)) {
+      const isCompleted = qList.every((q) => answers[q.id])
+      if (isCompleted) {
+        const lastQuestion = qList[qList.length - 1]
+        if (!insights[lastQuestion.id]) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }, [isThinking, quizQuestions, answers, insights])
 
   const recommendations = useMemo(() => rankUniversities(profile), [profile])
 
@@ -789,6 +875,145 @@ function GuidedQuizPage() {
     }
     return profile.leftBrain > profile.rightBrain ? text.brainLeft : text.brainRight
   }, [profile.leftBrain, profile.rightBrain, text.brainBalanced, text.brainLeft, text.brainRight])
+
+  // Load progress from database if user is authenticated and dynamic questions are loaded
+  useEffect(() => {
+    if (!user || quizQuestions.length === 0 || quizQuestions === QUESTIONS) {
+      return
+    }
+
+    const loadUserProgress = async () => {
+      setIsQuizLoading(true)
+      try {
+        // 1. Fetch user answers
+        const answersRes = await questionAPI.getAllUserAnswers()
+        const dbAnswers = answersRes.data?.data || []
+
+        // 2. Map backend answers back to option IDs
+        const restoredAnswers = {}
+        const restoredSynced = {}
+        dbAnswers.forEach((ans) => {
+          const q = quizQuestions.find((item) => item.id === ans.questionId)
+          if (q) {
+            const opt = q.options?.find((o) => 
+              o.code === ans.answer || 
+              o.id === ans.answer || 
+              o.label?.vi === ans.answer || 
+              o.label?.en === ans.answer || 
+              o.content === ans.answer
+            )
+            if (opt) {
+              const isCustomId = opt.id?.startsWith('custom_other_')
+              if (isCustomId) {
+                restoredAnswers[q.id] = ans.answer
+              } else {
+                restoredAnswers[q.id] = opt.id
+              }
+              restoredSynced[q.id] = true
+            } else {
+              restoredAnswers[q.id] = ans.answer
+              restoredSynced[q.id] = true
+            }
+          }
+        })
+
+        // 3. Compute profile score vector from answers
+        const restoredProfile = createEmptyProfile()
+        Object.entries(restoredAnswers).forEach(([qId, optId]) => {
+          const q = quizQuestions.find((item) => item.id === qId)
+          const option = q?.options?.find((o) => o.id === optId)
+          if (option) {
+            const optionVector = option.vector || getVectorFromScoreTag(option.scoreTag)
+            Object.entries(optionVector).forEach(([key, value]) => {
+              restoredProfile[key] = (restoredProfile[key] ?? 0) + value
+            })
+          }
+        })
+
+        // 4. Determine activeIndex (first unanswered question)
+        let firstUnansweredIndex = quizQuestions.findIndex((q) => !restoredAnswers[q.id])
+        if (firstUnansweredIndex === -1) {
+          firstUnansweredIndex = quizQuestions.length - 1
+        }
+
+        // Update states
+        setAnswers(restoredAnswers)
+        setSyncedQuestions(restoredSynced)
+        setProfile(restoredProfile)
+        setActiveIndex(firstUnansweredIndex)
+
+        // 5. Fetch existing evaluations for completed categories to prevent duplicate generation calls
+        const categories = {}
+        quizQuestions.forEach((q) => {
+          if (q.categoryId) {
+            if (!categories[q.categoryId]) {
+              categories[q.categoryId] = []
+            }
+            categories[q.categoryId].push(q)
+          }
+        })
+
+        const evaluationPromises = Object.entries(categories).map(async ([catId, qList]) => {
+          const isCompleted = qList.every((q) => restoredAnswers[q.id])
+          if (isCompleted) {
+            try {
+              // Try to GET existing evaluation
+              const evalRes = await questionAPI.getEvaluation(catId)
+              if (evalRes.data?.success && evalRes.data?.data) {
+                const lastQuestion = qList[qList.length - 1]
+                const evalData = evalRes.data.data
+                const textVal = typeof evalData === 'string' 
+                  ? evalData 
+                  : (evalData.evaluationText || '')
+                return {
+                  questionId: lastQuestion.id,
+                  text: textVal,
+                }
+              }
+            } catch (err) {
+              // If not found in DB, trigger evaluate to create it dynamically
+              try {
+                const genRes = await questionAPI.evaluateCategory(catId)
+                if (genRes.data?.success && genRes.data?.data) {
+                  const lastQuestion = qList[qList.length - 1]
+                  return {
+                    questionId: lastQuestion.id,
+                    text: genRes.data.data,
+                  }
+                }
+              } catch (genErr) {
+                console.error("Failed to auto-generate missing AI evaluation on mount:", genErr)
+                const lastQuestion = qList[qList.length - 1]
+                return {
+                  questionId: lastQuestion.id,
+                  text: locale === 'vi'
+                    ? "Đã có lỗi xảy ra khi gọi AI phân tích chuyên mục này. Vui lòng thử lại sau."
+                    : "An error occurred while generating AI analysis. Please try again later.",
+                }
+              }
+            }
+          }
+          return null
+        })
+
+        const evaluationResults = await Promise.all(evaluationPromises)
+        const restoredInsights = {}
+        evaluationResults.forEach((res) => {
+          if (res) {
+            restoredInsights[res.questionId] = res.text
+          }
+        })
+
+        setInsights(restoredInsights)
+      } catch (error) {
+        console.error("Failed to load user quiz progress from database:", error)
+      } finally {
+        setIsQuizLoading(false)
+      }
+    }
+
+    loadUserProgress()
+  }, [user, quizQuestions])
 
   useEffect(() => {
     return () => {
@@ -832,17 +1057,21 @@ function GuidedQuizPage() {
     window.sessionStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(nextState))
   }, [activeIndex, answers, insights, profile])
 
-  // Submit answers to server when quiz is completed
+
+  // Submit answers to server when quiz is completed (only for any unsynced answers)
   useEffect(() => {
     if (isDone && user) {
       const alreadySubmitted = sessionStorage.getItem("quiz_answers_submitted") === "true";
       if (!alreadySubmitted && !submitLoading && !submitSuccess) {
         const userId = user.userId || user.id;
         
-        const answersArray = Object.entries(answers).map(([qId, optId]) => {
+        // Filter answers that are not yet synced to database
+        const unsyncedEntries = Object.entries(answers).filter(([qId]) => !syncedQuestions[qId]);
+        
+        const answersArray = unsyncedEntries.map(([qId, optId]) => {
           const q = quizQuestions.find((item) => item.id === qId);
           const opt = q?.options?.find((o) => o.id === optId);
-          const answerValue = opt?.code || opt?.id || optId;
+          const answerValue = opt ? (opt.label?.[locale] || opt.content || opt.code || opt.id) : optId;
           
           return {
             questionId: qId,
@@ -857,32 +1086,69 @@ function GuidedQuizPage() {
               answers: answersArray,
               onSuccess: () => {
                 sessionStorage.setItem("quiz_answers_submitted", "true");
+                setSyncedQuestions((prev) => {
+                  const next = { ...prev };
+                  answersArray.forEach((ans) => {
+                    next[ans.questionId] = true;
+                  });
+                  return next;
+                });
               },
             })
           );
+        } else {
+          // All answers are already synced to DB incrementally
+          sessionStorage.setItem("quiz_answers_submitted", "true");
         }
       }
     }
-  }, [isDone, user, answers, quizQuestions, dispatch, submitLoading, submitSuccess]);
+  }, [isDone, user, answers, quizQuestions, dispatch, submitLoading, submitSuccess, syncedQuestions]);
 
   const getDominantProfileForCategory = (categoryId) => {
-    const questionIndices = categoryId === 'personality' 
-      ? [0, 1, 2, 3, 4] 
-      : categoryId === 'learning' 
-      ? [5, 6, 7, 8, 9] 
-      : [10, 11, 12, 13, 14];
+    // Dynamic grouping based on categoryId
+    const catQuestions = quizQuestions.filter(q => q.categoryId === categoryId);
+    if (catQuestions.length === 0) {
+      // Fallback to static indices if it's static questions
+      const questionIndices = categoryId === 'personality' 
+        ? [0, 1, 2, 3, 4] 
+        : categoryId === 'learning' 
+        ? [5, 6, 7, 8, 9] 
+        : [10, 11, 12, 13, 14];
+      
+      const counts = {};
+      questionIndices.forEach(idx => {
+        const q = quizQuestions[idx];
+        if (q) {
+          const ansId = answers[q.id];
+          if (ansId) {
+            const option = q.options.find(o => o.id === ansId);
+            const optionProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag);
+            if (optionProfile) {
+              counts[optionProfile] = (counts[optionProfile] || 0) + 1;
+            }
+          }
+        }
+      });
+
+      let dominant = 'balanced';
+      let max = 0;
+      Object.entries(counts).forEach(([profile, count]) => {
+        if (count > max) {
+          max = count;
+          dominant = profile;
+        }
+      });
+      return dominant;
+    }
 
     const counts = {};
-    questionIndices.forEach(idx => {
-      const q = quizQuestions[idx];
-      if (q) {
-        const ansId = answers[q.id];
-        if (ansId) {
-          const option = q.options.find(o => o.id === ansId);
-          const optionProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag);
-          if (optionProfile) {
-            counts[optionProfile] = (counts[optionProfile] || 0) + 1;
-          }
+    catQuestions.forEach(q => {
+      const ansId = answers[q.id];
+      if (ansId) {
+        const option = q.options.find(o => o.id === ansId);
+        const optionProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag);
+        if (optionProfile) {
+          counts[optionProfile] = (counts[optionProfile] || 0) + 1;
         }
       }
     });
@@ -902,12 +1168,12 @@ function GuidedQuizPage() {
     let dominantProfile = option?.profile || getProfileFromScoreTag(option?.scoreTag) || 'balanced';
     
     // Use the category's dominant profile if it's the end of a category
-    if (qIndex === 4) {
-      dominantProfile = getDominantProfileForCategory('personality');
-    } else if (qIndex === 9) {
-      dominantProfile = getDominantProfileForCategory('learning');
-    } else if (qIndex === 14) {
-      dominantProfile = getDominantProfileForCategory('decision');
+    if (qIndex === 4 || (quizQuestions[qIndex] && isEndOfCategoryIndex(qIndex, 'personality'))) {
+      dominantProfile = getDominantProfileForCategory(quizQuestions[qIndex]?.categoryId || 'personality');
+    } else if (qIndex === 9 || (quizQuestions[qIndex] && isEndOfCategoryIndex(qIndex, 'learning'))) {
+      dominantProfile = getDominantProfileForCategory(quizQuestions[qIndex]?.categoryId || 'learning');
+    } else if (qIndex === 14 || (quizQuestions[qIndex] && isEndOfCategoryIndex(qIndex, 'decision'))) {
+      dominantProfile = getDominantProfileForCategory(quizQuestions[qIndex]?.categoryId || 'decision');
     }
 
     const profile = INSIGHT_PROFILES[dominantProfile] ?? INSIGHT_PROFILES.balanced;
@@ -917,12 +1183,80 @@ function GuidedQuizPage() {
     return `You are ${profile.personality.en}. You show strong interest in ${profile.interest.en}, and currently look ${profile.brain.en}.`
   }
 
-  function onSelect(question, option) {
-    if (isThinking || answers[question.id]) {
+  // Helper to match category names or indices for static questions
+  const isEndOfCategoryIndex = (index, catKey) => {
+    if (quizQuestions === QUESTIONS) {
+      if (catKey === 'personality') return index === 4;
+      if (catKey === 'learning') return index === 9;
+      if (catKey === 'decision') return index === 14;
+      return false;
+    }
+    const q = quizQuestions[index];
+    if (!q) return false;
+    
+    // Group categories
+    const categories = [];
+    quizQuestions.forEach(item => {
+      if (item.categoryId && !categories.includes(item.categoryId)) {
+        categories.push(item.categoryId);
+      }
+    });
+    const catIndex = categories.indexOf(q.categoryId);
+    if (catKey === 'personality') return catIndex === 0 && (index === quizQuestions.length - 1 || quizQuestions[index + 1].categoryId !== q.categoryId);
+    if (catKey === 'learning') return catIndex === 1 && (index === quizQuestions.length - 1 || quizQuestions[index + 1].categoryId !== q.categoryId);
+    if (catKey === 'decision') return catIndex === 2 && (index === quizQuestions.length - 1 || quizQuestions[index + 1].categoryId !== q.categoryId);
+    return false;
+  };
+
+  async function onSelect(question, option, customText) {
+    if (isThinking || answers[question.id] || syncingAnswers[question.id]) {
       return
     }
 
-    setAnswers((prev) => ({ ...prev, [question.id]: option.id }))
+    const qIndex = quizQuestions.findIndex((q) => q.id === question.id)
+    if (qIndex === -1) return
+
+    const isEndOfCategory = qIndex === quizQuestions.length - 1 || 
+      (quizQuestions[qIndex + 1] && quizQuestions[qIndex].categoryId !== quizQuestions[qIndex + 1].categoryId);
+
+    // Save answer to Backend incrementally
+    if (user) {
+      setSyncingAnswers((prev) => ({ ...prev, [question.id]: true }))
+      try {
+        const answerValue = customText || option.label?.[locale] || option.content;
+        await questionAPI.submitUserAnswer({
+          questionId: question.id,
+          answer: answerValue,
+        })
+        setSyncedQuestions((prev) => ({ ...prev, [question.id]: true }))
+      } catch (error) {
+        console.error("Failed to save user answer dynamically:", error)
+        const errorMsg = error.response?.data?.message || error.message || "";
+        // If already answered, we can safely treat it as synced
+        if (errorMsg.includes("đã trả lời rồi") || errorMsg.includes("already answered")) {
+          setSyncedQuestions((prev) => ({ ...prev, [question.id]: true }))
+        } else {
+          toast.error(locale === 'vi' ? 'Không thể lưu câu trả lời. Vui lòng thử lại!' : 'Failed to save answer. Please try again.')
+          setSyncingAnswers((prev) => {
+            const next = { ...prev };
+            delete next[question.id];
+            return next;
+          })
+          return;
+        }
+      } finally {
+        setSyncingAnswers((prev) => {
+          const next = { ...prev };
+          delete next[question.id];
+          return next;
+        })
+      }
+    }
+
+    // Update local state answers (use customText if entered, otherwise option.id)
+    setAnswers((prev) => ({ ...prev, [question.id]: customText || option.id }))
+    
+    // Update local profile score vector
     setProfile((prev) => {
       const next = { ...prev }
       const optionVector = option.vector || getVectorFromScoreTag(option.scoreTag)
@@ -932,27 +1266,53 @@ function GuidedQuizPage() {
       return next
     })
 
-    const qIndex = quizQuestions.findIndex((q) => q.id === question.id)
-    const isEndOfCategory = qIndex === 4 || qIndex === 9 || qIndex === 14
-
     if (isEndOfCategory) {
       setIsThinking(true)
       setThinkingQuestionId(question.id)
 
-      const insightTimer = window.setTimeout(() => {
-        setInsights((prev) => ({
-          ...prev,
-          [question.id]: true,
-        }))
-      }, 400)
+      let evaluationText = ""
+      if (user && question.categoryId) {
+        // Short proactive delay to allow database transaction to completely commit
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        let retries = 3;
+        while (retries > 0) {
+          try {
+            const response = await questionAPI.evaluateCategory(question.categoryId)
+            if (response.data?.success && response.data?.data) {
+              evaluationText = response.data.data
+              break;
+            }
+          } catch (error) {
+            console.warn(`Attempt to generate AI evaluation failed. Retries left: ${retries - 1}`, error);
+            retries--;
+            if (retries === 0) {
+              console.error("Failed to generate AI evaluation for category after all retries:", error);
+            } else {
+              // Wait 1.5 seconds before retrying
+              await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+          }
+        }
+      }
 
-      const nextTimer = window.setTimeout(() => {
-        setActiveIndex((prev) => Math.min(prev + 1, quizQuestions.length - 1))
-        setThinkingQuestionId('')
-        setIsThinking(false)
-      }, 1500)
+      // Fallback if AI call failed, not logged in, or offline
+      if (!evaluationText) {
+        if (user) {
+          evaluationText = locale === 'vi' 
+            ? "Đã có lỗi xảy ra khi gọi AI phân tích chuyên mục này. Vui lòng bấm Tiếp tục để đi tiếp hoặc thử lại sau."
+            : "An error occurred while generating AI analysis for this category. Please click Continue or try again later.";
+        } else {
+          evaluationText = buildInsight(option, qIndex)
+        }
+      }
 
-      timeoutRef.current.push(insightTimer, nextTimer)
+      setInsights((prev) => ({
+        ...prev,
+        [question.id]: evaluationText,
+      }))
+      setThinkingQuestionId('')
+      setIsThinking(false)
     } else {
       // Direct fast transition for non-end-of-category questions
       const nextTimer = window.setTimeout(() => {
@@ -960,6 +1320,11 @@ function GuidedQuizPage() {
       }, 250)
       timeoutRef.current.push(nextTimer)
     }
+  }
+
+
+  const handleContinue = () => {
+    setActiveIndex((prev) => Math.min(prev + 1, quizQuestions.length - 1))
   }
 
   function handleViewDetail(school) {
@@ -972,6 +1337,22 @@ function GuidedQuizPage() {
         matchScore: school.score,
       },
     })
+  }
+
+  if (isQuizLoading) {
+    return (
+      <div className="flex h-[calc(100dvh-74px)] w-full items-center justify-center bg-[#081a30]">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin h-10 w-10 text-[#ecc741]" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <p className="text-slate-300 font-semibold text-base animate-pulse">
+            {locale === 'vi' ? 'Đang tải tiến trình làm bài của bạn...' : 'Loading your quiz progress...'}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
@@ -1007,6 +1388,7 @@ function GuidedQuizPage() {
             insights={insights}
             isDone={isDone}
             isThinking={isThinking}
+            isAiAnalyzing={isAiAnalyzing}
             listRef={listRef}
             locale={locale}
             onSelect={onSelect}
@@ -1018,17 +1400,21 @@ function GuidedQuizPage() {
             recommendations={recommendations}
             onViewDetail={handleViewDetail}
             submitLoading={submitLoading}
+            onContinue={handleContinue}
           />
           <QuizRightPanel
             onViewDetail={handleViewDetail}
             answeredCount={answeredCount}
             isDone={isDone}
+            isThinking={isThinking}
+            isAiAnalyzing={isAiAnalyzing}
             locale={locale}
             questionCount={quizQuestions.length}
             recommendations={recommendations}
             text={text}
             answers={answers}
             questions={quizQuestions}
+            insights={insights}
           />
         </section>
       </main>
