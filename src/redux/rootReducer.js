@@ -5,6 +5,7 @@ import notificationReducer from "../feature/notification/notificationSlice";
 import adminReducer from "../feature/admin/adminSlice";
 import questionReducer from "../feature/question/questionSlice";
 import chatReducer from "../feature/chat/chatSlice";
+import universityReducer from "../feature/university/universitySlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   question: questionReducer,
   chat: chatReducer,
+  university: universityReducer,
 });
 
 export default rootReducer;

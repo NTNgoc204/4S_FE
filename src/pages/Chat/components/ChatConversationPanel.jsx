@@ -51,21 +51,42 @@ function ChatConversationPanel({
 
       {isLocked ? (
         // Free user đã dùng hết 5 lượt — hiện CTA nâng cấp
-        <div className="border-t border-white/10 bg-[#1f3857]/90 p-4 md:p-5">
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-center">
-            <p className="text-sm font-semibold text-[#ecc741] mb-1">
-              {text.lockedTitle}
-            </p>
-            <p className="text-xs text-slate-400 mb-3">
-              {text.lockedDesc}
-            </p>
-            <button
-              onClick={onUpgrade}
-              className="w-full rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] py-2 text-xs font-bold text-[#11243b] shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
-              type="button"
-            >
-              {text.lockedCta}
-            </button>
+        <div className="border-t border-white/10 bg-[#0c1e34]/95 p-4 md:p-6 shadow-[0_-8px_30px_rgba(0,0,0,0.3)]">
+          <div className="relative overflow-hidden rounded-2xl border border-[#ecc741]/25 bg-gradient-to-b from-[#1b2d47]/90 to-[#0f1d31]/98 p-5 text-center shadow-[0_0_25px_rgba(236,199,65,0.06)] md:p-6">
+            {/* Decorative abstract glow */}
+            <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-[#ecc741]/5 blur-3xl" />
+            <div className="absolute -right-16 -bottom-16 h-32 w-32 rounded-full bg-[#ecc741]/5 blur-3xl" />
+
+            <div className="relative z-10 flex flex-col items-center">
+              {/* Premium Lock Icon with Gold Glow */}
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-[#ecc741]/35 bg-gradient-to-br from-[#ecc741]/20 to-[#ecc741]/5 text-[#fcd34d] shadow-[0_0_15px_rgba(236,199,65,0.15)]">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+
+              <h4 className="font-['Sora'] text-base font-extrabold bg-gradient-to-r from-[#ffea9f] via-[#ecc741] to-[#cca625] bg-clip-text text-transparent mb-1">
+                {text.lockedTitle.replace('🔒 ', '')}
+              </h4>
+              <p className="max-w-[480px] text-xs leading-relaxed text-slate-300/90 mb-4">
+                {text.lockedDesc}
+              </p>
+              <button
+                onClick={onUpgrade}
+                className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#ffe072] to-[#debd34] px-6 py-2.5 text-xs font-bold text-[#0c1b2f] shadow-[0_4px_15px_rgba(236,199,65,0.25)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(236,199,65,0.4)] hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
+                type="button"
+              >
+                {/* Shiny gloss effect on hover */}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                
+                {/* Crown Icon */}
+                <svg className="h-4 w-4 shrink-0 text-[#0c1b2f] transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M2 22h20v-2H2v2zm1-3h18l-2-7-4 3-3-8-3 8-4-3-2 7z" />
+                </svg>
+                <span>{text.lockedCta.replace(' →', '')}</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-1">➔</span>
+              </button>
+            </div>
           </div>
         </div>
       ) : (

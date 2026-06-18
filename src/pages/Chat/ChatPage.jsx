@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import sparklesIcon from '../../assets/Sparkles.svg'
 import {
   initGuidedChat,
@@ -40,6 +40,7 @@ const UI_TEXT = {
 function ChatPage() {
   const { i18n } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const reduxPlan = useSelector((state) => state.auth.plan)
   const currentPlan = String(reduxPlan ?? '').toLowerCase()
   const isProAccount = currentPlan !== 'free' && currentPlan !== ''
@@ -78,18 +79,25 @@ function ChatPage() {
     document.body.style.overflow = 'hidden'
     document.documentElement.style.overflow = 'hidden'
 
-    const greetingText = locale === 'vi'
-      ? 'Xin chào! Tôi là Trợ lý Hướng nghiệp AI. Hãy chia sẻ để tôi có thể tìm ngành học và trường đại học phù hợp nhất với bạn nhé! 😊'
-      : 'Hello! I am your AI Career Advisor. Share a bit about yourself so I can find the best majors and universities for you! 😊'
+    const shouldReset = messages.length === 0 || location.state?.resetChat
 
-    dispatch(initGuidedChat({ greetingText }))
+    if (shouldReset) {
+      const greetingText = locale === 'vi'
+        ? 'Xin chào! Tôi là Trợ lý Hướng nghiệp AI. Hãy chia sẻ để tôi có thể tìm ngành học và trường đại học phù hợp nhất với bạn nhé! 😊'
+        : 'Hello! I am your AI Career Advisor. Share a bit about yourself so I can find the best majors and universities for you! 😊'
+
+      dispatch(initGuidedChat({ greetingText }))
+      
+      // Clear location state to prevent repeating the reset
+      navigate(location.pathname, { replace: true, state: {} })
+    }
 
     return () => {
       document.body.style.overflow = previousBodyOverflow
       document.documentElement.style.overflow = previousHtmlOverflow
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [location.state?.resetChat])
 
   useEffect(() => {
     if (!conversationRef.current) return
@@ -113,7 +121,7 @@ function ChatPage() {
   function handleViewDetail(school) {
     if (!school) return
     navigate(`/university/${school.id}`, {
-      state: { from: '/chat' },
+      state: { from: '/chat', matchScore: school.matchPercent },
     })
   }
 

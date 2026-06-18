@@ -10,11 +10,11 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     // Actions caught by Saga to run logic
-    loadNotificationsRequest: () => {},
-    addNotificationRequest: (state, action) => {},
-    markAsReadRequest: (state, action) => {},
-    markAllAsReadRequest: () => {},
-    clearNotificationsRequest: () => {},
+    loadNotificationsRequest: () => { },
+    addNotificationRequest: (state, action) => { },
+    markAsReadRequest: (state, action) => { },
+    markAllAsReadRequest: () => { },
+    clearNotificationsRequest: () => { },
 
     // Action called by Saga to update variables
     setNotifications: (state, action) => {
