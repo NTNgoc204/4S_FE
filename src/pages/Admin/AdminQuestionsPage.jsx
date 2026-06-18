@@ -84,7 +84,7 @@ function AdminQuestionsPage() {
   // Auto-select first category if none selected
   useEffect(() => {
     if (categories && categories.length > 0 && !selectedCategoryId) {
-      const nonChatCategories = categories.filter((c) => !c.isChatAI);
+      const nonChatCategories = categories.filter((c) => !c.isChatAi && c.name !== "Trò chuyện hướng nghiệp AI");
       if (nonChatCategories.length > 0) {
         setSelectedCategoryId(nonChatCategories[0].id);
       }
@@ -332,7 +332,7 @@ function AdminQuestionsPage() {
   const currentCategory = categories.find((c) => c.id === selectedCategoryId);
 
   // Chỉ hiện các bộ câu hỏi không phải ChatAI
-  const nonChatCategories = categories.filter((c) => !c.isChatAI);
+  const nonChatCategories = categories.filter((c) => !c.isChatAi && c.name !== "Trò chuyện hướng nghiệp AI");
 
   const filteredQuestions = questions
     .filter((q) => q.categoryId === selectedCategoryId)
