@@ -159,6 +159,7 @@ function* submitAnswersSaga(action) {
   }
 }
 
+
 export function* questionSaga() {
   yield takeEvery(fetchQuestionsRequest.type, fetchQuestionsSaga);
   yield takeEvery(fetchCategoriesRequest.type, fetchCategoriesSaga);

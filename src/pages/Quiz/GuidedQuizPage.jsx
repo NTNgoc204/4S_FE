@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 
 import QuizLeftPanel from './components/QuizLeftPanel'
 import QuizRightPanel from './components/QuizRightPanel'
+import ConfirmModal from '../../components/ConfirmModal'
 import { fetchQuestionsRequest, submitAnswersRequest } from '../../feature/question/questionSlice'
 import { questionAPI } from '../../feature/question/questionAPI'
 
@@ -866,6 +867,7 @@ function GuidedQuizPage() {
   const [overallSummary, setOverallSummary] = useState(cachedState?.overallSummary ?? '')
   const [aiRecommendations, setAiRecommendations] = useState(cachedState?.aiRecommendations ?? [])
   const [isOverallLoading, setIsOverallLoading] = useState(false)
+  const [isRedoConfirmOpen, setIsRedoConfirmOpen] = useState(false)
 
   const listRef = useRef(null)
   const timeoutRef = useRef([])
@@ -1309,25 +1311,50 @@ function GuidedQuizPage() {
   };
 
   async function onSelect(question, option, customText) {
-    if (isThinking || answers[question.id] || syncingAnswers[question.id]) {
+    if (isThinking || syncingAnswers[question.id]) {
       return
     }
 
     const qIndex = quizQuestions.findIndex((q) => q.id === question.id)
     if (qIndex === -1) return
 
+    const getQuestionCategory = (q, idx) => {
+      if (q.categoryId) return q.categoryId;
+      if (idx <= 4) return 'cat1';
+      if (idx <= 9) return 'cat2';
+      return 'cat3';
+    };
+
+    const activeQuestion = quizQuestions[activeIndex]
+    const isSameCategory = activeQuestion && getQuestionCategory(question, qIndex) === getQuestionCategory(activeQuestion, activeIndex)
+
+    if (isDone || !isSameCategory) {
+      return
+    }
+
+    const isEditingPrevious = qIndex < activeIndex
     const isEndOfCategory = qIndex === quizQuestions.length - 1 ||
       (quizQuestions[qIndex + 1] && quizQuestions[qIndex].categoryId !== quizQuestions[qIndex + 1].categoryId);
+
+    const isAlreadyAnswered = Boolean(answers[question.id])
 
     // Save answer to Backend incrementally
     if (user) {
       setSyncingAnswers((prev) => ({ ...prev, [question.id]: true }))
       try {
         const answerValue = customText || option.label?.[locale] || option.content;
-        await questionAPI.submitUserAnswer({
-          questionId: question.id,
-          answer: answerValue,
-        })
+        
+        if (isAlreadyAnswered) {
+          await questionAPI.updateUserAnswer({
+            questionId: question.id,
+            answer: answerValue,
+          })
+        } else {
+          await questionAPI.submitUserAnswer({
+            questionId: question.id,
+            answer: answerValue,
+          })
+        }
         setSyncedQuestions((prev) => ({ ...prev, [question.id]: true }))
       } catch (error) {
         console.error("Failed to save user answer dynamically:", error)
@@ -1353,12 +1380,19 @@ function GuidedQuizPage() {
       }
     }
 
-    // Update local state answers (use customText if entered, otherwise option.id)
-    setAnswers((prev) => ({ ...prev, [question.id]: customText || option.id }))
-
     // Update local profile score vector
     setProfile((prev) => {
       const next = { ...prev }
+      if (isAlreadyAnswered) {
+        const previousOptionId = answers[question.id]
+        const previousOption = question.options.find((o) => o.id === previousOptionId)
+        if (previousOption) {
+          const prevVector = previousOption.vector || getVectorFromScoreTag(previousOption.scoreTag)
+          Object.entries(prevVector).forEach(([key, value]) => {
+            next[key] = Math.max(0, (next[key] ?? 0) - value)
+          })
+        }
+      }
       const optionVector = option.vector || getVectorFromScoreTag(option.scoreTag)
       Object.entries(optionVector).forEach(([key, value]) => {
         next[key] = (next[key] ?? 0) + value
@@ -1366,9 +1400,26 @@ function GuidedQuizPage() {
       return next
     })
 
-    if (isEndOfCategory) {
+    // Update local state answers (use customText if entered, otherwise option.id)
+    setAnswers((prev) => ({ ...prev, [question.id]: customText || option.id }))
+
+    // Find all questions in the same category
+    const categoryQuestions = quizQuestions.filter(q => 
+      getQuestionCategory(q, quizQuestions.indexOf(q)) === getQuestionCategory(question, qIndex)
+    )
+    const lastQuestionOfCategory = categoryQuestions[categoryQuestions.length - 1]
+    const hasExistingInsight = Boolean(insights[lastQuestionOfCategory.id])
+
+    if (hasExistingInsight || isEndOfCategory) {
+      // Clear old category insight immediately
+      setInsights(prev => {
+        const next = { ...prev }
+        delete next[lastQuestionOfCategory.id]
+        return next
+      })
+
       setIsThinking(true)
-      setThinkingQuestionId(question.id)
+      setThinkingQuestionId(lastQuestionOfCategory.id)
 
       let evaluationText = ""
       if (user && question.categoryId) {
@@ -1382,6 +1433,12 @@ function GuidedQuizPage() {
             if (response.data?.success && response.data?.data) {
               evaluationText = response.data.data
               break;
+            } else {
+              console.warn(`Category evaluation response not successful. Retries left: ${retries - 1}`);
+              retries--;
+              if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+              }
             }
           } catch (error) {
             console.warn(`Attempt to generate AI evaluation failed. Retries left: ${retries - 1}`, error);
@@ -1409,12 +1466,18 @@ function GuidedQuizPage() {
 
       setInsights((prev) => ({
         ...prev,
-        [question.id]: evaluationText,
+        [lastQuestionOfCategory.id]: evaluationText,
       }))
+
+      // Reset category-level thinking spinner before overall summary begins
+      setThinkingQuestionId('')
+      setIsThinking(false)
 
       // If this was the last question of the whole quiz, generate overall summary
       const isAllDone = quizQuestions.every((q) => q.id === question.id || answers[q.id])
       if (isAllDone && user) {
+        setOverallSummary('')
+        setAiRecommendations([])
         setIsOverallLoading(true)
         // Short proactive delay to allow database transaction to completely commit
         await new Promise(resolve => setTimeout(resolve, 1200));
@@ -1429,6 +1492,12 @@ function GuidedQuizPage() {
               const mapped = mapBackendRecommendations(summaryData)
               setAiRecommendations(mapped)
               break;
+            } else {
+              console.warn(`Overall AI summary response not successful. Retries left: ${overallRetries - 1}`);
+              overallRetries--;
+              if (overallRetries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+              }
             }
           } catch (overallErr) {
             console.warn(`Attempt to generate overall AI summary failed. Retries left: ${overallRetries - 1}`, overallErr);
@@ -1443,9 +1512,6 @@ function GuidedQuizPage() {
         }
         setIsOverallLoading(false)
       }
-
-      setThinkingQuestionId('')
-      setIsThinking(false)
     } else {
       // Direct fast transition for non-end-of-category questions
       const nextTimer = window.setTimeout(() => {
@@ -1470,6 +1536,38 @@ function GuidedQuizPage() {
         matchScore: school.score,
       },
     })
+  }
+
+  const triggerRedoQuiz = () => {
+    setIsRedoConfirmOpen(true)
+  }
+
+  const executeRedoQuiz = async () => {
+    setIsRedoConfirmOpen(false)
+    setIsQuizLoading(true)
+    try {
+      if (user) {
+        await questionAPI.deleteAllUserAnswers()
+      }
+
+      setAnswers({})
+      setInsights({})
+      setProfile(createEmptyProfile())
+      setActiveIndex(0)
+      setOverallSummary('')
+      setAiRecommendations([])
+      setSyncedQuestions({})
+      setSyncingAnswers({})
+
+      window.sessionStorage.removeItem(QUIZ_STATE_KEY)
+
+      toast.success(locale === 'vi' ? 'Đã reset bài trắc nghiệm thành công!' : 'Quiz reset successfully!')
+    } catch (err) {
+      console.error("Failed to reset quiz:", err)
+      toast.error(locale === 'vi' ? 'Không thể làm lại bài trắc nghiệm. Vui lòng thử lại!' : 'Failed to reset quiz. Please try again.')
+    } finally {
+      setIsQuizLoading(false)
+    }
   }
 
   if (isQuizLoading) {
@@ -1533,6 +1631,7 @@ function GuidedQuizPage() {
             submitLoading={submitLoading}
             onContinue={handleContinue}
             overallSummary={overallSummary}
+            onRedoQuiz={triggerRedoQuiz}
           />
           <QuizRightPanel
             onViewDetail={handleViewDetail}
@@ -1550,6 +1649,18 @@ function GuidedQuizPage() {
           />
         </section>
       </main>
+      <ConfirmModal
+        isOpen={isRedoConfirmOpen}
+        title={locale === 'vi' ? 'Làm lại bài trắc nghiệm?' : 'Redo the Quiz?'}
+        message={locale === 'vi' 
+          ? 'Bạn có chắc chắn muốn xóa toàn bộ câu trả lời để làm lại bài trắc nghiệm từ đầu không?' 
+          : 'Are you sure you want to delete all answers and redo the quiz from the beginning?'}
+        confirmText={locale === 'vi' ? 'Xác nhận' : 'Confirm'}
+        cancelText={locale === 'vi' ? 'Hủy' : 'Cancel'}
+        onConfirm={executeRedoQuiz}
+        onCancel={() => setIsRedoConfirmOpen(false)}
+        type="warning"
+      />
     </>
   )
 }

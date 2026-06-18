@@ -48,7 +48,11 @@ export const questionAPI = {
 
   submitUserAnswer: (data) => apiClient.post("/api/UserAnswers", data),
 
+  updateUserAnswer: (data) => apiClient.put("/api/UserAnswers", data),
+
   deleteUserAnswer: (id) => apiClient.delete(`/api/UserAnswers/${id}`),
+
+  deleteAllUserAnswers: () => apiClient.delete("/api/UserAnswers"),
 
   // AI Evaluations
   evaluateCategory: (categoryId) => apiClient.post(`/api/AiEvaluations/evaluate/${categoryId}`, null, { timeout: 180000 }),
@@ -59,5 +63,10 @@ export const questionAPI = {
   evaluateOverall: () => apiClient.post("/api/UserAiSummaries/evaluate", null, { timeout: 180000 }),
 
   getOverallSummary: () => apiClient.get("/api/UserAiSummaries", { timeout: 180000 }),
+
+  // Chat AI
+  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }),
+
+  askAi: (question) => apiClient.post("/api/Chat/ask", { question }),
 };
 

@@ -202,8 +202,8 @@ function QuizRightPanel({
                 /* Waiting helper */
                 <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3.5 text-center text-xs text-slate-400 leading-normal">
                   💡 {locale === 'vi'
-                    ? 'Hãy hoàn thành tất cả 3 nhóm câu hỏi để nhận danh sách trường Đại học và Ngành học gợi ý tối ưu nhất.'
-                    : 'Please answer all 3 categories of questions to receive the optimized University and Major recommendations.'}
+                    ? `Hãy hoàn thành tất cả ${quizCategories.length} nhóm câu hỏi để nhận danh sách trường Đại học và Ngành học gợi ý tối ưu nhất.`
+                    : `Please answer all ${quizCategories.length} categories of questions to receive the optimized University and Major recommendations.`}
                 </div>
               )}
             </div>
@@ -211,7 +211,7 @@ function QuizRightPanel({
         )}
       </div>
 
-      {isDone && !isAiAnalyzing && (
+      {isDone && recommendations.length > 0 && (
         <footer className="border-t border-white/10 p-4">
           <button
             onClick={() => navigate('/dashboard', { state: { aiRecommendations: recommendations } })}
