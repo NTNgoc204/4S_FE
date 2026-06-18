@@ -65,8 +65,8 @@ export const questionAPI = {
   getOverallSummary: () => apiClient.get("/api/UserAiSummaries", { timeout: 180000 }),
 
   // Chat AI
-  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }),
+  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }, { timeout: 180000 }),
 
-  askAi: (question) => apiClient.post("/api/Chat/ask", { question }),
+  askAi: (question) => apiClient.post("/api/Chat/ask", { question }, { timeout: 180000 }),
 };
 
