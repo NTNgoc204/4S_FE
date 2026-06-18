@@ -11,6 +11,7 @@ const initialState = {
   submitSuccess: false,
 };
 
+
 const questionSlice = createSlice({
   name: "question",
   initialState,
@@ -115,6 +116,7 @@ const questionSlice = createSlice({
     clearQuestionError: (state) => {
       state.error = null;
     },
+
   },
 });
 

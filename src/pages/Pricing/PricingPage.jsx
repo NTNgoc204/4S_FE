@@ -151,6 +151,14 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
 
   const handlePlanClick = (plan) => {
+    if (plan.planCode === 'edu') {
+      const contactSection = document.getElementById('contact-section');
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
     if (!isLoggedIn) {
       navigate('/login', { state: { from: '/pricing' } })
       return
@@ -161,15 +169,18 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
     navigate(`/checkout?planId=${plan.id}`)
   }
 
-  // Calculate formatted price
-  const getFormattedPrice = (plan) => {
+  // Calculate formatted price parts
+  const getFormattedPriceParts = (plan) => {
     if (plan.planCode === 'free') {
-      return t('pricing:plans.free.price', '0 VND')
+      return { value: '0', currency: 'VND' }
     }
     if (plan.planCode === 'edu' || plan.rawPrice === 0) {
-      return t('pricing:plans.edu.price', 'Liên hệ')
+      return { value: t('pricing:plans.edu.price', 'Liên hệ'), currency: '' }
     }
-    return `${plan.rawPrice.toLocaleString('vi-VN')} VND`
+    return {
+      value: plan.rawPrice.toLocaleString('vi-VN'),
+      currency: 'VND'
+    }
   }
 
   const faqItems = [
@@ -259,29 +270,32 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
                 <p className="mt-2 text-xs text-slate-400 text-left leading-relaxed">{plan.description}</p>
 
                 {/* Plan Price */}
-                <div className="mt-6 flex items-baseline gap-1.5 border-b border-white/5 pb-6">
+                <div className="mt-6 flex items-baseline flex-wrap gap-1.5 border-b border-white/5 pb-6">
                   {isPlansLoading ? (
                     <Skeleton height="3.2rem" width="160px" />
                   ) : (
-                    <>
-                      <span className="font-display text-[2.75rem] font-extrabold leading-none tracking-tight text-white">
-                        {getFormattedPrice(plan)}
-                      </span>
-                      {plan.period && (
-                        <span className="text-xs text-slate-400 font-medium">
-                          {plan.period}
-                        </span>
-                      )}
-                    </>
+                    (() => {
+                      const { value, currency } = getFormattedPriceParts(plan)
+                      return (
+                        <>
+                          <span className="font-display text-4xl md:text-[2.6rem] font-extrabold leading-none tracking-tight text-white whitespace-nowrap">
+                            {value}
+                          </span>
+                          {currency && (
+                            <span className="text-lg md:text-xl font-bold text-slate-300">
+                              {currency}
+                            </span>
+                          )}
+                          {plan.period && (
+                            <span className="text-xs text-slate-400 font-medium ml-1">
+                              {plan.period}
+                            </span>
+                          )}
+                        </>
+                      )
+                    })()
                   )}
                 </div>
-
-                {/* VAT note */}
-                {!isPlansLoading && plan.planCode !== 'free' && plan.rawPrice > 0 ? (
-                  <p className="mt-2 text-[10px] text-slate-500 text-left italic">
-                    {locale === 'vi' ? '* Giá trên chưa bao gồm thuế VAT' : '* Prices exclude VAT'}
-                  </p>
-                ) : null}
 
                 {/* Plan Features */}
                 <ul className="mt-8 space-y-4 flex-1">
@@ -386,18 +400,18 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
           </section>
 
           {/* Custom School Cooperation / Partnership Section */}
-          <section className="mt-20 rounded-[32px] border border-white/10 bg-gradient-to-r from-[#172c44]/80 to-[#122238]/90 px-8 py-12 text-center md:px-12 relative overflow-hidden reveal-on-scroll shadow-2xl">
+          <section id="contact-section" className="mt-20 rounded-[32px] border border-white/10 bg-gradient-to-r from-[#172c44]/80 to-[#122238]/90 px-8 py-12 text-center md:px-12 relative overflow-hidden reveal-on-scroll shadow-2xl">
             <div className="glow-blob glow-blob-3 right-0 bottom-0 h-48 w-48 opacity-20" />
             <h2 className="font-display text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{t('pricing:questions.title')}</h2>
             <p className="mt-3 text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">{t('pricing:questions.subtitle')}</p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <button
-                className="rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-8 py-3.5 text-sm font-bold text-white transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02]"
-                type="button"
+              <a
+                href="mailto:support@4s.edu.vn?subject=Cooperation%20Inquiry%20-%204S%20Career%20Guidance"
+                className="rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-8 py-3.5 text-sm font-bold text-white transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02] inline-block"
               >
                 {t('pricing:questions.contact')}
-              </button>
+              </a>
               <button
                 className="rounded-xl border border-[#7f8cff]/30 bg-[#7f8cff]/10 hover:bg-[#7f8cff]/20 px-8 py-3.5 text-sm font-bold text-[#b9c1ff] transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02]"
                 type="button"

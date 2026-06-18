@@ -57,6 +57,7 @@ function QuizLeftPanel({
   submitLoading = false,
   onContinue,
   overallSummary = '',
+  onRedoQuiz,
 }) {
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
   const [customAnswers, setCustomAnswers] = useState({})
@@ -82,7 +83,20 @@ function QuizLeftPanel({
           const selectedOptionId = answers[question.id]
           const selectedOption = question.options.find((option) => option.id === selectedOptionId)
           const progress = Math.round(((index + (selectedOptionId ? 1 : 0)) / questionCount) * 100)
-          const canAnswer = index === activeIndex && !isDone && !isThinking
+
+          const getQuestionCategory = (q, idx) => {
+            if (q.categoryId) return q.categoryId;
+            if (idx <= 4) return 'cat1';
+            if (idx <= 9) return 'cat2';
+            return 'cat3';
+          };
+
+          const activeQuestion = visibleQuestions[activeIndex];
+          const activeCategory = activeQuestion ? getQuestionCategory(activeQuestion, activeIndex) : null;
+          const questionCategory = getQuestionCategory(question, index);
+          const isSameCategory = activeCategory && questionCategory === activeCategory;
+          const canAnswer = isSameCategory && !isDone && !isThinking;
+          const isLocked = isDone || !isSameCategory;
 
           return (
             <article key={question.id} className="mb-5">
@@ -91,8 +105,14 @@ function QuizLeftPanel({
                   {'\u{1F451}'}
                 </span>
 
-                <div className="w-full max-w-[790px] rounded-2xl border border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98 p-4 md:p-5">
-                  <h3 className="font-['Sora'] text-lg md:text-[1.45rem]">{question.prompt?.[locale] || question.content}</h3>
+                <div className={`w-full max-w-[790px] rounded-2xl border p-4 md:p-5 transition-all duration-300 ${
+                  isLocked 
+                    ? 'border-white/5 bg-[#122237]/60 opacity-80' 
+                    : 'border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98'
+                }`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-['Sora'] text-lg md:text-[1.45rem]">{question.prompt?.[locale] || question.content}</h3>
+                  </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-2.5 md:grid-cols-2">
                     {question.options.map((option) => {
@@ -102,7 +122,7 @@ function QuizLeftPanel({
                         (isCustomOption && selectedOptionId && !question.options.some(o => o.id === selectedOptionId)) ||
                         (isCustomOption && activeCustomQuestionId === question.id && selectedCustomOption?.id === option.id)
 
-                      const disabled = Boolean(selectedOptionId) || !canAnswer
+                      const disabled = !canAnswer
                       return (
                         <button
                           key={option.id}
@@ -221,7 +241,7 @@ function QuizLeftPanel({
           )
         })}
 
-        {isDone && !isAiAnalyzing ? (
+        {isDone && !isThinking ? (
           <div className="space-y-6">
             {submitLoading && (
               <div className="rounded-2xl border border-teal-500/30 bg-teal-950/20 p-4 flex items-center justify-center gap-3 text-[#0fe2a8]">
@@ -235,29 +255,46 @@ function QuizLeftPanel({
               </div>
             )}
             {/* Profile snapshot - hiển thị từ overallSummary của backend */}
-            <article className="rounded-2xl border border-[#0ed8ab]/30 bg-gradient-to-br from-[#123552] to-[#102d47] p-5 md:p-6">
+            <article className="rounded-2xl border border-[#0ed8ab]/30 bg-gradient-to-br from-[#123552] to-[#102d47] p-5 md:p-6 animate-pulse-subtle">
               <h3 className="font-['Sora'] text-xl md:text-[1.8rem]">{text.summaryTitle}</h3>
               {overallSummary ? (
                 <p className="mt-3 text-sm leading-relaxed text-slate-200 whitespace-pre-line">
                   {overallSummary}
                 </p>
               ) : (
-                <p className="mt-2 text-slate-400 text-sm italic">
-                  {locale === 'vi' ? 'Đang tải tổng quan hồ sơ...' : 'Loading profile summary...'}
-                </p>
+                <div className="mt-4 flex items-center gap-3 text-slate-400 text-sm italic">
+                  <svg className="animate-spin h-5 w-5 text-[#ecc741]" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>{locale === 'vi' ? 'Đang tải tổng quan hồ sơ hướng nghiệp...' : 'Loading overall profile summary...'}</span>
+                </div>
               )}
             </article>
 
-            {/* Recommendations CTA button */}
-            <div className="mt-6 flex justify-center pb-2">
+            {/* Recommendations & Redo CTA buttons */}
+            <div className="mt-6 flex flex-wrap gap-4 justify-center pb-2">
               <button
                 onClick={() => setShowRecommendationsModal(true)}
-                className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-6 py-3.5 text-base font-bold text-[#11243b] shadow-lg shadow-amber-950/20 hover:brightness-110 active:scale-95 transition cursor-pointer"
+                disabled={recommendations.length === 0}
+                className={`inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-6 py-3.5 text-base font-bold text-[#11243b] shadow-lg shadow-amber-950/20 hover:brightness-110 active:scale-95 transition cursor-pointer ${
+                  recommendations.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
                 type="button"
               >
                 <img alt="Sparkles icon" className="h-5 w-5 object-contain" src={sparklesIcon} />
                 {locale === 'vi' ? 'Xem Danh Sách Trường Gợi Ý' : 'View Recommended Schools'}
               </button>
+
+              {onRedoQuiz && (
+                <button
+                  onClick={onRedoQuiz}
+                  className="inline-flex items-center gap-2.5 rounded-xl border border-rose-500/35 bg-rose-500/10 hover:bg-rose-500/20 px-6 py-3.5 text-base font-bold text-rose-300 transition cursor-pointer"
+                  type="button"
+                >
+                  🔄 {locale === 'vi' ? 'Làm lại bài trắc nghiệm' : 'Redo Quiz'}
+                </button>
+              )}
             </div>
 
             {/* Modal Overlay */}

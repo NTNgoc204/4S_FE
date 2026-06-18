@@ -4,7 +4,8 @@ import { planSaga } from "../feature/plan/planSaga";
 import { notificationSaga } from "../feature/notification/notificationSaga";
 import { adminSaga } from "../feature/admin/adminSaga";
 import { questionSaga } from "../feature/question/questionSaga";
+import { chatSaga } from "../feature/chat/chatSaga";
 
 export function* rootSaga() {
-  yield all([authSaga(), planSaga(), notificationSaga(), adminSaga(), questionSaga()]);
+  yield all([authSaga(), planSaga(), notificationSaga(), adminSaga(), questionSaga(), chatSaga()]);
 }
