@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Bar,
   BarChart,
@@ -19,6 +20,7 @@ import fourSLogo from "../../assets/logo-4s.png";
 import sparklesIcon from "../../assets/Sparkles.svg";
 import globeIcon from "../../assets/Globe.svg";
 import { getUniversityById } from "../../data/universities";
+import { fetchUniversityDetailRequest } from "../../feature/university/universitySlice";
 
 const DETAIL_DATA = {
   hcmut: {
@@ -329,16 +331,76 @@ function UniversityDetailPage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { schoolId = "" } = useParams();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
   const text = UI_TEXT[locale];
 
-  const school = getUniversityById(schoolId) ?? getUniversityById("hcmut");
-  const details = DETAIL_DATA[school?.id] ?? DETAIL_DATA.hcmut;
+  const { universityDetail, universityLoading, universityError } = useSelector(
+    (state) => state.university
+  );
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(schoolId);
+
+  useEffect(() => {
+    if (schoolId && isUuid) {
+      dispatch(fetchUniversityDetailRequest(schoolId));
+    }
+  }, [schoolId, isUuid, dispatch]);
+
   const stateScore = Number(location.state?.matchScore);
-  const displayMatchScore = Number.isFinite(stateScore)
-    ? Math.max(0, Math.min(100, Math.round(stateScore)))
-    : school?.stats?.match ?? 80;
+  const shouldShowMatchScore = location.state?.from === "/chat";
+  const displayMatchScore = useMemo(() => {
+    if (Number.isFinite(stateScore)) {
+      return Math.max(0, Math.min(100, Math.round(stateScore)));
+    }
+    if (isUuid) {
+      return 80;
+    }
+    return getUniversityById(schoolId)?.stats?.match ?? 80;
+  }, [isUuid, stateScore, schoolId]);
+
+  const school = useMemo(() => {
+    if (isUuid && universityDetail) {
+      const localFallback = getUniversityById(universityDetail.shortName?.toLowerCase()) || getUniversityById("hcmut");
+
+      return {
+        id: universityDetail.universityId,
+        name: { vi: universityDetail.name, en: universityDetail.shortName || universityDetail.name },
+        major: localFallback?.major || { vi: "Khối ngành Công nghệ - Kỹ thuật", en: "Technology & Engineering" },
+        place: { vi: universityDetail.location, en: universityDetail.location },
+        tuition: localFallback?.tuition || { vi: "15-25M VNĐ/học kỳ", en: "15-25M VND/semester" },
+        avatar: universityDetail.avatar || localFallback?.avatar || null,
+        stats: {
+          students: localFallback?.stats?.students || { vi: "20,000+ sinh viên", en: "20,000+ students" },
+          rank: {
+            vi: `Top ${Math.round(universityDetail.ranking) || 5} tại Việt Nam`,
+            en: `Top ${Math.round(universityDetail.ranking) || 5} in Vietnam`,
+          },
+          match: displayMatchScore,
+        },
+      };
+    }
+
+    const fallbackSchool = getUniversityById(schoolId) || getUniversityById("hcmut");
+    return {
+      ...fallbackSchool,
+      stats: {
+        ...fallbackSchool.stats,
+        match: displayMatchScore,
+      },
+    };
+  }, [isUuid, universityDetail, schoolId, displayMatchScore]);
+
+  const details = useMemo(() => {
+    if (isUuid && universityDetail) {
+      const shortNameLower = (universityDetail.shortName || "").toLowerCase();
+      if (DETAIL_DATA[shortNameLower]) {
+        return DETAIL_DATA[shortNameLower];
+      }
+    }
+    return DETAIL_DATA[school?.id] || DETAIL_DATA.hcmut;
+  }, [isUuid, universityDetail, school?.id]);
 
   const avgRating = useMemo(() => {
     if (!details.reviews.length) {
@@ -392,6 +454,42 @@ function UniversityDetailPage() {
 
   function handleLanguageChange(language) {
     i18n.changeLanguage(language);
+  }
+
+  if (isUuid && (universityLoading || !universityDetail)) {
+    return (
+      <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] items-center justify-center py-3">
+        <div className="flex flex-col items-center gap-3 text-slate-300">
+          <svg className="h-8 w-8 animate-spin text-[#18d0ac]" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <span className="text-sm font-medium">
+            {locale === "vi" ? "Đang tải thông tin trường đại học..." : "Loading university details..."}
+          </span>
+        </div>
+      </main>
+    );
+  }
+
+  if (isUuid && universityError) {
+    return (
+      <main className="mx-auto flex h-[calc(100dvh-74px)] w-[min(1360px,96vw)] items-center justify-center py-3">
+        <div className="flex flex-col items-center gap-3 text-red-400">
+          <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="text-sm font-medium">{universityError}</span>
+          <button
+            onClick={handleBack}
+            className="mt-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10"
+            type="button"
+          >
+            {locale === "vi" ? "Quay lại" : "Back"}
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -448,10 +546,11 @@ function UniversityDetailPage() {
             </div>
 
             <div className="hidden items-center gap-2 md:flex">
-              <button className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10" type="button">
-                {text.saveSchool}
-              </button>
-              <button className="rounded-xl bg-gradient-to-r from-[#18d0ac] to-[#13be9e] px-4 py-2 text-sm font-bold text-[#0c223a] transition hover:brightness-110" type="button">
+              <button
+                className="rounded-xl bg-gradient-to-r from-[#18d0ac] to-[#13be9e] px-4 py-2 text-sm font-bold text-[#0c223a] transition hover:brightness-110"
+                onClick={() => navigate("/chat", { state: { resetChat: true } })}
+                type="button"
+              >
                 {text.askAi}
               </button>
             </div>
@@ -480,18 +579,20 @@ function UniversityDetailPage() {
               </div>
             </div>
 
-            <div className="mx-auto h-[120px] w-[120px]">
-              <ResponsiveContainer height="100%" width="100%">
-                <RadialBarChart cx="50%" cy="50%" data={matchData} endAngle={-270} innerRadius="72%" outerRadius="100%" startAngle={90}>
-                  <PolarAngleAxis domain={[0, 100]} tick={false} type="number" />
-                  <RadialBar background={{ fill: "rgba(255,255,255,0.16)" }} cornerRadius={999} dataKey="value" fill="#14d6af" />
-                </RadialBarChart>
-              </ResponsiveContainer>
-              <div className="-mt-[74px] flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold leading-none">{displayMatchScore}%</span>
-                <span className="text-xs text-slate-300">{text.match}</span>
+            {shouldShowMatchScore && (
+              <div className="mx-auto h-[120px] w-[120px]">
+                <ResponsiveContainer height="100%" width="100%">
+                  <RadialBarChart cx="50%" cy="50%" data={matchData} endAngle={-270} innerRadius="72%" outerRadius="100%" startAngle={90}>
+                    <PolarAngleAxis domain={[0, 100]} tick={false} type="number" />
+                    <RadialBar background={{ fill: "rgba(255,255,255,0.16)" }} cornerRadius={999} dataKey="value" fill="#14d6af" />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+                <div className="-mt-[74px] flex flex-col items-center justify-center">
+                  <span className="text-4xl font-bold leading-none">{displayMatchScore}%</span>
+                  <span className="text-xs text-slate-300">{text.match}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
 
