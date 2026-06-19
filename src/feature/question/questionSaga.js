@@ -62,7 +62,7 @@ import {
   deleteQuestionOptionSuccess,
   deleteQuestionOptionFailure,
 } from "./questionSlice";
-import { mapBackendRecommendations } from "../../pages/Quiz/util/quizHelpers";
+import { mapUniversityRecommendations } from "../../util/universityMapper";
 
 // Fetch Questions
 function* fetchQuestionsSaga() {
@@ -467,7 +467,7 @@ function* fetchUserProgressSaga(action) {
         if (overallRes.data?.success && overallRes.data?.data) {
           const summaryData = overallRes.data.data;
           overallSummary = summaryData.summaryText || summaryData.SummaryText || '';
-          aiRecommendations = yield call(mapBackendRecommendations, summaryData);
+          aiRecommendations = yield call(mapUniversityRecommendations, summaryData);
         }
       } catch (err) {
         // If overall summary is not found, trigger overall evaluation
@@ -476,7 +476,7 @@ function* fetchUserProgressSaga(action) {
           if (genOverallRes.data?.success && genOverallRes.data?.data) {
             const summaryData = genOverallRes.data.data;
             overallSummary = summaryData.summaryText || summaryData.SummaryText || '';
-            aiRecommendations = yield call(mapBackendRecommendations, summaryData);
+            aiRecommendations = yield call(mapUniversityRecommendations, summaryData);
           }
         } catch (genErr) {
           console.error("Failed to auto-evaluate overall summary on mount in Saga:", genErr);
@@ -616,7 +616,7 @@ function* evaluateOverallSaga(action) {
       if (overallRes.data?.success && overallRes.data?.data) {
         const summaryData = overallRes.data.data;
         overallSummary = summaryData.summaryText || summaryData.SummaryText || '';
-        aiRecommendations = yield call(mapBackendRecommendations, summaryData);
+        aiRecommendations = yield call(mapUniversityRecommendations, summaryData);
         break;
       } else {
         overallRetries--;

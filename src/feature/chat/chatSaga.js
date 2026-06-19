@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { chatAPI } from "./chatAPI";
 import { questionAPI } from "../question/questionAPI";
 import { getErrorMessage } from "../../util/errorConstants";
+import { mapUniversityRecommendations } from "../../util/universityMapper";
 import {
   sendGuidedChatMessageRequest,
   sendGuidedChatMessageSuccess,
@@ -11,43 +12,6 @@ import {
   clearChatSuccess,
   clearChatFailure,
 } from "./chatSlice";
-
-// Helper to map backend recommendations
-const mapBackendRecommendations = (data) => {
-  if (!data) return [];
-  const top3 = data.top3Universities || data.Top3Universities || [];
-  const next5 = data.next5Universities || data.Next5Universities || [];
-
-  const mapUni = (uni) => {
-    if (!uni) return null;
-    const uniId = uni.universityId || uni.UniversityId;
-    const uniName = uni.name || uni.Name;
-    const uniShortName = uni.shortName || uni.ShortName || uniName;
-    const uniLocation = uni.location || uni.Location;
-    const uniRanking = uni.ranking ?? uni.Ranking ?? null;
-    const uniAvatar = uni.avatar || uni.Avatar || null;
-    const matchPercent = uni.matchPercentage ?? uni.MatchPercentage ?? 0;
-    const suitableMajors = uni.suitableMajors || uni.SuitableMajors || [];
-
-    const majorVi = suitableMajors.map((m) => m.name || m.Name).join(", ") || "";
-    const majorEn = suitableMajors.map((m) => m.name || m.Name).join(", ") || "";
-
-    return {
-      id: uniId,
-      name: { vi: uniName, en: uniShortName },
-      major: { vi: majorVi, en: majorEn },
-      ranking: uniRanking,
-      matchPercent,
-      place: { vi: uniLocation, en: uniLocation },
-      avatar: uniAvatar,
-    };
-  };
-
-  const mappedTop3 = top3.map((uni) => mapUni(uni)).filter(Boolean);
-  const mappedNext5 = next5.map((uni) => mapUni(uni)).filter(Boolean);
-
-  return [...mappedTop3, ...mappedNext5];
-};
 
 // Mọi tin nhắn đều gửi vào /api/Chat/guided
 function* sendGuidedChatMessageSaga(action) {
@@ -64,7 +28,7 @@ function* sendGuidedChatMessageSaga(action) {
     let recommendations = [];
     if (summaryData) {
       summaryText = summaryData.summaryText || summaryData.SummaryText || "";
-      recommendations = mapBackendRecommendations(summaryData);
+      recommendations = mapUniversityRecommendations(summaryData);
     }
 
     yield put(

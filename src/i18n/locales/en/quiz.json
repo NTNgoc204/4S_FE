@@ -27,6 +27,8 @@
     "aiAnalyzing": "AI is analyzing this category...",
     "saving": "Saving your test results to server...",
     "aiCompilingProfile": "AI is compiling your orientation profile...",
+    "completed": "Your results are ready. Review your profile or explore the recommended schools.",
+    "summaryUnavailable": "The profile summary is temporarily unavailable. You can retry the quiz later.",
     "viewRecommendedSchools": "View Recommended Schools",
     "redoQuiz": "Redo Quiz",
     "modalHeaderTitle": "Recommended Schools & Majors",

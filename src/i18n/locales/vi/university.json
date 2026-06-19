@@ -1,0 +1,18 @@
+{
+  "title": "Chi tiết trường đại học",
+  "subtitle": "Thông tin xác thực từ cơ sở dữ liệu trường đại học",
+  "askAi": "Hỏi AI",
+  "back": "Quay lại",
+  "match": "Phù hợp",
+  "loading": "Đang tải thông tin trường đại học...",
+  "invalidId": "Liên kết trường đại học không hợp lệ.",
+  "notAvailable": "Chưa có dữ liệu",
+  "informationTitle": "Thông tin trường",
+  "informationSubtitle": "Dữ liệu hiện có từ dịch vụ trường đại học",
+  "fields": {
+    "location": "Địa điểm",
+    "ranking": "Xếp hạng",
+    "shortName": "Tên viết tắt"
+  },
+  "limitedDataNotice": "Học phí, lịch sử tuyển sinh và đánh giá sinh viên sẽ hiển thị khi dịch vụ trường đại học cung cấp các dữ liệu này."
+}

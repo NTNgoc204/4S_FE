@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   universityDetail: null,
+  requestedUniversityId: null,
   universityLoading: false,
   universityError: null,
 };
@@ -10,7 +11,8 @@ const universitySlice = createSlice({
   name: "university",
   initialState,
   reducers: {
-    fetchUniversityDetailRequest: (state) => {
+    fetchUniversityDetailRequest: (state, action) => {
+      state.requestedUniversityId = action.payload;
       state.universityLoading = true;
       state.universityError = null;
       state.universityDetail = null;

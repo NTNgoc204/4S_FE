@@ -1,0 +1,18 @@
+{
+  "title": "University Details",
+  "subtitle": "Verified information from the university database",
+  "askAi": "Ask AI",
+  "back": "Back",
+  "match": "Match",
+  "loading": "Loading university details...",
+  "invalidId": "This university link is invalid.",
+  "notAvailable": "Not available",
+  "informationTitle": "University information",
+  "informationSubtitle": "Current data returned by the university service",
+  "fields": {
+    "location": "Location",
+    "ranking": "Ranking",
+    "shortName": "Short name"
+  },
+  "limitedDataNotice": "Tuition, admission history, and student reviews will appear here when these fields are available from the university service."
+}

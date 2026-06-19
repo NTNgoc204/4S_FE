@@ -6,9 +6,10 @@ import Skeleton from '../../../components/Skeleton'
 
 function QuizRightPanel({ 
   answeredCount, 
+  isCategoryThinking,
   isDone, 
+  isOverallLoading,
   locale, 
-  onViewDetail, 
   questionCount, 
   recommendations, 
   text, 
@@ -88,7 +89,7 @@ function QuizRightPanel({
           <div className="space-y-6">
             {/* Category Cards */}
             <div className="space-y-4">
-              {quizCategories.map((category, index) => {
+              {quizCategories.map((category) => {
                 const { status, count, total } = getCategoryStatus(category);
                 const isCategoryActive = status === 'active';
                 const isCategoryDone = status === 'done';
@@ -187,15 +188,21 @@ function QuizRightPanel({
         )}
       </div>
 
-      {isDone && recommendations.length > 0 && (
+      {isDone && !isCategoryThinking && (isOverallLoading || recommendations.length > 0) && (
         <footer className="border-t border-white/10 p-4">
-          <button
-            onClick={() => navigate('/dashboard', { state: { aiRecommendations: recommendations } })}
-            className="w-full rounded-xl bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110 px-4 py-3 text-sm font-semibold transition cursor-pointer active:scale-95"
-            type="button"
-          >
-            {text.compareButton(recommendations.length)}
-          </button>
+          {isOverallLoading ? (
+            <div aria-label={t('leftPanel.aiCompilingProfile')} role="status">
+              <Skeleton height="2.75rem" className="w-full" borderRadius="12px" />
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/dashboard', { state: { aiRecommendations: recommendations } })}
+              className="w-full rounded-xl bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110 px-4 py-3 text-sm font-semibold transition cursor-pointer active:scale-95"
+              type="button"
+            >
+              {text.compareButton(recommendations.length)}
+            </button>
+          )}
         </footer>
       )}
     </aside>
