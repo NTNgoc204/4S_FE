@@ -1,0 +1,55 @@
+{
+  "helper": "Hãy chọn một đáp án ở trên để tiếp tục.",
+  "changeMode": "Đổi chế độ",
+  "questionProgress": "Câu hỏi {{current}}/{{total}}",
+  "panelIdle": "Hãy chia sẻ sở thích và định hướng của bạn, AI sẽ hiển thị các trường phù hợp ở đây.",
+  "panelActive": "Đã phân tích {{current}}/{{total}} câu",
+  "viewDetail": "Xem chi tiết",
+  "compareButton": "So sánh {{count}} trường ->",
+  "summaryTitle": "Tổng quan hồ sơ của bạn",
+  "meta": {
+    "title": "Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S",
+    "description": "Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất."
+  },
+  "confirmModal": {
+    "title": "Làm lại bài trắc nghiệm?",
+    "message": "Bạn có chắc chắn muốn xóa toàn bộ câu trả lời để làm lại bài trắc nghiệm từ đầu không?",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy"
+  },
+  "customAnswer": {
+    "placeholder": "Nhập câu trả lời của bạn...",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy"
+  },
+  "leftPanel": {
+    "continueNext": "Tiếp tục chuyên mục tiếp theo ➔",
+    "aiAnalyzing": "AI đang phân tích chuyên mục này...",
+    "saving": "Đang lưu kết quả bài làm lên server...",
+    "aiCompilingProfile": "AI đang tổng hợp hồ sơ hướng nghiệp...",
+    "viewRecommendedSchools": "Xem Danh Sách Trường Gợi Ý",
+    "redoQuiz": "Làm lại bài trắc nghiệm",
+    "modalHeaderTitle": "Đề xuất Trường & Ngành học",
+    "modalHeaderSubtitle": "Dựa trên kết quả trắc nghiệm định hướng của bạn",
+    "modalAiCompiling": "AI đang phân tích và lập danh sách trường phù hợp...",
+    "tagTopPick": "⭐ Top Gợi Ý",
+    "tagGoodFit": "✓ Phù Hợp",
+    "modalClose": "Đóng"
+  },
+  "rightPanel": {
+    "title": "Định hướng Từng Nhóm",
+    "statusDone": "Đã xong",
+    "statusLocked": "Chưa mở",
+    "aiAnalyzing": "AI đang phân tích...",
+    "noAiEvaluation": "Không có đánh giá từ AI.",
+    "completeCategoryToUnlock": "Hoàn thành nhóm này để xem đánh giá cá nhân.",
+    "completePreviousToUnlock": "Hoàn thành các nhóm trước để mở khóa.",
+    "waitingHelper": "Hãy hoàn thành tất cả {{count}} nhóm câu hỏi để nhận danh sách trường Đại học và Ngành học gợi ý tối ưu nhất."
+  },
+  "error": {
+    "title": "Không thể tải bộ câu hỏi",
+    "message": "Hệ thống không thể kết nối hoặc tải bộ câu hỏi định hướng tính cách từ server. Vui lòng thử lại sau.",
+    "retry": "Thử lại",
+    "home": "Trang chủ"
+  }
+}

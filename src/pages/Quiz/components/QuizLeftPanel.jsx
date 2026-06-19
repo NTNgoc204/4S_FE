@@ -1,50 +1,15 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import sparklesIcon from '../../../assets/Sparkles.svg'
-
-const isOptionActuallyOther = (option) => {
-  if (!option) return false;
-
-  if (option.label) {
-    const vi = (option.label.vi || '').trim().toLowerCase();
-    const en = (option.label.en || '').trim().toLowerCase();
-    const otherKeywords = [
-      'khác', 'other', 'khác...', 'other...',
-      'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
-      'khác (vui lòng ghi rõ)', 'other (please specify)',
-      'vui lòng ghi rõ', 'please specify'
-    ];
-    if (otherKeywords.includes(vi) || otherKeywords.includes(en) || vi.startsWith('vui lòng nhập') || en.startsWith('please enter')) {
-      return true;
-    }
-  }
-
-  const content = (option.content || '').trim().toLowerCase();
-  const contentKeywords = [
-    'khác', 'other', 'khác...', 'other...',
-    'ý kiến khác', 'lựa chọn khác', 'câu trả lời khác',
-    'khác (vui lòng ghi rõ)', 'other (please specify)',
-    'vui lòng ghi rõ', 'please specify'
-  ];
-  if (contentKeywords.includes(content) || content.startsWith('vui lòng nhập') || content.startsWith('please enter')) {
-    return true;
-  }
-
-  const optId = (option.id || '').toLowerCase();
-  if (optId.startsWith('custom_other_') || optId === 'other' || optId === 'khác') {
-    return true;
-  }
-
-  return false;
-};
+import Skeleton from '../../../components/Skeleton'
+import { isOptionActuallyOther } from '../util/quizHelpers'
 
 function QuizLeftPanel({
   activeIndex,
   answers,
-  buildInsight,
   insights,
   isDone,
   isThinking,
-  isAiAnalyzing = false,
   listRef,
   locale,
   onSelect,
@@ -59,6 +24,7 @@ function QuizLeftPanel({
   overallSummary = '',
   onRedoQuiz,
 }) {
+  const { t } = useTranslation('quiz')
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
   const [customAnswers, setCustomAnswers] = useState({})
   const [activeCustomQuestionId, setActiveCustomQuestionId] = useState('')
@@ -84,16 +50,9 @@ function QuizLeftPanel({
           const selectedOption = question.options.find((option) => option.id === selectedOptionId)
           const progress = Math.round(((index + (selectedOptionId ? 1 : 0)) / questionCount) * 100)
 
-          const getQuestionCategory = (q, idx) => {
-            if (q.categoryId) return q.categoryId;
-            if (idx <= 4) return 'cat1';
-            if (idx <= 9) return 'cat2';
-            return 'cat3';
-          };
-
           const activeQuestion = visibleQuestions[activeIndex];
-          const activeCategory = activeQuestion ? getQuestionCategory(activeQuestion, activeIndex) : null;
-          const questionCategory = getQuestionCategory(question, index);
+          const activeCategory = activeQuestion ? activeQuestion.categoryId : null;
+          const questionCategory = question.categoryId;
           const isSameCategory = activeCategory && questionCategory === activeCategory;
           const canAnswer = isSameCategory && !isDone && !isThinking;
           const isLocked = isDone || !isSameCategory;
@@ -153,7 +112,7 @@ function QuizLeftPanel({
                       <input
                         type="text"
                         className="flex-1 rounded-xl border border-[#ecc741]/40 bg-[#081a30]/60 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-[#ecc741] transition"
-                        placeholder={locale === 'vi' ? 'Nhập câu trả lời của bạn...' : 'Enter your custom answer...'}
+                        placeholder={t('customAnswer.placeholder')}
                         value={customAnswers[question.id] || ''}
                         onChange={(e) => setCustomAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
                         onKeyDown={(e) => {
@@ -168,7 +127,7 @@ function QuizLeftPanel({
                         className="rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-4 py-2.5 text-sm font-bold text-[#11243b] transition hover:brightness-110"
                         type="button"
                       >
-                        {locale === 'vi' ? 'Xác nhận' : 'Confirm'}
+                        {t('customAnswer.confirm')}
                       </button>
                       <button
                         onClick={() => {
@@ -178,7 +137,7 @@ function QuizLeftPanel({
                         className="rounded-xl border border-white/12 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10"
                         type="button"
                       >
-                        {locale === 'vi' ? 'Hủy' : 'Cancel'}
+                        {t('customAnswer.cancel')}
                       </button>
                     </div>
                   )}
@@ -214,7 +173,7 @@ function QuizLeftPanel({
                   </span>
                   <div className="flex-1">
                     <p className="rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/10 px-4 py-3 text-sm leading-6 text-slate-100 md:text-base whitespace-pre-line">
-                      {typeof insights[question.id] === 'string' ? insights[question.id] : (selectedOption ? buildInsight(selectedOption, index) : '')}
+                      {insights[question.id]}
                     </p>
 
                     {/* Render "Tiếp tục" button if this is the active index and it is not the last question */}
@@ -224,7 +183,7 @@ function QuizLeftPanel({
                         className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#ecc741] to-[#debd34] px-5 py-2.5 text-sm font-bold text-[#11243b] shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
                         type="button"
                       >
-                        {locale === 'vi' ? 'Tiếp tục chuyên mục tiếp theo ➔' : 'Continue to next category ➔'}
+                        {t('leftPanel.continueNext')}
                       </button>
                     )}
                   </div>
@@ -232,9 +191,26 @@ function QuizLeftPanel({
               ) : null}
 
               {thinkingQuestionId === question.id ? (
-                <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300">
-                  <span className="inline-flex h-2 w-2 animate-ping rounded-full bg-[#ecc741]" />
-                  {text.thinking}
+                <div className="mt-3 flex max-w-[790px] items-start gap-3 animate-pulse-subtle">
+                  <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
+                    👑
+                  </span>
+                  <div className="flex-1 w-full rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/5 px-4 py-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <svg className="animate-spin h-3.5 w-3.5 text-[#0ed8ab]" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span className="text-xs font-semibold text-[#0ed8ab] tracking-wider uppercase">
+                        {t('leftPanel.aiAnalyzing')}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton height="0.85rem" className="w-full" />
+                      <Skeleton height="0.85rem" className="w-[92%]" />
+                      <Skeleton height="0.85rem" className="w-[85%]" />
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </article>
@@ -250,7 +226,7 @@ function QuizLeftPanel({
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
                 <span className="font-semibold text-sm">
-                  {locale === 'vi' ? 'Đang lưu kết quả bài làm lên server...' : 'Saving your test results to server...'}
+                  {t('leftPanel.saving')}
                 </span>
               </div>
             )}
@@ -262,12 +238,21 @@ function QuizLeftPanel({
                   {overallSummary}
                 </p>
               ) : (
-                <div className="mt-4 flex items-center gap-3 text-slate-400 text-sm italic">
-                  <svg className="animate-spin h-5 w-5 text-[#ecc741]" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>{locale === 'vi' ? 'Đang tải tổng quan hồ sơ hướng nghiệp...' : 'Loading overall profile summary...'}</span>
+                <div className="mt-4 space-y-2.5 animate-pulse-subtle">
+                  <div className="flex items-center gap-2 mb-3">
+                    <svg className="animate-spin h-4 w-4 text-[#ecc741]" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span className="text-xs font-semibold text-[#ecc741] tracking-wider uppercase">
+                      {t('leftPanel.aiCompilingProfile')}
+                    </span>
+                  </div>
+                  <Skeleton height="0.85rem" className="w-[95%]" />
+                  <Skeleton height="0.85rem" className="w-[98%]" />
+                  <Skeleton height="0.85rem" className="w-[90%]" />
+                  <Skeleton height="0.85rem" className="w-[85%]" />
+                  <Skeleton height="0.85rem" className="w-[40%]" />
                 </div>
               )}
             </article>
@@ -283,7 +268,7 @@ function QuizLeftPanel({
                 type="button"
               >
                 <img alt="Sparkles icon" className="h-5 w-5 object-contain" src={sparklesIcon} />
-                {locale === 'vi' ? 'Xem Danh Sách Trường Gợi Ý' : 'View Recommended Schools'}
+                {t('leftPanel.viewRecommendedSchools')}
               </button>
 
               {onRedoQuiz && (
@@ -292,7 +277,7 @@ function QuizLeftPanel({
                   className="inline-flex items-center gap-2.5 rounded-xl border border-rose-500/35 bg-rose-500/10 hover:bg-rose-500/20 px-6 py-3.5 text-base font-bold text-rose-300 transition cursor-pointer"
                   type="button"
                 >
-                  🔄 {locale === 'vi' ? 'Làm lại bài trắc nghiệm' : 'Redo Quiz'}
+                  🔄 {t('leftPanel.redoQuiz')}
                 </button>
               )}
             </div>
@@ -315,10 +300,10 @@ function QuizLeftPanel({
                       </div>
                       <div className="text-left">
                         <h3 className="font-['Sora'] text-lg md:text-xl font-bold text-[#ecc741]">
-                          {locale === 'vi' ? 'Đề xuất Trường & Ngành học' : 'Recommended Schools & Majors'}
+                          {t('leftPanel.modalHeaderTitle')}
                         </h3>
                         <p className="text-xs text-slate-400 mt-0.5">
-                          {locale === 'vi' ? 'Dựa trên kết quả trắc nghiệm định hướng của bạn' : 'Based on your orientation quiz results'}
+                          {t('leftPanel.modalHeaderSubtitle')}
                         </p>
                       </div>
                     </div>
@@ -335,16 +320,38 @@ function QuizLeftPanel({
                   {/* Modal Body */}
                   <div className="flex-1 overflow-y-auto p-5 md:p-6 [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.45)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 [&::-webkit-scrollbar-track]:bg-transparent">
                     {recommendations.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
-                        <svg className="animate-spin h-8 w-8 text-[#ecc741]" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        <p className="text-slate-400 text-sm max-w-xs">
-                          {locale === 'vi'
-                            ? 'AI đang xử lý kết quả và tìm kiếm trường phù hợp với bạn...'
-                            : 'AI is processing your results and finding matching universities...'}
-                        </p>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
+                          <svg className="animate-spin h-4 w-4 text-[#ecc741]" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span className="text-xs font-semibold text-slate-400">
+                            {t('leftPanel.modalAiCompiling')}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="rounded-2xl border border-white/5 bg-[#142c46]/40 p-4 flex flex-col justify-between h-40">
+                              <div>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1 space-y-2">
+                                    <Skeleton height="1.2rem" className="w-4/5" />
+                                    <Skeleton height="0.95rem" className="w-2/3" />
+                                  </div>
+                                  <Skeleton height="1.5rem" width="80px" borderRadius="6px" />
+                                </div>
+                                <div className="mt-4">
+                                  <Skeleton height="0.8rem" className="w-1/2" />
+                                </div>
+                                <div className="mt-3 h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                                  <Skeleton height="100%" className="w-4/5" />
+                                </div>
+                              </div>
+                              <Skeleton height="2.25rem" className="w-full mt-4" borderRadius="8px" />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -368,8 +375,8 @@ function QuizLeftPanel({
                                       : 'bg-[#0ed8ab]/15 text-[#0ed8ab]'
                                   }`}>
                                     {isTop3
-                                      ? (locale === 'vi' ? '⭐ Top Gợi Ý' : '⭐ Top Pick')
-                                      : (locale === 'vi' ? '✓ Phù Hợp' : '✓ Good Fit')}
+                                      ? t('leftPanel.tagTopPick')
+                                      : t('leftPanel.tagGoodFit')}
                                   </span>
                                 </div>
 
@@ -411,7 +418,7 @@ function QuizLeftPanel({
                       className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-slate-300 hover:bg-white/10 transition cursor-pointer"
                       type="button"
                     >
-                      {locale === 'vi' ? 'Đóng' : 'Close'}
+                      {t('leftPanel.modalClose')}
                     </button>
                   </footer>
                 </div>

@@ -74,6 +74,14 @@ function ProtectedRoute({
     };
   }, [currentToken, dispatch, isAuthValid, requirePro]);
 
+  // If silent refresh is in progress on page reload, wait instead of redirecting immediately
+  const wasLoggedIn = localStorage.getItem("was_logged_in") === "true";
+  const isSilentRefreshing = wasLoggedIn && !isAuthValid && !reduxAuth.refreshTokenError;
+
+  if (isSilentRefreshing) {
+    return null;
+  }
+
   // 1. Not authenticated → redirect to login
   if (!isAuthValid) {
     // Voluntary logout: toast already shown by saga, no warning needed
@@ -97,8 +105,12 @@ function ProtectedRoute({
   }
 
   // 3. Still loading auth (getMe in-flight) — wait before any role-based decision
-  //    This covers both "role not yet loaded" and "isAuthLoading" states.
-  if (isAuthLoading) {
+  //    We only wait if we don't have the required role or plan in state yet.
+  //    If we already have valid info (e.g. from sessionStorage), we render immediately to prevent flashing.
+  const hasRequiredRole = !hasRoleRequirement || (normalizedRole && normalizedRoles.includes(normalizedRole));
+  const hasRequiredPlan = !requirePro || isPaidPlan;
+
+  if (isAuthLoading && (!hasRequiredRole || !hasRequiredPlan)) {
     return null;
   }
 

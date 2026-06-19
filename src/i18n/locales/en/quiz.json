@@ -1,0 +1,55 @@
+{
+  "helper": "Choose one answer above to continue.",
+  "changeMode": "Change mode",
+  "questionProgress": "Question {{current}}/{{total}}",
+  "panelIdle": "Share your interests and preferences in the chat, and AI will show the best matches here.",
+  "panelActive": "{{current}}/{{total}} answers analyzed",
+  "viewDetail": "View details",
+  "compareButton": "Compare {{count}} universities ->",
+  "summaryTitle": "Your profile snapshot",
+  "meta": {
+    "title": "Holland RIASEC Test - 4S Career Guidance",
+    "description": "Take the Holland RIASEC test to discover your personality types and receive tailored university recommendations."
+  },
+  "confirmModal": {
+    "title": "Redo the Quiz?",
+    "message": "Are you sure you want to delete all answers and redo the quiz from the beginning?",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "customAnswer": {
+    "placeholder": "Enter your custom answer...",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "leftPanel": {
+    "continueNext": "Continue to next category ➔",
+    "aiAnalyzing": "AI is analyzing this category...",
+    "saving": "Saving your test results to server...",
+    "aiCompilingProfile": "AI is compiling your orientation profile...",
+    "viewRecommendedSchools": "View Recommended Schools",
+    "redoQuiz": "Redo Quiz",
+    "modalHeaderTitle": "Recommended Schools & Majors",
+    "modalHeaderSubtitle": "Based on your orientation quiz results",
+    "modalAiCompiling": "AI is analyzing and compiling matching universities...",
+    "tagTopPick": "⭐ Top Pick",
+    "tagGoodFit": "✓ Good Fit",
+    "modalClose": "Close"
+  },
+  "rightPanel": {
+    "title": "Category Insights",
+    "statusDone": "Done",
+    "statusLocked": "Locked",
+    "aiAnalyzing": "AI is analyzing...",
+    "noAiEvaluation": "No AI evaluation available.",
+    "completeCategoryToUnlock": "Complete this category to unlock evaluation.",
+    "completePreviousToUnlock": "Complete previous categories to unlock.",
+    "waitingHelper": "Please answer all {{count}} categories of questions to receive the optimized University and Major recommendations."
+  },
+  "error": {
+    "title": "Failed to load questionnaire",
+    "message": "The system could not retrieve the personality orientation quiz from the server. Please try again later.",
+    "retry": "Retry",
+    "home": "Home"
+  }
+}

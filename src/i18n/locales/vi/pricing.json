@@ -62,5 +62,24 @@
     "contact": "Liên Hệ",
     "partnership": "Hợp Tác Trường Học"
   },
-  "currentPlanCta": "Đang sử dụng gói này"
+  "currentPlanCta": "Đang sử dụng gói này",
+  "meta": {
+    "title": "Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S",
+    "description": "Xem các gói dịch vụ Pro và Enterprise giúp bạn mở khóa đầy đủ tính năng tư vấn hướng nghiệp AI và tìm trường đại học phù hợp."
+  },
+  "faqTitle": "Câu hỏi thường gặp",
+  "faq": [
+    {
+      "q": "Gói PRO có giới hạn số lượt kiểm tra không?",
+      "a": "Không. Khi đăng ký gói PRO, bạn được thực hiện không giới hạn số lượt trắc nghiệm Holland và nhận đánh giá AI đầy đủ."
+    },
+    {
+      "q": "Phương thức thanh toán được hỗ trợ là gì?",
+      "a": "Chúng tôi hỗ trợ chuyển khoản ngân hàng nhanh qua mã QR (VietQR) và cổng thanh toán. Kích hoạt tài khoản lập tức sau khi giao dịch thành công."
+    },
+    {
+      "q": "Quy trình dành cho đối tác Trường học (Gói EDU) như thế nào?",
+      "a": "Nhà trường vui lòng nhấn nút \"Liên hệ hợp tác\", đội ngũ 4S sẽ liên hệ trực tiếp để cung cấp tài khoản và dashboard phân tích cho học sinh toàn trường."
+    }
+  ]
 }

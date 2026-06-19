@@ -8,7 +8,7 @@ import globeIcon from "../../assets/Globe.svg";
 import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest } from "../../feature/auth/authSlice";
 import { validatePassword } from "../../validation/authValidation";
 import Skeleton from "../../components/Skeleton";
-import { planAPI } from "../../feature/plan/planAPI";
+import { getMyTransactionsRequest } from "../../feature/plan/planSlice";
 import { formatDateTimeForFE } from "../../util/dateHelper";
 
 
@@ -67,8 +67,8 @@ function ProfilePage() {
   const [showInterests, setShowInterests] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showTransactionHistory, setShowTransactionHistory] = useState(false);
-  const [transactions, setTransactions] = useState([]);
-  const [loadingTransactions, setLoadingTransactions] = useState(false);
+  const transactions = useSelector((state) => state.plan.myTransactions);
+  const loadingTransactions = useSelector((state) => state.plan.loadingTransactions);
 
   const [changeForm, setChangeForm] = useState({
     currentPassword: "",
@@ -96,19 +96,9 @@ function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setLoadingTransactions(true);
-      planAPI.getMyTransactions()
-        .then((res) => {
-          setTransactions(res.data || []);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch personal transaction history:", err);
-        })
-        .finally(() => {
-          setLoadingTransactions(false);
-        });
+      dispatch(getMyTransactionsRequest());
     }
-  }, [user]);
+  }, [user, dispatch]);
 
 
   const [selectedInterests, setSelectedInterests] = useState(["software", "ai"]);

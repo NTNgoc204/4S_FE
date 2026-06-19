@@ -16,6 +16,9 @@ import {
   cancelPaymentRequest,
   cancelPaymentSuccess,
   cancelPaymentFailure,
+  getMyTransactionsRequest,
+  getMyTransactionsSuccess,
+  getMyTransactionsFailure,
 } from "./planSlice";
 
 // Fetch all plans from DB
@@ -72,9 +75,21 @@ function* cancelPaymentSaga(action) {
   }
 }
 
+// Fetch personal transactions history
+function* getMyTransactionsSaga() {
+  try {
+    const response = yield call(planAPI.getMyTransactions);
+    yield put(getMyTransactionsSuccess(response.data || []));
+  } catch (error) {
+    const errorMessage = getErrorMessage(error, "Failed to load payment history");
+    yield put(getMyTransactionsFailure(errorMessage));
+  }
+}
+
 export function* planSaga() {
   yield takeLatest(getPlansRequest.type, getPlansSaga);
   yield takeLatest(createPaymentRequest.type, createPaymentSaga);
   yield takeLatest(confirmPaymentRequest.type, confirmPaymentSaga);
   yield takeLatest(cancelPaymentRequest.type, cancelPaymentSaga);
+  yield takeLatest(getMyTransactionsRequest.type, getMyTransactionsSaga);
 }

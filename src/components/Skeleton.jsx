@@ -8,7 +8,7 @@ function Skeleton({
   variant = "text",
 }) {
   // Base classes for a premium dark-themed glassmorphic skeleton
-  const baseClass = "animate-pulse bg-gradient-to-r from-white/5 via-white/12 to-white/5 bg-[length:200%_100%] animate-shimmer";
+  const baseClass = "premium-skeleton inline-block";
 
   let variantClass = "";
   if (variant === "circle") {
@@ -17,7 +17,7 @@ function Skeleton({
     variantClass = "rounded-2xl";
   } else {
     // text
-    variantClass = "rounded-[4px] h-[1em] inline-block w-full";
+    variantClass = "rounded-[4px] h-[1em] w-full";
   }
 
   const style = {};

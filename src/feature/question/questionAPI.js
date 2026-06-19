@@ -55,18 +55,18 @@ export const questionAPI = {
   deleteAllUserAnswers: () => apiClient.delete("/api/UserAnswers"),
 
   // AI Evaluations
-  evaluateCategory: (categoryId) => apiClient.post(`/api/AiEvaluations/evaluate/${categoryId}`, null, { timeout: 180000 }),
+  evaluateCategory: (categoryId) => apiClient.post(`/api/AiEvaluations/evaluate/${categoryId}`, null, { timeout: 0 }),
 
-  getEvaluation: (categoryId) => apiClient.get(`/api/AiEvaluations/${categoryId}`, { timeout: 180000 }),
+  getEvaluation: (categoryId) => apiClient.get(`/api/AiEvaluations/${categoryId}`, { timeout: 0 }),
 
   // Overall AI Summaries & Recommendations
-  evaluateOverall: () => apiClient.post("/api/UserAiSummaries/evaluate", null, { timeout: 180000 }),
+  evaluateOverall: () => apiClient.post("/api/UserAiSummaries/evaluate", null, { timeout: 0 }),
 
-  getOverallSummary: () => apiClient.get("/api/UserAiSummaries", { timeout: 180000 }),
+  getOverallSummary: () => apiClient.get("/api/UserAiSummaries", { timeout: 0 }),
 
   // Chat AI
-  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }, { timeout: 180000 }),
+  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }, { timeout: 0 }),
 
-  askAi: (question) => apiClient.post("/api/Chat/ask", { question }, { timeout: 180000 }),
+  askAi: (question) => apiClient.post("/api/Chat/ask", { question }, { timeout: 0 }),
 };
 

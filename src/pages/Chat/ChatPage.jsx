@@ -6,6 +6,7 @@ import sparklesIcon from '../../assets/Sparkles.svg'
 import {
   initGuidedChat,
   sendGuidedChatMessageRequest,
+  clearChatRequest,
 } from '../../feature/chat/chatSlice'
 import ChatConversationPanel from './components/ChatConversationPanel'
 import ChatRecommendationPanel from './components/ChatRecommendationPanel'
@@ -23,6 +24,12 @@ const UI_TEXT = {
     lockedTitle: '🔒 You have reached the free limit',
     lockedDesc: 'Upgrade to PRO to continue chatting and get personalized university recommendations.',
     lockedCta: 'Upgrade to PRO →',
+    viewHistory: 'View History',
+    newChat: 'New Conversation',
+    historyAlert: 'Chat history feature is under development.',
+    newChatAlert: 'New conversation feature is under development.',
+    newChatSuccess: 'Started a new conversation successfully!',
+    assistantTitle: 'AI Career Advisor',
   },
   vi: {
     changeMode: 'Đổi chế độ',
@@ -34,6 +41,12 @@ const UI_TEXT = {
     lockedTitle: '🔒 Bạn đã dùng hết lượt miễn phí',
     lockedDesc: 'Nâng cấp lên PRO để tiếp tục trò chuyện và nhận gợi ý trường phù hợp nhất.',
     lockedCta: 'Nâng cấp PRO ngay →',
+    viewHistory: 'Xem lịch sử',
+    newChat: 'Cuộc trò chuyện mới',
+    historyAlert: 'Chức năng lịch sử trò chuyện đang được phát triển.',
+    newChatAlert: 'Chức năng cuộc trò chuyện mới đang được phát triển.',
+    newChatSuccess: 'Đã bắt đầu cuộc trò chuyện mới thành công!',
+    assistantTitle: 'Trợ lý Hướng nghiệp AI',
   },
 }
 
@@ -118,6 +131,19 @@ function ChatPage() {
     sendMessage(inputValue)
   }
 
+  function handleNewChat() {
+    const greetingText = locale === 'vi'
+      ? 'Xin chào! Tôi là Trợ lý Hướng nghiệp AI. Hãy chia sẻ để tôi có thể tìm ngành học và trường đại học phù hợp nhất với bạn nhé! 😊'
+      : 'Hello! I am your AI Career Advisor. Share a bit about yourself so I can find the best majors and universities for you! 😊'
+
+    dispatch(
+      clearChatRequest({
+        greetingText,
+        successMessage: text.newChatSuccess,
+      })
+    )
+  }
+
   function handleViewDetail(school) {
     if (!school) return
     navigate(`/university/${school.id}`, {
@@ -149,6 +175,7 @@ function ChatPage() {
           onInputChange={setInputValue}
           onSubmit={handleSubmit}
           onUpgrade={() => navigate('/pricing')}
+          onNewChat={handleNewChat}
           systemBadge={systemBadge}
           text={text}
         />

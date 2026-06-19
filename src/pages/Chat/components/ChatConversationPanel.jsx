@@ -7,12 +7,43 @@ function ChatConversationPanel({
   onInputChange,
   onSubmit,
   onUpgrade,
+  onNewChat,
   systemBadge,
   text,
 }) {
 
   return (
     <div className="flex min-h-0 flex-col border-r border-white/10">
+      {/* Chat header with History and New Chat buttons */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 bg-[#0c1c30]/50 md:px-6">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-slate-200">{text.assistantTitle}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 active:scale-[0.98]"
+            onClick={() => alert(text.historyAlert)}
+          >
+            <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{text.viewHistory}</span>
+          </button>
+          
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-lg border border-[#ecc741]/30 bg-[#ecc741]/10 px-2.5 py-1.5 text-xs font-semibold text-[#fcd34d] transition hover:bg-[#ecc741]/20 active:scale-[0.98]"
+            onClick={onNewChat}
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>{text.newChat}</span>
+          </button>
+        </div>
+      </div>
+
       <div
         ref={listRef}
         className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.45)_transparent] md:p-6 [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-slate-300/55"

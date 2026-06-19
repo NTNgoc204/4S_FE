@@ -1,40 +1,12 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import sparklesIcon from '../../../assets/Sparkles.svg'
-
-
-
-const CATEGORIES = [
-  {
-    id: 'personality',
-    name: {
-      en: '1. Personality & Interests',
-      vi: '1. Tính cách & Sở thích'
-    },
-    questionIndices: [0, 1, 2, 3, 4] // Q1-5
-  },
-  {
-    id: 'learning',
-    name: {
-      en: '2. Learning & Focus Style',
-      vi: '2. Phong cách Học tập'
-    },
-    questionIndices: [5, 6, 7, 8, 9] // Q6-10
-  },
-  {
-    id: 'decision',
-    name: {
-      en: '3. Thinking & Choice Method',
-      vi: '3. Tư duy & Quyết định'
-    },
-    questionIndices: [10, 11, 12, 13, 14] // Q11-15
-  }
-]
+import Skeleton from '../../../components/Skeleton'
 
 function QuizRightPanel({ 
   answeredCount, 
   isDone, 
-  isThinking = false,
   locale, 
   onViewDetail, 
   questionCount, 
@@ -43,14 +15,14 @@ function QuizRightPanel({
   answers = {}, 
   questions = [],
   insights = {},
-  isAiAnalyzing = false
 }) {
   const navigate = useNavigate()
+  const { t } = useTranslation('quiz')
 
-  // Dynamically build categories from questions list if available
+  // Dynamically build categories from questions list
   const quizCategories = useMemo(() => {
-    if (!questions || questions.length === 0 || !questions[0]?.categoryId) {
-      return CATEGORIES;
+    if (!questions || questions.length === 0) {
+      return [];
     }
     
     const groups = {};
@@ -93,7 +65,7 @@ function QuizRightPanel({
       <header className="border-b border-white/10 p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-['Sora'] text-[1.45rem] leading-tight">
-            {locale === 'vi' ? 'Định hướng Từng Nhóm' : 'Category Insights'}
+            {t('rightPanel.title')}
           </h2>
           <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#0ed8ab] px-2 text-xs font-bold text-[#082339]">
             {answeredCount}
@@ -153,34 +125,40 @@ function QuizRightPanel({
                         }`}
                       >
                         {isCategoryDone
-                          ? (locale === 'vi' ? 'Đã xong' : 'Done')
+                          ? t('rightPanel.statusDone')
                           : isCategoryActive
                           ? `${count}/${total}`
-                          : (locale === 'vi' ? 'Chưa mở' : 'Locked')}
+                          : t('rightPanel.statusLocked')}
                       </span>
                     </div>
 
                     {/* Recommendation / Help Text */}
-                    {isCategoryDone ? (
-                      isGenerating ? (
-                        <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 text-xs text-slate-400">
-                          <svg className="animate-spin h-3.5 w-3.5 text-[#ecc741]" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          <span>{locale === 'vi' ? 'AI đang phân tích...' : 'AI is analyzing...'}</span>
-                        </div>
-                      ) : (
+                     {isCategoryDone ? (
+                       isGenerating ? (
+                         <div className="mt-3 space-y-2 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 animate-pulse-subtle">
+                           <div className="flex items-center gap-2 mb-2">
+                             <svg className="animate-spin h-3.5 w-3.5 text-[#ecc741]" viewBox="0 0 24 24">
+                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                             </svg>
+                             <span className="text-[10px] font-semibold text-slate-400">
+                               {t('rightPanel.aiAnalyzing')}
+                             </span>
+                           </div>
+                           <Skeleton height="0.7rem" className="w-full" />
+                           <Skeleton height="0.7rem" className="w-[85%]" />
+                         </div>
+                       ) : (
                         <div className="mt-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 p-3">
                           <p className="text-xs leading-relaxed text-slate-200 italic whitespace-pre-line">
-                            "{aiEval || (locale === 'vi' ? 'Không có đánh giá từ AI.' : 'No AI evaluation available.')}"
+                            "{aiEval || t('rightPanel.noAiEvaluation')}"
                           </p>
                         </div>
                       )
                     ) : isCategoryActive ? (
                       <div className="mt-3">
                         <p className="text-xs text-slate-300">
-                          {locale === 'vi' ? 'Hoàn thành nhóm này để xem đánh giá cá nhân.' : 'Complete this category to unlock evaluation.'}
+                          {t('rightPanel.completeCategoryToUnlock')}
                         </p>
                         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                           <span
@@ -191,7 +169,7 @@ function QuizRightPanel({
                       </div>
                     ) : (
                       <p className="mt-2 text-xs text-slate-500">
-                        {locale === 'vi' ? 'Hoàn thành các nhóm trước để mở khóa.' : 'Complete previous categories to unlock.'}
+                        {t('rightPanel.completePreviousToUnlock')}
                       </p>
                     )}
                   </article>
@@ -201,9 +179,7 @@ function QuizRightPanel({
               {!isDone && (
                 /* Waiting helper */
                 <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3.5 text-center text-xs text-slate-400 leading-normal">
-                  💡 {locale === 'vi'
-                    ? `Hãy hoàn thành tất cả ${quizCategories.length} nhóm câu hỏi để nhận danh sách trường Đại học và Ngành học gợi ý tối ưu nhất.`
-                    : `Please answer all ${quizCategories.length} categories of questions to receive the optimized University and Major recommendations.`}
+                  💡 {t('rightPanel.waitingHelper', { count: quizCategories.length })}
                 </div>
               )}
             </div>
@@ -218,7 +194,7 @@ function QuizRightPanel({
             className="w-full rounded-xl bg-gradient-to-br from-[#14d6af] to-[#0fbc98] text-[#e8fffa] hover:brightness-110 px-4 py-3 text-sm font-semibold transition cursor-pointer active:scale-95"
             type="button"
           >
-            {text.compareButton}
+            {text.compareButton(recommendations.length)}
           </button>
         </footer>
       )}
