@@ -137,7 +137,7 @@ function GuidedQuizPage() {
       top: listRef.current.scrollHeight,
       behavior: 'smooth',
     })
-  }, [answers, insights, activeIndex])
+  }, [answers, insights, activeIndex, overallLoading, overallSummary])
 
 
   function onSelect(question, option, customText) {
@@ -188,7 +188,7 @@ function GuidedQuizPage() {
     navigate(`/university/${school.id}`, {
       state: {
         from: '/quiz',
-        matchScore: school.score,
+        matchScore: school.matchPercent,
       },
     })
   }
@@ -243,8 +243,10 @@ function GuidedQuizPage() {
             activeIndex={activeIndex}
             answers={answers}
             insights={insights}
+            isCategoryThinking={evaluationLoading}
             isDone={isDone}
             isThinking={isThinking}
+            isOverallLoading={overallLoading}
             listRef={listRef}
             locale={locale}
             onSelect={onSelect}
@@ -260,9 +262,10 @@ function GuidedQuizPage() {
             onRedoQuiz={triggerRedoQuiz}
           />
           <QuizRightPanel
-            onViewDetail={handleViewDetail}
             answeredCount={answeredCount}
+            isCategoryThinking={evaluationLoading}
             isDone={isDone}
+            isOverallLoading={overallLoading}
             locale={locale}
             questionCount={quizQuestions.length}
             recommendations={aiRecommendations}

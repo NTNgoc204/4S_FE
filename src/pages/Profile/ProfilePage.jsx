@@ -6,8 +6,13 @@ import { toast } from "react-toastify";
 import fourSLogo from "../../assets/logo-4s.png";
 import globeIcon from "../../assets/Globe.svg";
 import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest } from "../../feature/auth/authSlice";
-import { validatePassword } from "../../validation/authValidation";
+import {
+  normalizeVietnamesePhoneNumber,
+  validatePassword,
+  validateVietnamesePhoneNumber,
+} from "../../validation/authValidation";
 import Skeleton from "../../components/Skeleton";
+import PhoneInput from "../../components/PhoneInput";
 import { getMyTransactionsRequest } from "../../feature/plan/planSlice";
 import { formatDateTimeForFE } from "../../util/dateHelper";
 
@@ -60,6 +65,7 @@ function ProfilePage() {
     studyMode: "fullTime",
     language: "vietnamese",
   });
+  const [phoneError, setPhoneError] = useState("");
 
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showAcademic, setShowAcademic] = useState(false);
@@ -91,6 +97,7 @@ function ProfilePage() {
         birthYear: user.dob ? new Date(user.dob).getFullYear().toString() : "",
         preferredLocation: user.address || "",
       }));
+      setPhoneError("");
     }
   }, [user]);
 
@@ -207,6 +214,15 @@ function ProfilePage() {
   function handleSave() {
     if (!user) return;
 
+    const nextPhoneError = validateVietnamesePhoneNumber(form.phone, t, {
+      required: false,
+    });
+    setPhoneError(nextPhoneError);
+
+    if (nextPhoneError) {
+      return;
+    }
+
     let dob = null;
     if (form.birthYear) {
       const year = parseInt(form.birthYear, 10);
@@ -225,7 +241,9 @@ function ProfilePage() {
     const updatePayload = {
       username: form.fullName,
       email: form.email,
-      phoneNumber: form.phone,
+      phoneNumber: form.phone
+        ? normalizeVietnamesePhoneNumber(form.phone)
+        : "",
       dob: dob,
       address: form.preferredLocation,
     };
@@ -268,6 +286,7 @@ function ProfilePage() {
       }));
     }
     setHoveredSkillId("");
+    setPhoneError("");
     setIsEditing(false);
   }
 
@@ -277,6 +296,7 @@ function ProfilePage() {
 
   function handleStartEdit() {
     setHoveredSkillId("");
+    setPhoneError("");
     setIsEditing(true);
   }
 
@@ -459,7 +479,29 @@ function ProfilePage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
                 <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
-                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.phone")} onChange={(value) => updateField("phone", value)} value={form.phone} />
+                {isProfileLoading ? (
+                  <div>
+                    <label className="mb-2 block text-sm text-slate-300">{t("profile:edit.fields.phone")}</label>
+                    <Skeleton height="38px" borderRadius="12px" className="w-full" />
+                  </div>
+                ) : (
+                  <PhoneInput
+                    disabled={!isEditing}
+                    error={phoneError}
+                    id="profilePhoneNumber"
+                    label={t("profile:edit.fields.phone")}
+                    onBlur={() => setPhoneError(validateVietnamesePhoneNumber(form.phone, t, { required: false }))}
+                    onChange={(value) => {
+                      updateField("phone", value);
+                      if (phoneError) {
+                        setPhoneError(validateVietnamesePhoneNumber(value, t, { required: false }));
+                      }
+                    }}
+                    placeholder={t("signup:phoneNumberPlaceholder")}
+                    size="sm"
+                    value={form.phone}
+                  />
+                )}
                 <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
               </div>
             </div>

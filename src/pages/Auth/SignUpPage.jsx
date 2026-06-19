@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,113 @@ import {
 } from "../../feature/auth/authSlice";
 import { I18N_ERROR_KEYS } from "../../util/i18nErrorKeys";
 import loginIcon from "../../assets/Login.svg";
+import DateOfBirthPicker from "../../components/DateOfBirthPicker";
+import PhoneInput from "../../components/PhoneInput";
+import {
+  normalizeVietnamesePhoneNumber,
+  validateUniversityGuidanceBirthDate,
+  validateVietnamesePhoneNumber,
+} from "../../validation/authValidation";
+
+function getFieldClassName(error) {
+  return `w-full rounded-xl border bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
+    error
+      ? "border-rose-400 focus:border-rose-300"
+      : "border-white/15 focus:border-[#ecc741]"
+  }`;
+}
+
+function FieldError({ id, message }) {
+  if (!message) {
+    return null;
+  }
+
+  return (
+    <p className="mt-2 text-sm font-medium text-rose-300" id={id}>
+      {message}
+    </p>
+  );
+}
+
+function validateSignupEmail(value, t) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return t("signup:errors.emailRequired");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
+    return t("signup:errors.invalidEmail");
+  }
+
+  return "";
+}
+
+function validateSignupFullName(value, t) {
+  const trimmedValue = value.trim().replace(/\s+/g, " ");
+
+  if (!trimmedValue) {
+    return t("signup:errors.fullNameRequired");
+  }
+
+  if (trimmedValue.length < 2 || /[0-9!@#$%^&*_=+{}[\]|\\:;"<>?/]/.test(trimmedValue)) {
+    return t("signup:errors.fullNameInvalid");
+  }
+
+  return "";
+}
+
+function validateSignupAddress(value, t) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return t("signup:errors.addressRequired");
+  }
+
+  if (trimmedValue.length < 5) {
+    return t("signup:errors.addressTooShort");
+  }
+
+  return "";
+}
+
+function validateSignupOtp(value, t) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return t("signup:errors.otpRequired");
+  }
+
+  if (!/^\d{6}$/.test(trimmedValue)) {
+    return t("signup:otpInvalid");
+  }
+
+  return "";
+}
+
+function validateSignupPassword(value, t) {
+  if (!value) {
+    return t("signup:errors.passwordRequired");
+  }
+
+  if (value.length < 6) {
+    return t("signup:errors.passwordTooShort");
+  }
+
+  return "";
+}
+
+function validateSignupConfirmPassword(value, password, t) {
+  if (!value) {
+    return t("signup:errors.confirmPasswordRequired");
+  }
+
+  if (value !== password) {
+    return t("signup:errors.passwordMismatch");
+  }
+
+  return "";
+}
 
 function SignUpPage() {
   const { t } = useTranslation();
@@ -18,20 +125,26 @@ function SignUpPage() {
     loading,
     error: reduxError,
     verifyToken,
-    registerStep1Success,
   } = useSelector((state) => state.auth);
 
   // Step 1: Personal Information
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [fullName, setFullName] = useState("");
+  const [fullNameError, setFullNameError] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dateOfBirthError, setDateOfBirthError] = useState("");
   const [address, setAddress] = useState("");
+  const [addressError, setAddressError] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   // Step 2: OTP & Password
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,39 +154,27 @@ function SignUpPage() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(1); // 1 or 2
 
-  // Move to step 2 after step 1 success
-  useEffect(() => {
-    if (registerStep1Success) {
-      setStep(2);
-      setError("");
-    }
-  }, [registerStep1Success]);
-
-  // Set otpVerified when verifyToken is received
-  useEffect(() => {
-    if (verifyToken) {
-      setOtpVerified(true);
-      setOtpError("");
-    }
-  }, [verifyToken]);
-
   // Validate step 1 form
   function validateStep1() {
-    if (
-      !email.trim() ||
-      !fullName.trim() ||
-      !dateOfBirth.trim() ||
-      !address.trim() ||
-      !phoneNumber.trim()
-    ) {
-      setError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
-      return false;
-    }
+    const nextEmailError = validateSignupEmail(email, t);
+    const nextFullNameError = validateSignupFullName(fullName, t);
+    const nextDateOfBirthError = validateUniversityGuidanceBirthDate(dateOfBirth, t);
+    const nextAddressError = validateSignupAddress(address, t);
+    const nextPhoneError = validateVietnamesePhoneNumber(phoneNumber, t);
+    setEmailError(nextEmailError);
+    setFullNameError(nextFullNameError);
+    setDateOfBirthError(nextDateOfBirthError);
+    setAddressError(nextAddressError);
+    setPhoneError(nextPhoneError);
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError(t(I18N_ERROR_KEYS.INVALID_EMAIL));
+    if (
+      nextEmailError ||
+      nextFullNameError ||
+      nextDateOfBirthError ||
+      nextAddressError ||
+      nextPhoneError
+    ) {
+      setError("");
       return false;
     }
 
@@ -94,17 +195,21 @@ function SignUpPage() {
         fullName: fullName.trim(),
         dateOfBirth: dateOfBirth,
         address: address.trim(),
-        phoneNumber: phoneNumber.trim(),
+        phoneNumber: normalizeVietnamesePhoneNumber(phoneNumber),
+        onSuccess: () => {
+          setStep(2);
+          setError("");
+        },
       }),
     );
   }
 
   // Handle OTP verification
   function handleOtpCheck() {
-    setOtpError("");
+    const nextOtpError = validateSignupOtp(otp, t);
+    setOtpError(nextOtpError);
 
-    if (!otp.trim()) {
-      setOtpError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
+    if (nextOtpError) {
       return;
     }
 
@@ -112,6 +217,11 @@ function SignUpPage() {
       verifyOtpRequest({
         email: email.trim(),
         otp: otp.trim(),
+        onSuccess: () => {
+          setOtpVerified(true);
+          setOtpError("");
+          setError("");
+        },
       }),
     );
   }
@@ -125,18 +235,17 @@ function SignUpPage() {
       return;
     }
 
-    if (!password.trim() || !confirmPassword.trim()) {
-      setError(t(I18N_ERROR_KEYS.REQUIRED_FIELD));
-      return;
-    }
+    const nextPasswordError = validateSignupPassword(password, t);
+    const nextConfirmPasswordError = validateSignupConfirmPassword(
+      confirmPassword,
+      password,
+      t,
+    );
+    setPasswordError(nextPasswordError);
+    setConfirmPasswordError(nextConfirmPasswordError);
 
-    if (password.length < 6) {
-      setError(t(I18N_ERROR_KEYS.PASSWORD_TOO_SHORT));
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError(t(I18N_ERROR_KEYS.PASSWORD_MISMATCH));
+    if (nextPasswordError || nextConfirmPasswordError) {
+      setError("");
       return;
     }
 
@@ -154,6 +263,8 @@ function SignUpPage() {
     setOtp("");
     setPassword("");
     setConfirmPassword("");
+    setPasswordError("");
+    setConfirmPasswordError("");
     setOtpVerified(false);
     setOtpError("");
     setError("");
@@ -186,24 +297,34 @@ function SignUpPage() {
 
         {step === 1 ? (
           // STEP 1: Personal Information
-          <form className="mt-8 space-y-5" onSubmit={handleStep1Submit}>
+          <form className="mt-8 space-y-5" noValidate onSubmit={handleStep1Submit}>
             <div>
               <label
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="email"
               >
-                {t("signup:emailLabel")}
+                {t("signup:emailLabel")} <span className="text-rose-300">*</span>
               </label>
               <input
+                aria-describedby={emailError ? "email-error" : undefined}
+                aria-invalid={Boolean(emailError)}
                 autoComplete="email"
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
+                className={getFieldClassName(emailError)}
                 id="email"
-                onChange={(event) => setEmail(event.target.value)}
+                onBlur={() => setEmailError(validateSignupEmail(email, t))}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (emailError) {
+                    setEmailError(validateSignupEmail(event.target.value, t));
+                  }
+                }}
                 placeholder={t("signup:emailPlaceholder")}
+                required
                 type="email"
                 value={email}
                 disabled={loading}
               />
+              <FieldError id="email-error" message={emailError} />
             </div>
 
             <div>
@@ -211,17 +332,27 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="fullName"
               >
-                {t("signup:fullNameLabel")}
+                {t("signup:fullNameLabel")} <span className="text-rose-300">*</span>
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
+                aria-describedby={fullNameError ? "fullName-error" : undefined}
+                aria-invalid={Boolean(fullNameError)}
+                className={getFieldClassName(fullNameError)}
                 id="fullName"
-                onChange={(event) => setFullName(event.target.value)}
+                onBlur={() => setFullNameError(validateSignupFullName(fullName, t))}
+                onChange={(event) => {
+                  setFullName(event.target.value);
+                  if (fullNameError) {
+                    setFullNameError(validateSignupFullName(event.target.value, t));
+                  }
+                }}
                 placeholder={t("signup:fullNamePlaceholder")}
+                required
                 type="text"
                 value={fullName}
                 disabled={loading}
               />
+              <FieldError id="fullName-error" message={fullNameError} />
             </div>
 
             <div>
@@ -229,16 +360,25 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="dateOfBirth"
               >
-                {t("signup:dateOfBirthLabel")}
+                {t("signup:dateOfBirthLabel")} <span className="text-rose-300">*</span>
               </label>
-              <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
-                id="dateOfBirth"
-                onChange={(event) => setDateOfBirth(event.target.value)}
-                placeholder={t("signup:dateOfBirthPlaceholder")}
-                type="date"
-                value={dateOfBirth}
+              <DateOfBirthPicker
                 disabled={loading}
+                error={dateOfBirthError}
+                id="dateOfBirth"
+                onBlur={() =>
+                  setDateOfBirthError(validateUniversityGuidanceBirthDate(dateOfBirth, t))
+                }
+                onChange={(nextDateOfBirth) => {
+                  setDateOfBirth(nextDateOfBirth);
+                  if (dateOfBirthError) {
+                    setDateOfBirthError(
+                      validateUniversityGuidanceBirthDate(nextDateOfBirth, t),
+                    );
+                  }
+                }}
+                placeholder={t("signup:dateOfBirthPlaceholder")}
+                value={dateOfBirth}
               />
             </div>
 
@@ -247,36 +387,45 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="address"
               >
-                {t("signup:addressLabel")}
+                {t("signup:addressLabel")} <span className="text-rose-300">*</span>
               </label>
               <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
+                aria-describedby={addressError ? "address-error" : undefined}
+                aria-invalid={Boolean(addressError)}
+                className={getFieldClassName(addressError)}
                 id="address"
-                onChange={(event) => setAddress(event.target.value)}
+                onBlur={() => setAddressError(validateSignupAddress(address, t))}
+                onChange={(event) => {
+                  setAddress(event.target.value);
+                  if (addressError) {
+                    setAddressError(validateSignupAddress(event.target.value, t));
+                  }
+                }}
                 placeholder={t("signup:addressPlaceholder")}
+                required
                 type="text"
                 value={address}
                 disabled={loading}
               />
+              <FieldError id="address-error" message={addressError} />
             </div>
 
-            <div>
-              <label
-                className="mb-2 block text-base font-semibold text-slate-200"
-                htmlFor="phoneNumber"
-              >
-                {t("signup:phoneNumberLabel")}
-              </label>
-              <input
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
-                id="phoneNumber"
-                onChange={(event) => setPhoneNumber(event.target.value)}
-                placeholder={t("signup:phoneNumberPlaceholder")}
-                type="tel"
-                value={phoneNumber}
-                disabled={loading}
-              />
-            </div>
+            <PhoneInput
+              disabled={loading}
+              error={phoneError}
+              id="phoneNumber"
+              label={t("signup:phoneNumberLabel")}
+              onBlur={() => setPhoneError(validateVietnamesePhoneNumber(phoneNumber, t))}
+              onChange={(value) => {
+                setPhoneNumber(value);
+                if (phoneError) {
+                  setPhoneError(validateVietnamesePhoneNumber(value, t));
+                }
+              }}
+              placeholder={t("signup:phoneNumberPlaceholder")}
+              required
+              value={phoneNumber}
+            />
 
             {displayError ? (
               <p className="text-sm font-medium text-rose-300">
@@ -306,7 +455,7 @@ function SignUpPage() {
           </form>
         ) : (
           // STEP 2: OTP Verification & Password
-          <form className="mt-8 space-y-5" onSubmit={handleStep2Submit}>
+          <form className="mt-8 space-y-5" noValidate onSubmit={handleStep2Submit}>
             <div className="rounded-xl border border-[#0ed8ab]/30 bg-[#0ed8ab]/5 p-4">
               <p className="text-sm text-slate-300">
                 {t("signup:otpSent")}:{" "}
@@ -319,17 +468,31 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="otp"
               >
-                {t("signup:otpLabel")}
+                {t("signup:otpLabel")} <span className="text-rose-300">*</span>
               </label>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:border-[#ecc741] focus:outline-none disabled:opacity-50"
+                  aria-describedby={otpError ? "otp-error" : undefined}
+                  aria-invalid={Boolean(otpError)}
+                  className={`flex-1 rounded-xl border bg-white/8 px-4 py-3 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
+                    otpError
+                      ? "border-rose-400 focus:border-rose-300"
+                      : "border-white/15 focus:border-[#ecc741]"
+                  }`}
                   id="otp"
-                  onChange={(event) => setOtp(event.target.value)}
+                  onBlur={() => setOtpError(validateSignupOtp(otp, t))}
+                  onChange={(event) => {
+                    const nextOtp = event.target.value.replace(/\D/g, "").slice(0, 6);
+                    setOtp(nextOtp);
+                    if (otpError) {
+                      setOtpError(validateSignupOtp(nextOtp, t));
+                    }
+                  }}
                   placeholder={t("signup:otpPlaceholder")}
+                  required
                   type="text"
                   value={otp}
-                  maxLength="6"
+                  maxLength={6}
                   disabled={loading || otpVerified}
                 />
                 <button
@@ -350,7 +513,7 @@ function SignUpPage() {
                 </button>
               </div>
               {otpError ? (
-                <p className="mt-2 text-sm font-medium text-rose-300">
+                <p className="mt-2 text-sm font-medium text-rose-300" id="otp-error">
                   {otpError}
                 </p>
               ) : null}
@@ -366,20 +529,40 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="password"
               >
-                {t("signup:passwordLabel")}
+                {t("signup:passwordLabel")} <span className="text-rose-300">*</span>
               </label>
               <div className="relative">
                 <input
                   autoComplete="new-password"
                   className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
-                    otpVerified
+                    passwordError
+                      ? "border-rose-400 bg-white/8 focus:border-rose-300"
+                      : otpVerified
                       ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
                       : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
                   }`}
                   disabled={!otpVerified || loading}
                   id="password"
-                  onChange={(event) => setPassword(event.target.value)}
+                  aria-describedby={passwordError ? "password-error" : undefined}
+                  aria-invalid={Boolean(passwordError)}
+                  onBlur={() => setPasswordError(validateSignupPassword(password, t))}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    if (passwordError) {
+                      setPasswordError(validateSignupPassword(event.target.value, t));
+                    }
+                    if (confirmPasswordError) {
+                      setConfirmPasswordError(
+                        validateSignupConfirmPassword(
+                          confirmPassword,
+                          event.target.value,
+                          t,
+                        ),
+                      );
+                    }
+                  }}
                   placeholder={t("signup:passwordPlaceholder")}
+                  required
                   type={showPassword ? "text" : "password"}
                   value={password}
                 />
@@ -394,6 +577,7 @@ function SignUpPage() {
                   </button>
                 )}
               </div>
+              <FieldError id="password-error" message={passwordError} />
             </div>
 
             <div>
@@ -401,20 +585,39 @@ function SignUpPage() {
                 className="mb-2 block text-base font-semibold text-slate-200"
                 htmlFor="confirmPassword"
               >
-                {t("signup:confirmPasswordLabel")}
+                {t("signup:confirmPasswordLabel")} <span className="text-rose-300">*</span>
               </label>
               <div className="relative">
                 <input
                   autoComplete="new-password"
                   className={`w-full rounded-xl border px-4 py-3 pr-12 text-base text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-50 ${
-                    otpVerified
+                    confirmPasswordError
+                      ? "border-rose-400 bg-white/8 focus:border-rose-300"
+                      : otpVerified
                       ? "border-white/15 bg-white/8 focus:border-[#ecc741]"
                       : "border-white/10 bg-white/5 text-slate-500 cursor-not-allowed"
                   }`}
                   disabled={!otpVerified || loading}
                   id="confirmPassword"
-                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  aria-describedby={
+                    confirmPasswordError ? "confirmPassword-error" : undefined
+                  }
+                  aria-invalid={Boolean(confirmPasswordError)}
+                  onBlur={() =>
+                    setConfirmPasswordError(
+                      validateSignupConfirmPassword(confirmPassword, password, t),
+                    )
+                  }
+                  onChange={(event) => {
+                    setConfirmPassword(event.target.value);
+                    if (confirmPasswordError) {
+                      setConfirmPasswordError(
+                        validateSignupConfirmPassword(event.target.value, password, t),
+                      );
+                    }
+                  }}
                   placeholder={t("signup:confirmPasswordPlaceholder")}
+                  required
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                 />
@@ -429,6 +632,7 @@ function SignUpPage() {
                   </button>
                 )}
               </div>
+              <FieldError id="confirmPassword-error" message={confirmPasswordError} />
             </div>
 
             {displayError ? (

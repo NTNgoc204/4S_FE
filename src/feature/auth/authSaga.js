@@ -47,10 +47,13 @@ const AUTH_REDIRECT_MESSAGE_KEY = "auth_redirect_message_key";
 function* registerStep1Saga(action) {
   try {
     // Extract callback before dispatch (don't pass to Redux)
-    const { onSuccess: _onSuccess, ...payload } = action.payload;
+    const { onSuccess, ...payload } = action.payload;
 
     const response = yield call(authAPI.registerStep1, payload);
     yield put(registerStep1Success(response.data));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess, response.data);
+    }
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Failed to register");
     yield put(registerStep1Failure(errorMessage));
@@ -62,10 +65,13 @@ function* registerStep1Saga(action) {
 function* verifyOtpSaga(action) {
   try {
     // Extract callback before dispatch (don't pass to Redux)
-    const { onSuccess: _onSuccess, ...payload } = action.payload;
+    const { onSuccess, ...payload } = action.payload;
 
     const response = yield call(authAPI.verifyOtp, payload);
     yield put(verifyOtpSuccess({ verifyToken: response.data.verifyToken }));
+    if (typeof onSuccess === "function") {
+      yield call(onSuccess, response.data);
+    }
     yield call(() => toast.success(i18n.t("auth:otpVerifiedSuccess", "OTP verified successfully")));
   } catch (error) {
     const errorMessage = getErrorMessage(error, "Invalid OTP");

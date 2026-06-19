@@ -33,38 +33,3 @@ export const isOptionActuallyOther = (option) => {
 
   return false;
 };
-
-export const mapBackendRecommendations = (data) => {
-  if (!data) return []
-  const top3 = data.top3Universities || data.Top3Universities || []
-  const next5 = data.next5Universities || data.Next5Universities || []
-
-  const mapUni = (uni, tier) => {
-    if (!uni) return null
-    const uniId = uni.universityId || uni.UniversityId
-    const uniName = uni.name || uni.Name
-    const uniShortName = uni.shortName || uni.ShortName || uniName
-    const uniLocation = uni.location || uni.Location
-    const uniRanking = uni.ranking ?? uni.Ranking ?? null
-    const uniAvatar = uni.avatar || uni.Avatar || null
-    const suitableMajors = uni.suitableMajors || uni.SuitableMajors || []
-
-    const majorVi = suitableMajors.map((m) => m.name || m.Name).join(', ') || ''
-    const majorEn = suitableMajors.map((m) => m.name || m.Name).join(', ') || ''
-
-    return {
-      id: uniId,
-      name: { vi: uniName, en: uniShortName },
-      major: { vi: majorVi, en: majorEn },
-      ranking: uniRanking,
-      tier,            // 'top3' | 'next5'
-      place: { vi: uniLocation, en: uniLocation },
-      avatar: uniAvatar,
-    }
-  }
-
-  const mappedTop3 = top3.map((uni) => mapUni(uni, 'top3')).filter(Boolean)
-  const mappedNext5 = next5.map((uni) => mapUni(uni, 'next5')).filter(Boolean)
-
-  return [...mappedTop3, ...mappedNext5]
-}

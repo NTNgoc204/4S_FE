@@ -8,8 +8,10 @@ function QuizLeftPanel({
   activeIndex,
   answers,
   insights,
+  isCategoryThinking,
   isDone,
   isThinking,
+  isOverallLoading,
   listRef,
   locale,
   onSelect,
@@ -217,7 +219,7 @@ function QuizLeftPanel({
           )
         })}
 
-        {isDone && !isThinking ? (
+        {isDone && !isCategoryThinking ? (
           <div className="space-y-6">
             {submitLoading && (
               <div className="rounded-2xl border border-teal-500/30 bg-teal-950/20 p-4 flex items-center justify-center gap-3 text-[#0fe2a8]">
@@ -231,15 +233,21 @@ function QuizLeftPanel({
               </div>
             )}
             {/* Profile snapshot - hiển thị từ overallSummary của backend */}
-            <article className="rounded-2xl border border-[#0ed8ab]/30 bg-gradient-to-br from-[#123552] to-[#102d47] p-5 md:p-6 animate-pulse-subtle">
-              <h3 className="font-['Sora'] text-xl md:text-[1.8rem]">{text.summaryTitle}</h3>
+            <article className={`rounded-2xl border border-[#0ed8ab]/30 bg-gradient-to-br from-[#123552] to-[#102d47] ${
+              overallSummary ? 'p-5 md:p-6' : 'p-4 md:p-5'
+            } ${
+              isOverallLoading ? 'animate-pulse-subtle' : ''
+            }`}>
+              <h3 className={`font-['Sora'] ${overallSummary ? 'text-xl md:text-[1.8rem]' : 'text-lg md:text-xl'}`}>
+                {text.summaryTitle}
+              </h3>
               {overallSummary ? (
                 <p className="mt-3 text-sm leading-relaxed text-slate-200 whitespace-pre-line">
                   {overallSummary}
                 </p>
-              ) : (
-                <div className="mt-4 space-y-2.5 animate-pulse-subtle">
-                  <div className="flex items-center gap-2 mb-3">
+              ) : isOverallLoading ? (
+                <div className="mt-3 space-y-2 animate-pulse-subtle" role="status">
+                  <div className="mb-2 flex items-center gap-2">
                     <svg className="animate-spin h-4 w-4 text-[#ecc741]" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -248,16 +256,28 @@ function QuizLeftPanel({
                       {t('leftPanel.aiCompilingProfile')}
                     </span>
                   </div>
-                  <Skeleton height="0.85rem" className="w-[95%]" />
-                  <Skeleton height="0.85rem" className="w-[98%]" />
-                  <Skeleton height="0.85rem" className="w-[90%]" />
-                  <Skeleton height="0.85rem" className="w-[85%]" />
-                  <Skeleton height="0.85rem" className="w-[40%]" />
+                  <Skeleton height="0.7rem" className="w-[96%]" />
+                  <Skeleton height="0.7rem" className="w-[86%]" />
+                  <Skeleton height="0.7rem" className="w-[55%]" />
                 </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-400">
+                  {t('leftPanel.summaryUnavailable')}
+                </p>
               )}
             </article>
 
             {/* Recommendations & Redo CTA buttons */}
+            {isOverallLoading ? (
+              <div
+                aria-label={t('leftPanel.aiCompilingProfile')}
+                className="mt-6 flex flex-wrap justify-center gap-4 pb-2"
+                role="status"
+              >
+                <Skeleton height="3rem" width="230px" borderRadius="12px" />
+                <Skeleton height="3rem" width="190px" borderRadius="12px" />
+              </div>
+            ) : (
             <div className="mt-6 flex flex-wrap gap-4 justify-center pb-2">
               <button
                 onClick={() => setShowRecommendationsModal(true)}
@@ -281,6 +301,7 @@ function QuizLeftPanel({
                 </button>
               )}
             </div>
+            )}
 
             {/* Modal Overlay */}
             {showRecommendationsModal && (
@@ -429,7 +450,15 @@ function QuizLeftPanel({
       </div>
 
       <footer className="border-t border-white/10 bg-[#1f3857]/90 px-4 py-3 md:px-6">
-        <p className="text-sm text-slate-300">{text.helper}</p>
+        <p className="text-sm text-slate-300">
+          {isDone
+            ? isCategoryThinking
+              ? t('leftPanel.aiAnalyzing')
+              : isOverallLoading
+                ? t('leftPanel.aiCompilingProfile')
+                : t('leftPanel.completed')
+            : text.helper}
+        </p>
       </footer>
     </div>
   )

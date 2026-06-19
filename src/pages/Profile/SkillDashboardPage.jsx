@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -22,44 +22,6 @@ const SKILL_VALUES = {
   leadership: 70,
 };
 
-const SAVED_SCHOOLS = [
-  { id: "hcmut", name: "HCMUT", match: 92 },
-  { id: "hust", name: "HUST", match: 88 },
-  { id: "ftu", name: "FTU", match: 85 },
-  { id: "rmit", name: "RMIT Vietnam", match: 79 },
-];
-
-const RECOMMENDATIONS = [
-  {
-    id: "hcmut",
-    major: { en: "Computer Science", vi: "Khoa học máy tính" },
-    tuition: "15-25M VND/year",
-    location: { en: "Ho Chi Minh City", vi: "TP.HCM" },
-    match: 92,
-  },
-  {
-    id: "hust",
-    major: { en: "Software Engineering", vi: "Kỹ thuật phần mềm" },
-    tuition: "18-28M VND/year",
-    location: { en: "Hanoi", vi: "Hà Nội" },
-    match: 88,
-  },
-  {
-    id: "ftu",
-    major: { en: "International Business", vi: "Kinh doanh quốc tế" },
-    tuition: "14-22M VND/year",
-    location: { en: "Hanoi", vi: "Hà Nội" },
-    match: 85,
-  },
-  {
-    id: "rmit",
-    major: { en: "Business, Media & Design", vi: "Kinh doanh, Truyền thông & Thiết kế" },
-    tuition: "70-95M VND/year",
-    location: { en: "HCMC", vi: "TP.HCM" },
-    match: 79,
-  },
-];
-
 function SkillDashboardPage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
@@ -70,7 +32,6 @@ function SkillDashboardPage() {
 
   // Data từ quiz navigate state (aiRecommendations từ backend)
   const aiRecommendations = location.state?.aiRecommendations ?? [];
-  const top3 = aiRecommendations.filter((s) => s.tier === 'top3');
   const displayRecommendations = aiRecommendations.slice(0, 4);
   const displayCompare = aiRecommendations.slice(0, 3);
 
@@ -87,15 +48,6 @@ function SkillDashboardPage() {
   function handleNewConsultation() {
     const isPaidPlan = currentPlan !== "free" && currentPlan !== "";
     navigate(isPaidPlan ? "/consultation" : "/chat");
-  }
-
-  function handleDetail(school) {
-    navigate(`/university/${school.id}`, {
-      state: {
-        from: "/dashboard",
-        matchScore: school.match,
-      },
-    });
   }
 
   function handleLanguageChange(language) {
@@ -268,22 +220,9 @@ function SkillDashboardPage() {
           <aside className="space-y-5">
             <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-4">
               <h2 className="font-['Sora'] text-xl font-semibold">{t("profile:dashboard.savedSchools")}</h2>
-              <div className="mt-4 space-y-2.5">
-                {SAVED_SCHOOLS.slice(0, 3).map((school) => (
-                  <div key={school.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="font-medium">{school.name}</span>
-                      <span className="font-semibold text-[#0ed8ab]">{school.match}%</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white/12">
-                      <span className="block h-full rounded-full bg-[#12d1ab]" style={{ width: `${school.match}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button className="mt-4 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/20" type="button">
-                {t("profile:dashboard.viewAllSaved")}
-              </button>
+              <p className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-center text-sm text-slate-400">
+                {t("profile:dashboard.noSavedSchools")}
+              </p>
             </article>
 
             <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-4">

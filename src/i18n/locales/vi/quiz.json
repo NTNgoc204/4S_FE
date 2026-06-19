@@ -27,6 +27,8 @@
     "aiAnalyzing": "AI đang phân tích chuyên mục này...",
     "saving": "Đang lưu kết quả bài làm lên server...",
     "aiCompilingProfile": "AI đang tổng hợp hồ sơ hướng nghiệp...",
+    "completed": "Kết quả đã sẵn sàng. Bạn có thể xem tổng quan hoặc khám phá các trường được gợi ý.",
+    "summaryUnavailable": "Tạm thời chưa thể tạo tổng quan hồ sơ. Bạn có thể thử làm lại bài sau.",
     "viewRecommendedSchools": "Xem Danh Sách Trường Gợi Ý",
     "redoQuiz": "Làm lại bài trắc nghiệm",
     "modalHeaderTitle": "Đề xuất Trường & Ngành học",
