@@ -1,10 +1,15 @@
 import { call, put, takeLatest } from "redux-saga/effects";
+import { toast } from "react-toastify";
 import { chatAPI } from "./chatAPI";
+import { questionAPI } from "../question/questionAPI";
 import { getErrorMessage } from "../../util/errorConstants";
 import {
   sendGuidedChatMessageRequest,
   sendGuidedChatMessageSuccess,
   sendGuidedChatMessageFailure,
+  clearChatRequest,
+  clearChatSuccess,
+  clearChatFailure,
 } from "./chatSlice";
 
 // Helper to map backend recommendations
@@ -80,6 +85,22 @@ function* sendGuidedChatMessageSaga(action) {
   }
 }
 
+// Clear all user answers on new chat
+function* clearChatSaga(action) {
+  const { greetingText, successMessage } = action.payload;
+  try {
+    yield call(questionAPI.deleteAllUserAnswers);
+    yield put(clearChatSuccess({ greetingText }));
+    if (successMessage) {
+      yield call(() => toast.success(successMessage));
+    }
+  } catch (error) {
+    const errorMessage = getErrorMessage(error, "Failed to start new conversation");
+    yield put(clearChatFailure(errorMessage));
+  }
+}
+
 export function* chatSaga() {
   yield takeLatest(sendGuidedChatMessageRequest.type, sendGuidedChatMessageSaga);
+  yield takeLatest(clearChatRequest.type, clearChatSaga);
 }

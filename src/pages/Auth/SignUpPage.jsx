@@ -359,11 +359,6 @@ function SignUpPage() {
                   ✓ {t("signup:otpVerified")}
                 </p>
               )}
-
-              {/* Demo note */}
-              <p className="mt-2 text-xs text-slate-400">
-                Demo: Use OTP "123456"
-              </p>
             </div>
 
             <div>

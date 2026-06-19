@@ -5,8 +5,17 @@ import {
   fetchQuestionsRequest,
   fetchCategoriesRequest,
   importQuestionsRequest,
+  downloadTemplateRequest,
+  createCategoryRequest,
+  updateCategoryRequest,
+  deleteCategoryRequest,
+  createQuestionRequest,
+  updateQuestionRequest,
+  deleteQuestionRequest,
+  createQuestionOptionRequest,
+  updateQuestionOptionRequest,
+  deleteQuestionOptionRequest,
 } from "../../feature/question/questionSlice";
-import { questionAPI } from "../../feature/question/questionAPI";
 
 // Map Category name to badge colors
 const getCategoryBadgeClass = (categoryName) => {
@@ -92,24 +101,9 @@ function AdminQuestionsPage() {
   }, [categories, selectedCategoryId]);
 
   // Handle template download
-  const handleDownloadTemplate = async () => {
-    try {
-      const response = await questionAPI.downloadTemplate();
-      const blob = new Blob([response.data], {
-        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "mau_cau_hoi.docx");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      toast.success("Tải file mẫu thành công!");
-    } catch (error) {
-      toast.error("Không thể tải file mẫu. Vui lòng thử lại!");
-    }
+  // Handle template download
+  const handleDownloadTemplate = () => {
+    dispatch(downloadTemplateRequest());
   };
 
   // Handle file import
@@ -155,49 +149,42 @@ function AdminQuestionsPage() {
     setIsCategoryModalOpen(true);
   };
 
-  const handleSaveCategory = async (e) => {
+  const handleSaveCategory = (e) => {
     e.preventDefault();
     if (!categoryName.trim()) {
       toast.warning("Vui lòng nhập tên bộ câu hỏi");
       return;
     }
 
-    try {
-      const payload = {
-        name: categoryName.trim(),
-        displayOrder: parseInt(categoryDisplayOrder) || 1,
-      };
+    const payload = {
+      name: categoryName.trim(),
+      displayOrder: parseInt(categoryDisplayOrder) || 1,
+    };
 
-      if (editingCategory) {
-        await questionAPI.updateCategory(editingCategory.id, payload);
-        toast.success("Cập nhật bộ câu hỏi thành công!");
-      } else {
-        await questionAPI.createCategory(payload);
-        toast.success("Tạo bộ câu hỏi mới thành công!");
-      }
-      setIsCategoryModalOpen(false);
-      dispatch(fetchCategoriesRequest());
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể thực hiện thao tác");
+    const onSuccess = () => setIsCategoryModalOpen(false);
+
+    if (editingCategory) {
+      dispatch(updateCategoryRequest({ id: editingCategory.id, data: payload, onSuccess }));
+    } else {
+      dispatch(createCategoryRequest({ data: payload, onSuccess }));
     }
   };
 
-  const handleDeleteCategory = async (category) => {
+  const handleDeleteCategory = (category) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa bộ câu hỏi "${category.name}"? Điều này sẽ xóa toàn bộ câu hỏi bên trong.`)) {
       return;
     }
 
-    try {
-      await questionAPI.deleteCategory(category.id);
-      toast.success("Xóa bộ câu hỏi thành công!");
-      dispatch(fetchCategoriesRequest());
-      dispatch(fetchQuestionsRequest());
-      if (selectedCategoryId === category.id) {
-        setSelectedCategoryId("");
-      }
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể xóa bộ câu hỏi");
-    }
+    dispatch(
+      deleteCategoryRequest({
+        id: category.id,
+        onSuccess: () => {
+          if (selectedCategoryId === category.id) {
+            setSelectedCategoryId("");
+          }
+        },
+      })
+    );
   };
 
   // --- Question CRUD Handlers ---
@@ -217,48 +204,36 @@ function AdminQuestionsPage() {
     setIsQuestionModalOpen(true);
   };
 
-  const handleSaveQuestion = async (e) => {
+  const handleSaveQuestion = (e) => {
     e.preventDefault();
     if (!questionContent.trim()) {
       toast.warning("Vui lòng nhập nội dung câu hỏi");
       return;
     }
 
-    try {
-      const payload = {
-        categoryId: selectedCategoryId,
-        content: questionContent.trim(),
-        displayOrder: parseInt(questionDisplayOrder) || 1,
-        allowCustomAnswer: questionAllowCustomAnswer,
-        isActice: "Active", // Mapped to .NET string 'IsActice'
-      };
+    const payload = {
+      categoryId: selectedCategoryId,
+      content: questionContent.trim(),
+      displayOrder: parseInt(questionDisplayOrder) || 1,
+      allowCustomAnswer: questionAllowCustomAnswer,
+      isActice: "Active", // Mapped to .NET string 'IsActice'
+    };
 
-      if (editingQuestion) {
-        await questionAPI.updateQuestion(editingQuestion.id, payload);
-        toast.success("Cập nhật câu hỏi thành công!");
-      } else {
-        await questionAPI.createQuestion(payload);
-        toast.success("Thêm câu hỏi mới thành công!");
-      }
-      setIsQuestionModalOpen(false);
-      dispatch(fetchQuestionsRequest());
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể lưu câu hỏi");
+    const onSuccess = () => setIsQuestionModalOpen(false);
+
+    if (editingQuestion) {
+      dispatch(updateQuestionRequest({ id: editingQuestion.id, data: payload, onSuccess }));
+    } else {
+      dispatch(createQuestionRequest({ data: payload, onSuccess }));
     }
   };
 
-  const handleDeleteQuestion = async (question) => {
+  const handleDeleteQuestion = (question) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa câu hỏi này cùng các phương án trả lời của nó?")) {
       return;
     }
 
-    try {
-      await questionAPI.deleteQuestion(question.id);
-      toast.success("Xóa câu hỏi thành công!");
-      dispatch(fetchQuestionsRequest());
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể xóa câu hỏi");
-    }
+    dispatch(deleteQuestionRequest({ id: question.id }));
   };
 
   // --- Option CRUD Handlers ---
@@ -284,48 +259,36 @@ function AdminQuestionsPage() {
     setIsOptionModalOpen(true);
   };
 
-  const handleSaveOption = async (e) => {
+  const handleSaveOption = (e) => {
     e.preventDefault();
     if (!optionCode.trim() || !optionContent.trim()) {
       toast.warning("Vui lòng điền mã phương án và nội dung");
       return;
     }
 
-    try {
-      const payload = {
-        questionId: optionParentQuestionId,
-        optionCode: optionCode.trim().toUpperCase(),
-        content: optionContent.trim(),
-        displayOrder: parseInt(optionDisplayOrder) || 1,
-        scoreTag: optionScoreTag.trim(),
-      };
+    const payload = {
+      questionId: optionParentQuestionId,
+      optionCode: optionCode.trim().toUpperCase(),
+      content: optionContent.trim(),
+      displayOrder: parseInt(optionDisplayOrder) || 1,
+      scoreTag: optionScoreTag.trim(),
+    };
 
-      if (editingOption) {
-        await questionAPI.updateQuestionOption(editingOption.id, payload);
-        toast.success("Cập nhật phương án thành công!");
-      } else {
-        await questionAPI.createQuestionOption(payload);
-        toast.success("Thêm phương án mới thành công!");
-      }
-      setIsOptionModalOpen(false);
-      dispatch(fetchQuestionsRequest());
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể lưu phương án");
+    const onSuccess = () => setIsOptionModalOpen(false);
+
+    if (editingOption) {
+      dispatch(updateQuestionOptionRequest({ optionId: editingOption.id, data: payload, onSuccess }));
+    } else {
+      dispatch(createQuestionOptionRequest({ data: payload, onSuccess }));
     }
   };
 
-  const handleDeleteOption = async (option) => {
+  const handleDeleteOption = (option) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa phương án "${option.code}"?`)) {
       return;
     }
 
-    try {
-      await questionAPI.deleteQuestionOption(option.id);
-      toast.success("Xóa phương án thành công!");
-      dispatch(fetchQuestionsRequest());
-    } catch (error) {
-      toast.error(error.response?.data || "Không thể xóa phương án");
-    }
+    dispatch(deleteQuestionOptionRequest({ id: option.id }));
   };
 
   // --- Filtering & Selection ---

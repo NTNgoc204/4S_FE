@@ -62,5 +62,24 @@
     "subtitle": "Contact us for more information",
     "contact": "Contact Us",
     "partnership": "School Partnership"
-  }
+  },
+  "meta": {
+    "title": "Pricing Plans - 4S Career Guidance",
+    "description": "View our pricing plans and unlock the full potential of AI career guidance and personalized university matching."
+  },
+  "faqTitle": "Frequently Asked Questions",
+  "faq": [
+    {
+      "q": "Does the PRO plan limit the number of quiz attempts?",
+      "a": "No. With a PRO subscription, you can take the Holland test and receive detailed AI analytics an unlimited number of times."
+    },
+    {
+      "q": "What payment methods are supported?",
+      "a": "We support bank transfers via QR code (VietQR) and major payment gateways. Your account is upgraded instantly after payment succeeds."
+    },
+    {
+      "q": "How does school partnership (EDU Plan) work?",
+      "a": "Schools can click \"Contact for Schools\". Our team will reach out directly to set up individual logins and custom analytics dashboards for all students."
+    }
+  ]
 }

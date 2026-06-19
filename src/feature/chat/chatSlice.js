@@ -68,6 +68,28 @@ const chatSlice = createSlice({
         content: action.payload,
       });
     },
+
+    // Clear chat (call delete answers API and reset chat client-side state)
+    clearChatRequest: (state) => {
+      state.guidedChatLoading = true;
+      state.guidedChatError = null;
+    },
+    clearChatSuccess: (state, action) => {
+      state.guidedChatLoading = false;
+      state.chatSummaryText = "";
+      state.chatRecommendations = [];
+      state.chatMessages = [
+        {
+          id: "assistant-greeting",
+          role: "assistant",
+          content: action.payload.greetingText,
+        },
+      ];
+    },
+    clearChatFailure: (state, action) => {
+      state.guidedChatLoading = false;
+      state.guidedChatError = action.payload;
+    },
   },
 });
 
@@ -76,6 +98,9 @@ export const {
   sendGuidedChatMessageRequest,
   sendGuidedChatMessageSuccess,
   sendGuidedChatMessageFailure,
+  clearChatRequest,
+  clearChatSuccess,
+  clearChatFailure,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

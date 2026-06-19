@@ -262,18 +262,9 @@ function* forgotPasswordSaga(action) {
       yield call(onSuccess);
     }
   } catch (error) {
-    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
-      console.warn("Backend API not found, falling back to mock response.");
-      yield put(forgotPasswordSuccess());
-      yield call(() => toast.success(i18n.t("auth:forgotPasswordOtpSentMock", { email, defaultValue: "OTP verification code (Mock: 123456) sent to {{email}}" })));
-      if (typeof onSuccess === "function") {
-        yield call(onSuccess);
-      }
-    } else {
-      const errorMessage = getErrorMessage(error, "Failed to request password reset");
-      yield put(forgotPasswordFailure(errorMessage));
-      yield call(() => toast.error(errorMessage));
-    }
+    const errorMessage = getErrorMessage(error, "Failed to request password reset");
+    yield put(forgotPasswordFailure(errorMessage));
+    yield call(() => toast.error(errorMessage));
   }
 }
 
@@ -288,23 +279,9 @@ function* resetPasswordSaga(action) {
       yield call(onSuccess);
     }
   } catch (error) {
-    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
-      if (otp === "123456") {
-        console.warn("Backend API not found, falling back to mock response.");
-        yield put(resetPasswordSuccess());
-        yield call(() => toast.success(i18n.t("auth:resetSuccessMock", "Password reset successfully (Mock).")));
-        if (typeof onSuccess === "function") {
-          yield call(onSuccess);
-        }
-      } else {
-        yield put(resetPasswordFailure("Invalid OTP code"));
-        yield call(() => toast.error(i18n.t("auth:otpInvalid", "Invalid OTP code")));
-      }
-    } else {
-      const errorMessage = getErrorMessage(error, "Failed to reset password");
-      yield put(resetPasswordFailure(errorMessage));
-      yield call(() => toast.error(errorMessage));
-    }
+    const errorMessage = getErrorMessage(error, "Failed to reset password");
+    yield put(resetPasswordFailure(errorMessage));
+    yield call(() => toast.error(errorMessage));
   }
 }
 
@@ -319,18 +296,9 @@ function* changePasswordSaga(action) {
       yield call(onSuccess);
     }
   } catch (error) {
-    if (error.response?.status === 404 || error.response?.status === 500 || !error.response) {
-      console.warn("Backend API not found, falling back to mock response.");
-      yield put(changePasswordSuccess());
-      yield call(() => toast.success(i18n.t("auth:changePasswordSuccessMock", "Password changed successfully (Mock).")));
-      if (typeof onSuccess === "function") {
-        yield call(onSuccess);
-      }
-    } else {
-      const errorMessage = getErrorMessage(error, "Failed to change password");
-      yield put(changePasswordFailure(errorMessage));
-      yield call(() => toast.error(errorMessage));
-    }
+    const errorMessage = getErrorMessage(error, "Failed to change password");
+    yield put(changePasswordFailure(errorMessage));
+    yield call(() => toast.error(errorMessage));
   }
 }
 

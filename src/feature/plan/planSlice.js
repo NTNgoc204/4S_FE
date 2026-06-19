@@ -37,6 +37,8 @@ const initialState = {
   cancelPaymentLoading: false,
   cancelPaymentSuccess: false,
   cancelPaymentError: null,
+  myTransactions: [],
+  loadingTransactions: false,
 };
 
 const planSlice = createSlice({
@@ -114,6 +116,20 @@ const planSlice = createSlice({
       state.confirmPaymentError = null;
       clearPaymentInfo();
     },
+
+    // Get personal transactions
+    getMyTransactionsRequest: (state) => {
+      state.loadingTransactions = true;
+      state.error = null;
+    },
+    getMyTransactionsSuccess: (state, action) => {
+      state.loadingTransactions = false;
+      state.myTransactions = action.payload;
+    },
+    getMyTransactionsFailure: (state, action) => {
+      state.loadingTransactions = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -131,6 +147,9 @@ export const {
   cancelPaymentSuccess,
   cancelPaymentFailure,
   resetPaymentState,
+  getMyTransactionsRequest,
+  getMyTransactionsSuccess,
+  getMyTransactionsFailure,
 } = planSlice.actions;
 
 export default planSlice.reducer;
