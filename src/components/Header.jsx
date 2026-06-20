@@ -151,12 +151,10 @@ function Header({
 
           {/* Download Mobile App Button */}
           <div className="relative group">
-            <a
-              href={import.meta.env.VITE_APK_DOWNLOAD_URL || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
-              title={isEnglish ? "Get it on Google Play" : "Tải trên Google Play"}
+            <button
+              type="button"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-default shadow-sm"
+              title={isEnglish ? "Scan to download mobile app" : "Quét mã để tải ứng dụng di động"}
             >
               <svg
                 className="h-5 w-5"
@@ -175,7 +173,7 @@ function Header({
                 {/* Download arrow inside screen */}
                 <path d="M12 8v6m-3-3l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </a>
+            </button>
 
             {/* Awwwards-style Hover Popover Card */}
             <div className="absolute top-full right-0 mt-3 w-56 p-5 rounded-2xl border border-white/10 bg-[#041326]/95 backdrop-blur-xl shadow-2xl transition-all duration-300 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto z-50 text-center flex flex-col items-center gap-3">
