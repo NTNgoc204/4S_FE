@@ -4,7 +4,7 @@ import {
   formatDateOnly,
   getUniversityGuidanceBirthDateRange,
   parseDateOnly,
-} from "../validation/authValidation";
+} from "../util/dateOfBirthHelpers";
 
 function clampDate(date, minDate, maxDate) {
   if (date < minDate) {
