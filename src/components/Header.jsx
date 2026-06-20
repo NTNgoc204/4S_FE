@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
+import { QRCodeSVG } from "qrcode.react";
 import fourSLogo from "../assets/logo-4s.png";
 import NotificationDropdown from "./NotificationDropdown";
 
@@ -69,6 +70,15 @@ function Header({
         stickyHeader ? "sticky top-0 z-50" : ""
       } border-b border-white/5 bg-[#041326]/60 backdrop-blur-md transition-all duration-300 shadow-md py-2.5`}
     >
+      <style>{`
+        @keyframes scan {
+          0%, 100% { top: 6px; }
+          50% { top: calc(100% - 8px); }
+        }
+        .animate-scanLine {
+          animation: scan 2s linear infinite;
+        }
+      `}</style>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Brand logo & name */}
         <Link
@@ -137,6 +147,56 @@ function Header({
             >
               EN
             </button>
+          </div>
+
+          {/* Download Mobile App Button */}
+          <div className="relative group">
+            <a
+              href={import.meta.env.VITE_APK_DOWNLOAD_URL || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
+              title={isEnglish ? "Get it on Google Play" : "Tải trên Google Play"}
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Smartphone frame */}
+                <rect x="5" y="2" width="14" height="20" rx="2.5" ry="2.5" />
+                {/* Notch / Speaker line */}
+                <line x1="10" y1="5" x2="14" y2="5" strokeLinecap="round" />
+                {/* Home button circle dot */}
+                <circle cx="12" cy="19" r="0.75" fill="currentColor" />
+                {/* Download arrow inside screen */}
+                <path d="M12 8v6m-3-3l3 3 3-3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+
+            {/* Awwwards-style Hover Popover Card */}
+            <div className="absolute top-full right-0 mt-3 w-56 p-5 rounded-2xl border border-white/10 bg-[#041326]/95 backdrop-blur-xl shadow-2xl transition-all duration-300 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto z-50 text-center flex flex-col items-center gap-3">
+              <h4 className="text-[10px] font-bold text-white tracking-widest uppercase">
+                {isEnglish ? "Scan to Download" : "Quét để tải App"}
+              </h4>
+              <div className="relative p-2 bg-white rounded-xl border border-white/5">
+                <QRCodeSVG
+                  value={import.meta.env.VITE_APK_DOWNLOAD_URL || "https://4s.vercel.app"}
+                  size={96}
+                  bgColor={"#FFFFFF"}
+                  fgColor={"#041326"}
+                  level={"L"}
+                  includeMargin={false}
+                />
+                <div className="absolute inset-x-2 top-2 h-0.5 bg-[#0ed8ab] shadow-[0_0_8px_#0ed8ab] opacity-60 animate-scanLine pointer-events-none" />
+              </div>
+              <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+                {isEnglish ? "Point camera to scan QR Code" : "Hướng camera vào mã QR để quét"}
+              </p>
+            </div>
           </div>
 
           {/* User Auth Info */}
