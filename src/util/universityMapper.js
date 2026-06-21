@@ -94,6 +94,16 @@ export function mapUniversityRecommendations(data) {
     return [];
   }
 
+  const recommendationsList = asArray(
+    readProperty(data, "recommendations", "Recommendations"),
+  );
+
+  if (recommendationsList.length > 0) {
+    return recommendationsList
+      .map((university) => mapUniversityRecommendation(university, "rec"))
+      .filter(Boolean);
+  }
+
   const topUniversities = asArray(
     readProperty(data, "top3Universities", "Top3Universities"),
   );
