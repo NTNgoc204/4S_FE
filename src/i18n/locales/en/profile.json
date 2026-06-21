@@ -94,5 +94,28 @@
       "t2": "1 day ago",
       "t3": "3 days ago"
     }
+  },
+  "admin": {
+    "clickToChangeAvatar": "Click image to upload new avatar",
+    "systemLanguage": "Language Settings",
+    "vietnamese": "Tiếng Việt (VI)",
+    "english": "English (EN)",
+    "personalProfile": "Personal Profile",
+    "personalProfileSubtitle": "Manage your public contact information.",
+    "unsavedChanges": "Unsaved changes",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "address": "Address",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving…",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "adminAccount": "Admin Account",
+    "administrator": "Administrator"
   }
 }

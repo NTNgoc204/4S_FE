@@ -19,12 +19,13 @@ import ChatPage from "./pages/Chat/ChatPage";
 import ConsultationPage from "./pages/Consultation/ConsultationPage";
 import ForSchoolsPage from "./pages/ForSchools/ForSchoolsPage";
 import HomePage from "./pages/Home/HomePage";
-import AdminDashboardPage from "./pages/Admin/AdminDashboardPage";
-import AdminPricingPage from "./pages/Admin/AdminPricingPage";
-import AdminUsersPage from "./pages/Admin/AdminUsersPage";
-import AdminRolesPage from "./pages/Admin/AdminRolesPage";
-import AdminFinancePage from "./pages/Admin/AdminFinancePage";
-import AdminQuestionsPage from "./pages/Admin/AdminQuestionsPage";
+import AdminDashboardPage from "./pages/Admin/Dashboard/AdminDashboardPage";
+import AdminPricingPage from "./pages/Admin/Pricing/AdminPricingPage";
+import AdminUsersPage from "./pages/Admin/Users/AdminUsersPage";
+import AdminRolesPage from "./pages/Admin/Roles/AdminRolesPage";
+import AdminFinancePage from "./pages/Admin/Finance/AdminFinancePage";
+import AdminQuestionsPage from "./pages/Admin/Questions/AdminQuestionsPage";
+import AdminProfilePage from "./pages/Admin/Profile/AdminProfilePage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
@@ -207,6 +208,7 @@ function App() {
           <Route path="/admin/pricing" element={<AdminPricingPage />} />
           <Route path="/admin/roles" element={<AdminRolesPage />} />
           <Route path="/admin/finance" element={<AdminFinancePage />} />
+          <Route path="/admin/profile" element={<AdminProfilePage />} />
         </Route>
 
         {/* Accountant Layout - cho accountant */}

@@ -94,5 +94,28 @@
       "t2": "1 ngày trước",
       "t3": "3 ngày trước"
     }
+  },
+  "admin": {
+    "clickToChangeAvatar": "Nhấn vào ảnh để thay đổi avatar",
+    "systemLanguage": "Ngôn ngữ hệ thống",
+    "vietnamese": "Tiếng Việt (VI)",
+    "english": "English (EN)",
+    "personalProfile": "Thông tin cá nhân",
+    "personalProfileSubtitle": "Cập nhật thông tin liên hệ của bạn tại đây.",
+    "unsavedChanges": "Có thay đổi chưa lưu",
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "cancel": "Hủy",
+    "saveChanges": "Lưu thay đổi",
+    "saving": "Đang lưu…",
+    "changePassword": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmNewPassword": "Xác nhận mật khẩu mới",
+    "updatePassword": "Cập nhật mật khẩu",
+    "adminAccount": "Tài khoản Admin",
+    "administrator": "Quản trị viên"
   }
 }
