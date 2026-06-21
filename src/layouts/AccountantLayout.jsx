@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import fourSLogo from "../assets/logo-4s.png";
 import { planAPI } from "../feature/plan/planAPI";
 import { adminAPI } from "../feature/admin/adminAPI";
+import NotificationBell from "../components/NotificationBell";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -173,30 +174,35 @@ function AccountantLayout({ onLogout = () => {} }) {
                 </h1>
               </div>
 
-              {/* Language Switcher */}
-              <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-sm">
-                <button
-                  className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
-                    isEnglish
-                      ? "bg-white text-teal-700 shadow-sm border border-slate-100"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                  onClick={() => handleLanguageChange("en")}
-                  type="button"
-                >
-                  EN
-                </button>
-                <button
-                  className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
-                    isEnglish
-                      ? "text-slate-500 hover:text-slate-800"
-                      : "bg-white text-teal-700 shadow-sm border border-slate-100"
-                  }`}
-                  onClick={() => handleLanguageChange("vi")}
-                  type="button"
-                >
-                  VI
-                </button>
+              {/* Actions Right (Notifications & Language) */}
+              <div className="flex items-center gap-3.5">
+                <NotificationBell role="accountant" />
+
+                {/* Language Switcher */}
+                <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-sm">
+                  <button
+                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
+                      isEnglish
+                        ? "bg-white text-teal-700 shadow-sm border border-slate-100"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                    onClick={() => handleLanguageChange("en")}
+                    type="button"
+                  >
+                    EN
+                  </button>
+                  <button
+                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition ${
+                      isEnglish
+                        ? "text-slate-500 hover:text-slate-800"
+                        : "bg-white text-teal-700 shadow-sm border border-slate-100"
+                    }`}
+                    onClick={() => handleLanguageChange("vi")}
+                    type="button"
+                  >
+                    VI
+                  </button>
+                </div>
               </div>
             </div>
 

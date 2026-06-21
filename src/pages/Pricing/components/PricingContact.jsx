@@ -1,4 +1,4 @@
-function PricingContact({ t }) {
+function PricingContact({ t, onContactClick }) {
   return (
     <section id="contact-section" className="mt-20 rounded-[32px] border border-white/10 bg-gradient-to-r from-[#172c44]/80 to-[#122238]/90 px-8 py-12 text-center md:px-12 relative overflow-hidden reveal-on-scroll shadow-2xl">
       <div className="glow-blob glow-blob-3 right-0 bottom-0 h-48 w-48 opacity-20" />
@@ -15,6 +15,7 @@ function PricingContact({ t }) {
         <button
           className="rounded-xl border border-[#7f8cff]/30 bg-[#7f8cff]/10 hover:bg-[#7f8cff]/20 px-8 py-3.5 text-sm font-bold text-[#b9c1ff] transition-all duration-300 cursor-pointer shadow-md hover:scale-[1.02]"
           type="button"
+          onClick={onContactClick}
         >
           {t('pricing:questions.partnership')}
         </button>

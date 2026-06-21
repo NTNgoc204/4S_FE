@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ import useScrollReveal from '../../hooks/useScrollReveal'
 import { getStaticPlans } from './util/pricingHelpers'
 import PricingCard from './components/PricingCard'
 import PricingFaq from './components/PricingFaq'
-import PricingContact from './components/PricingContact'
+import SchoolRegisterModal from '../../components/SchoolRegisterModal'
 
 function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const { t } = useTranslation()
@@ -101,12 +101,11 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   const isPlansLoading = loading && dbPlans.length === 0;
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
 
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
   const handlePlanClick = (plan) => {
     if (plan.planCode === 'edu') {
-      const contactSection = document.getElementById('contact-section');
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      setIsRegisterOpen(true);
       return;
     }
 
@@ -179,10 +178,13 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
           {/* Interactive FAQ Accordion Section */}
           <PricingFaq faqItems={faqItems} t={t} />
 
-          {/* Custom School Cooperation / Partnership Section */}
-          <PricingContact t={t} />
         </div>
       </main>
+
+      <SchoolRegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+      />
     </>
   )
 }
