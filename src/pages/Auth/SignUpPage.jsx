@@ -136,6 +136,8 @@ function SignUpPage() {
   const [dateOfBirthError, setDateOfBirthError] = useState("");
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
+  const [gender, setGender] = useState("");
+  const [genderError, setGenderError] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
@@ -160,11 +162,13 @@ function SignUpPage() {
     const nextFullNameError = validateSignupFullName(fullName, t);
     const nextDateOfBirthError = validateUniversityGuidanceBirthDate(dateOfBirth, t);
     const nextAddressError = validateSignupAddress(address, t);
+    const nextGenderError = !gender ? t("signup:errors.genderRequired") : "";
     const nextPhoneError = validateVietnamesePhoneNumber(phoneNumber, t);
     setEmailError(nextEmailError);
     setFullNameError(nextFullNameError);
     setDateOfBirthError(nextDateOfBirthError);
     setAddressError(nextAddressError);
+    setGenderError(nextGenderError);
     setPhoneError(nextPhoneError);
 
     if (
@@ -172,6 +176,7 @@ function SignUpPage() {
       nextFullNameError ||
       nextDateOfBirthError ||
       nextAddressError ||
+      nextGenderError ||
       nextPhoneError
     ) {
       setError("");
@@ -195,6 +200,7 @@ function SignUpPage() {
         fullName: fullName.trim(),
         dateOfBirth: dateOfBirth,
         address: address.trim(),
+        gender: gender,
         phoneNumber: normalizeVietnamesePhoneNumber(phoneNumber),
         onSuccess: () => {
           setStep(2);
@@ -408,6 +414,44 @@ function SignUpPage() {
                 disabled={loading}
               />
               <FieldError id="address-error" message={addressError} />
+            </div>
+
+            <div>
+              <label
+                className="mb-2 block text-base font-semibold text-slate-200"
+                htmlFor="gender"
+              >
+                {t("signup:genderLabel")} <span className="text-rose-300">*</span>
+              </label>
+              <select
+                aria-describedby={genderError ? "gender-error" : undefined}
+                aria-invalid={Boolean(genderError)}
+                className={getFieldClassName(genderError)}
+                id="gender"
+                onChange={(event) => {
+                  setGender(event.target.value);
+                  if (genderError) {
+                    setGenderError("");
+                  }
+                }}
+                required
+                value={gender}
+                disabled={loading}
+              >
+                <option value="" disabled className="bg-[#1e3451] text-slate-400">
+                  {t("signup:genderPlaceholder")}
+                </option>
+                <option value="Male" className="bg-[#1e3451] text-slate-100">
+                  {t("signup:genderMale")}
+                </option>
+                <option value="Female" className="bg-[#1e3451] text-slate-100">
+                  {t("signup:genderFemale")}
+                </option>
+                <option value="Other" className="bg-[#1e3451] text-slate-100">
+                  {t("signup:genderOther")}
+                </option>
+              </select>
+              <FieldError id="gender-error" message={genderError} />
             </div>
 
             <PhoneInput
