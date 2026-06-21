@@ -30,7 +30,7 @@ function ChatRecommendationPanel({
   }
 
   return (
-    <aside className="flex min-h-0 flex-col bg-[#203a59]/93 w-full border-l border-white/10">
+    <aside className="flex min-h-0 flex-col bg-[#203a59]/93 w-full border-l border-white/10 h-full">
       <header className="border-b border-white/10 p-5 bg-[#172c43]">
         <h2 className="font-['Sora'] text-xl font-bold leading-tight text-slate-100">
           {hasResults

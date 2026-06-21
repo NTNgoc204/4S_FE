@@ -1,6 +1,8 @@
 import apiClient from "../../config/apiClient";
 
 export const chatAPI = {
-  continueGuidedChat: (message) => apiClient.post("/api/Chat/guided", { message }, { timeout: 0 }),
-  askAi: (question) => apiClient.post("/api/Chat/ask", { question }, { timeout: 0 }),
+  continueGuidedChat: (sessionId, message) => apiClient.post("/api/Chat/guided", { sessionId, message }, { timeout: 0 }),
+  getSessions: () => apiClient.get("/api/Chat/guided/sessions"),
+  getSessionDetail: (sessionId) => apiClient.get(`/api/Chat/guided/sessions/${sessionId}`),
+  deleteSession: (sessionId) => apiClient.delete(`/api/Chat/guided/sessions/${sessionId}`),
 };
