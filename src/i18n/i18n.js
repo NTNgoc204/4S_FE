@@ -14,6 +14,7 @@ import enNotifications from './locales/en/notifications.json'
 import enCheckout from './locales/en/checkout.json'
 import enQuiz from './locales/en/quiz.json'
 import enUniversity from './locales/en/university.json'
+import enChat from './locales/en/chat.json'
 import viAuth from './locales/vi/auth.json'
 import viAbout from './locales/vi/about.json'
 import viConsultation from './locales/vi/consultation.json'
@@ -28,6 +29,7 @@ import viNotifications from './locales/vi/notifications.json'
 import viCheckout from './locales/vi/checkout.json'
 import viQuiz from './locales/vi/quiz.json'
 import viUniversity from './locales/vi/university.json'
+import viChat from './locales/vi/chat.json'
 
 const supportedLanguages = ['en', 'vi']
 const languageStorageKey = 'app_language'
@@ -48,6 +50,7 @@ const resources = {
     checkout: enCheckout,
     quiz: enQuiz,
     university: enUniversity,
+    chat: enChat,
   },
   vi: {
     about: viAbout,
@@ -64,6 +67,7 @@ const resources = {
     checkout: viCheckout,
     quiz: viQuiz,
     university: viUniversity,
+    chat: viChat,
   },
 }
 
@@ -80,7 +84,7 @@ function detectInitialLanguage() {
 
 i18n.use(initReactI18next).init({
   resources,
-  ns: ['common', 'home', 'auth', 'pricing', 'consultation', 'forSchools', 'about', 'signup', 'profile', 'notFound', 'notifications', 'checkout', 'quiz', 'university'],
+  ns: ['common', 'home', 'auth', 'pricing', 'consultation', 'forSchools', 'about', 'signup', 'profile', 'notFound', 'notifications', 'checkout', 'quiz', 'university', 'chat'],
   defaultNS: 'common',
   lng: detectInitialLanguage(),
   fallbackLng: 'en',

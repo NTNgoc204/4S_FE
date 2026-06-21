@@ -1,8 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import Skeleton from '../../../components/Skeleton';
 
 function ChatConversationPanel({
   inputValue,
   isThinking,
+  isLoading = false,
   isLocked = false,
   listRef,
   messages,
@@ -11,22 +14,21 @@ function ChatConversationPanel({
   onUpgrade,
   onNewChat,
   systemBadge,
-  text,
   onToggleHistory,
   // Voice chat props
   isRecording,
   onToggleRecording,
   speakingMessageId,
   onToggleSpeak,
-  locale,
 }) {
+  const { t } = useTranslation('chat');
 
   return (
     <div className="flex min-h-0 flex-col border-r border-white/10 h-full">
       {/* Chat header with History and New Chat buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 bg-[#0c1c30]/50 md:px-6">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-slate-200">{text.assistantTitle}</span>
+          <span className="text-sm font-semibold text-slate-200">{t('assistantTitle')}</span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -37,7 +39,7 @@ function ChatConversationPanel({
             <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{text.viewHistory}</span>
+            <span>{t('viewHistory')}</span>
           </button>
           
           <button
@@ -48,7 +50,7 @@ function ChatConversationPanel({
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            <span>{text.newChat}</span>
+            <span>{t('newChat')}</span>
           </button>
         </div>
       </div>
@@ -57,59 +59,89 @@ function ChatConversationPanel({
         ref={listRef}
         className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.45)_transparent] md:p-6 [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-400/45 [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-slate-300/55"
       >
-        {messages.map((message) =>
-          message.role === 'assistant' ? (
-            <div key={message.id} className="flex items-start gap-3">
-              <span className={`mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.72rem] ${systemBadge.className}`}>
-                {systemBadge.icon ? (
-                  <img alt="" aria-hidden="true" className="h-4 w-4 object-contain" src={systemBadge.icon} />
-                ) : (
-                  systemBadge.label
-                )}
-              </span>
-              <div className="relative group max-w-[780px]">
-                <p className="rounded-2xl border border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98 px-4 py-3 text-[1rem] leading-8 text-slate-100 whitespace-pre-line md:px-5 pr-10">
-                  {message.content}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => onToggleSpeak(message.id, message.content)}
-                  className={`absolute right-2 top-2.5 flex h-7 w-7 items-center justify-center rounded-lg border transition-all hover:bg-white/10 active:scale-95 cursor-pointer ${
-                    speakingMessageId === message.id
-                      ? 'border-[#0ed8ab]/35 bg-[#0ed8ab]/12 text-[#0fe2a8]'
-                      : 'border-white/10 bg-white/5 text-slate-400 hover:text-slate-200'
-                  }`}
-                  title={speakingMessageId === message.id ? "Dừng đọc" : "Đọc thành tiếng"}
-                >
-                  {speakingMessageId === message.id ? (
-                    // Stop/Speaking waves
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                    </svg>
-                  ) : (
-                    // Speaker icon
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    </svg>
-                  )}
-                </button>
+        {isLoading ? (
+          <div className="space-y-6">
+            {/* Assistant message skeleton */}
+            <div className="flex items-start gap-3">
+              <Skeleton variant="circle" width="28px" height="28px" className="mt-1 shrink-0" />
+              <div className="flex-1 max-w-[480px] space-y-2 rounded-2xl border border-[#5f7396]/20 bg-gradient-to-b from-[#213a58]/40 to-[#182f4a]/45 px-4 py-3 md:px-5">
+                <Skeleton width="75%" height="12px" />
+                <Skeleton width="83%" height="12px" />
+                <Skeleton width="50%" height="12px" />
               </div>
             </div>
-          ) : (
-            <div key={message.id} className="flex justify-end">
-              <p className="max-w-[560px] rounded-2xl border border-[#ecc741]/20 bg-gradient-to-br from-[#f4d040] to-[#debd34] px-4 py-2.5 text-sm font-semibold text-[#11243c] md:text-base">
-                {message.content}
-              </p>
+            {/* User message skeleton */}
+            <div className="flex justify-end">
+              <div className="w-[180px] h-10 rounded-2xl bg-[#ecc741]/5 border border-[#ecc741]/10 p-3 flex flex-col justify-center">
+                <Skeleton width="66%" height="12px" className="ml-auto bg-[#ecc741]/15" />
+              </div>
             </div>
-          ),
-        )}
-
-        {isThinking ? (
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300">
-            <span className="inline-flex h-2 w-2 animate-ping rounded-full bg-[#ecc741]" />
-            {text.thinking}
+            {/* Assistant message skeleton */}
+            <div className="flex items-start gap-3">
+              <Skeleton variant="circle" width="28px" height="28px" className="mt-1 shrink-0" />
+              <div className="flex-1 max-w-[360px] space-y-2 rounded-2xl border border-[#5f7396]/20 bg-gradient-to-b from-[#213a58]/40 to-[#182f4a]/45 px-4 py-3 md:px-5">
+                <Skeleton width="80%" height="12px" />
+                <Skeleton width="33%" height="12px" />
+              </div>
+            </div>
           </div>
-        ) : null}
+        ) : (
+          <>
+            {messages.map((message) =>
+              message.role === 'assistant' ? (
+                <div key={message.id} className="flex items-start gap-3">
+                  <span className={`mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.72rem] ${systemBadge.className}`}>
+                    {systemBadge.icon ? (
+                      <img alt="" aria-hidden="true" className="h-4 w-4 object-contain" src={systemBadge.icon} />
+                    ) : (
+                      systemBadge.label
+                    )}
+                  </span>
+                  <div className="relative group max-w-[780px]">
+                    <p className="rounded-2xl border border-[#5f7396]/45 bg-gradient-to-b from-[#213a58]/95 to-[#182f4a]/98 px-4 py-3 text-[1rem] leading-8 text-slate-100 whitespace-pre-line md:px-5 pr-10">
+                      {message.content}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => onToggleSpeak(message.id, message.content)}
+                      className={`absolute right-2 top-2.5 flex h-7 w-7 items-center justify-center rounded-lg border transition-all hover:bg-white/10 active:scale-95 cursor-pointer ${
+                        speakingMessageId === message.id
+                          ? 'border-[#0ed8ab]/35 bg-[#0ed8ab]/12 text-[#0fe2a8]'
+                          : 'border-white/10 bg-white/5 text-slate-400 hover:text-slate-200'
+                      }`}
+                      title={speakingMessageId === message.id ? t('stopReading') : t('readAloud')}
+                    >
+                      {speakingMessageId === message.id ? (
+                        // Stop/Speaking waves
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                        </svg>
+                      ) : (
+                        // Speaker icon
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div key={message.id} className="flex justify-end">
+                  <p className="max-w-[560px] rounded-2xl border border-[#ecc741]/20 bg-gradient-to-br from-[#f4d040] to-[#debd34] px-4 py-2.5 text-sm font-semibold text-[#11243c] md:text-base">
+                    {message.content}
+                  </p>
+                </div>
+              ),
+            )}
+
+            {isThinking ? (
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-slate-300">
+                <span className="inline-flex h-2 w-2 animate-ping rounded-full bg-[#ecc741]" />
+                {t('thinking')}
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
 
 
@@ -130,10 +162,10 @@ function ChatConversationPanel({
               </div>
 
               <h4 className="font-['Sora'] text-base font-extrabold bg-gradient-to-r from-[#ffea9f] via-[#ecc741] to-[#cca625] bg-clip-text text-transparent mb-1">
-                {text.lockedTitle.replace('🔒 ', '')}
+                {t('lockedTitle').replace('🔒 ', '')}
               </h4>
               <p className="max-w-[480px] text-xs leading-relaxed text-slate-300/90 mb-4">
-                {text.lockedDesc}
+                {t('lockedDesc')}
               </p>
               <button
                 onClick={onUpgrade}
@@ -147,7 +179,7 @@ function ChatConversationPanel({
                 <svg className="h-4 w-4 shrink-0 text-[#0c1b2f] transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M2 22h20v-2H2v2zm1-3h18l-2-7-4 3-3-8-3 8-4-3-2 7z" />
                 </svg>
-                <span>{text.lockedCta.replace(' →', '')}</span>
+                <span>{t('lockedCta').replace(' →', '')}</span>
                 <span className="transition-transform duration-300 group-hover:translate-x-1">➔</span>
               </button>
             </div>
@@ -159,7 +191,7 @@ function ChatConversationPanel({
             <input
               className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-base text-slate-100 outline-none placeholder:text-slate-500 focus:border-[#ecc741]/45"
               onChange={(event) => onInputChange(event.target.value)}
-              placeholder={isRecording ? (locale === 'vi' ? 'Đang nghe giọng nói... Nhấn để dừng...' : 'Listening to voice... Click to stop...') : text.inputPlaceholder}
+              placeholder={isRecording ? t('listeningVoice') : t('inputPlaceholder')}
               type="text"
               value={inputValue}
               disabled={isRecording}
@@ -174,7 +206,7 @@ function ChatConversationPanel({
                   ? 'border-red-500 bg-red-500/20 text-red-400 animate-pulse'
                   : 'border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/10'
               }`}
-              title={isRecording ? "Dừng ghi âm" : "Ghi âm giọng nói"}
+              title={isRecording ? t('stopRecording') : t('recordVoice')}
             >
               {isRecording ? (
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -196,7 +228,7 @@ function ChatConversationPanel({
               disabled={isThinking || !inputValue.trim()}
               type="submit"
             >
-              {text.send}
+              {t('send')}
             </button>
           </div>
         </form>

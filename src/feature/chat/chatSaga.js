@@ -84,25 +84,12 @@ function* fetchSessionDetailSaga(action) {
 
     const chatHistory = detail.chatHistory || [];
     const summary = detail.summary;
+    const nextQuestion = detail.nextQuestionContent || "";
     
-    let nextQuestion = "";
     let summaryText = "";
     let recommendations = [];
 
-    // Nếu phiên chat chưa hoàn thành (summary = null), gọi tiếp tục với message: null để lấy câu hỏi đang chờ trả lời
-    if (!summary) {
-      try {
-        const continueRes = yield call(chatAPI.continueGuidedChat, sessionId, null);
-        nextQuestion = continueRes.data.message || "";
-        const contSummary = continueRes.data.summary || continueRes.data.Summary;
-        if (contSummary) {
-          summaryText = contSummary.summaryText || contSummary.SummaryText || "";
-          recommendations = mapUniversityRecommendations(contSummary);
-        }
-      } catch (e) {
-        console.error("Failed to fetch next question for incomplete session", e);
-      }
-    } else {
+    if (summary) {
       summaryText = summary.summaryText || "";
       recommendations = mapUniversityRecommendations(summary);
     }
