@@ -58,11 +58,11 @@ function SiteFooter() {
               <span className="font-medium text-slate-200">Facebook: </span>
               <a
                 className="transition hover:text-[#0ed8ab]"
-                href="https://facebook.com/careerpathai"
+                href="https://www.facebook.com/share/17XdY1wrwE/"
                 rel="noreferrer"
                 target="_blank"
               >
-                facebook.com/careerpathai
+                Support For Students
               </a>
             </li>
             <li>

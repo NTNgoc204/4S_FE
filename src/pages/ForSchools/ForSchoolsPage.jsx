@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { triggerMailWithFallback } from "../../util/mailHelper";
 import useScrollReveal from "../../hooks/useScrollReveal";
+import SchoolRegisterModal from "../../components/SchoolRegisterModal";
 
 const BENEFIT_ICONS = {
   reach: (
@@ -58,6 +59,7 @@ function ForSchoolsPage() {
   const steps = ["info", "review", "track", "maintain"];
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   // Trigger scroll reveals
   useScrollReveal();
@@ -105,12 +107,12 @@ function ForSchoolsPage() {
             </p>
             
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <a
-                className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-8 py-4 text-sm font-bold text-[#0c1e36] shadow-lg shadow-amber-950/20 hover:scale-[1.02] active:scale-95 transition-all duration-300"
-                href="#for-schools-contact"
+              <button
+                className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-8 py-4 text-sm font-bold text-[#0c1e36] shadow-lg shadow-amber-950/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 cursor-pointer"
+                onClick={() => setIsRegisterOpen(true)}
               >
                 {t("forSchools:hero.getStarted")}
-              </a>
+              </button>
               <a
                 className="rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-8 py-4 text-sm font-bold text-white transition-all duration-300 hover:border-white/25 active:scale-95"
                 href="#for-schools-process"
@@ -225,17 +227,13 @@ function ForSchoolsPage() {
               {t("forSchools:cta.subtitle")}
             </p>
             
-            <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
-              <a
-                className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-8 py-3.5 text-sm font-bold text-[#102745] transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-md hover:shadow-[#ecc741]/15"
-                href={`mailto:${t("forSchools:cta.email")}`}
-                onClick={handleEmailClick}
+            <div className="mt-8 flex justify-center">
+              <button
+                className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-10 py-4 text-base font-bold text-[#102745] transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-md hover:shadow-[#ecc741]/15"
+                onClick={() => setIsRegisterOpen(true)}
               >
-                {t("forSchools:cta.email")}
-              </a>
-              <span className="rounded-xl border border-white/10 bg-white/5 px-8 py-3.5 text-sm font-semibold text-slate-200 select-all shadow-inner">
-                {t("forSchools:cta.phone")}
-              </span>
+                {locale === 'vi' ? "Đăng ký Tư vấn ngay" : "Register Now"}
+              </button>
             </div>
             
             <p className="mt-6 text-[11px] text-slate-400 font-light italic">
@@ -245,6 +243,11 @@ function ForSchoolsPage() {
 
         </div>
       </main>
+
+      <SchoolRegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+      />
     </>
   );
 }

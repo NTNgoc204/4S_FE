@@ -34,6 +34,9 @@ import SchoolDashboardPage from "./pages/SchoolManager/SchoolDashboardPage";
 import SchoolStudentsPage from "./pages/SchoolManager/SchoolStudentsPage";
 import SchoolEventsPage from "./pages/SchoolManager/SchoolEventsPage";
 import SchoolSettingsPage from "./pages/SchoolManager/SchoolSettingsPage";
+import ContactLayout from "./layouts/ContactLayout";
+import ContactDashboardPage from "./pages/Contact/ContactDashboardPage";
+import ContactRegistrationsPage from "./pages/Contact/ContactRegistrationsPage";
 import PricingPage from "./pages/Pricing/PricingPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import SkillDashboardPage from "./pages/Profile/SkillDashboardPage";
@@ -42,6 +45,7 @@ import UniversityDetailPage from "./pages/University/UniversityDetailPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import CheckoutPage from "./pages/Payment/CheckoutPage";
 import PaymentQRPage from "./pages/Payment/PaymentQRPage";
+import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
 
 function App() {
   const { t } = useTranslation();
@@ -140,6 +144,7 @@ function App() {
             path="/pricing"
             element={<PricingPage currentPlan={plan} isLoggedIn={isLoggedIn} />}
           />
+          <Route path="/school-payment/:registrationId" element={<SchoolPaymentPortalPage />} />
 
           {/* Protected Student Routes */}
           <Route
@@ -227,6 +232,23 @@ function App() {
           <Route path="/accountant/dashboard" element={<AccountantDashboardPage />} />
           <Route path="/accountant/expenses" element={<AccountantExpensesPage />} />
           <Route path="/accountant/transactions" element={<AccountantTransactionsPage />} />
+        </Route>
+
+        {/* Contact Layout - cho contact */}
+        <Route
+          element={
+            <ProtectedRoute
+              roles={["contact"]}
+              currentRole={role}
+              isAuthenticated={isLoggedIn}
+              useRedux={true}
+            >
+              <ContactLayout onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/contact/dashboard" element={<ContactDashboardPage />} />
+          <Route path="/contact/registrations" element={<ContactRegistrationsPage />} />
         </Route>
 
         {/* School Layout - cho school manager */}

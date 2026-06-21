@@ -77,6 +77,17 @@ const adminSlice = createSlice({
       state.roles = state.roles.map((role) =>
         role.id === id ? { ...role, ...patch } : role,
       );
+      // Synchronize new role name in users list if name is changed
+      if (patch.name) {
+        state.users = state.users.map((u) => {
+          // Find matched role by ID in the updated roles array
+          const matchedRole = state.roles.find((r) => r.id === id);
+          if (matchedRole && (String(u.roleId) === String(id) || (u.roleName && u.roleName.toLowerCase() === matchedRole.name.toLowerCase()))) {
+            return { ...u, roleName: patch.name };
+          }
+          return u;
+        });
+      }
     },
     updateRoleFailure: (state) => {
       state.updateRoleLoading = false;
@@ -91,9 +102,21 @@ const adminSlice = createSlice({
       state.updateUserLoading = false;
       // Optimistically patch the user in state so UI updates immediately
       const { userId, patch } = action.payload;
-      state.users = state.users.map((u) =>
-        u.userId === userId ? { ...u, ...patch } : u,
-      );
+      state.users = state.users.map((u) => {
+        if (u.userId === userId) {
+          const updatedUser = { ...u, ...patch };
+          if (patch.roleId) {
+            const matchedRole = state.roles.find(
+              (r) => String(r.id) === String(patch.roleId)
+            );
+            if (matchedRole) {
+              updatedUser.roleName = matchedRole.name;
+            }
+          }
+          return updatedUser;
+        }
+        return u;
+      });
     },
     updateUserFailure: (state, action) => {
       state.updateUserLoading = false;

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import useScrollReveal from "../../hooks/useScrollReveal";
+import { triggerMailWithFallback } from "../../util/mailHelper";
 
 const VALUE_ICONS = {
   data: (
@@ -38,6 +39,11 @@ function AboutPage() {
   useScrollReveal()
 
   const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+
+  const handleEmailClick = (e) => {
+    e.preventDefault();
+    triggerMailWithFallback("4scompany.information@gmail.com");
+  };
 
   const timelineData = [
     {
@@ -230,6 +236,34 @@ function AboutPage() {
                   {activeTimeline.desc}
                 </p>
               </div>
+            </div>
+          </section>
+
+          {/* Section 5: Support & Contact Section */}
+          <section className="rounded-[32px] border border-white/10 bg-gradient-to-r from-[#172c44]/80 to-[#122238]/90 px-6 py-12 text-center md:px-12 md:py-16 relative overflow-hidden reveal-on-scroll shadow-2xl">
+            <div className="glow-blob glow-blob-3 right-0 bottom-0 h-48 w-48 opacity-20" />
+            
+            <h2 className="font-display text-2xl font-extrabold text-white tracking-tight sm:text-3xl">
+              {locale === 'vi' ? "Bạn Cần Hỗ Trợ?" : "Need Support?"}
+            </h2>
+            
+            <p className="mx-auto mt-4 max-w-2xl text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed font-light font-sans">
+              {locale === 'vi' 
+                ? "Đội ngũ 4S Career Guidance luôn sẵn sàng hỗ trợ, phản hồi mọi thắc mắc và tiếp nhận các cơ hội hợp tác." 
+                : "The 4S Career Guidance team is always here to assist you, answer questions, and explore partnership opportunities."}
+            </p>
+            
+            <div className="mt-8 flex flex-wrap justify-center items-center gap-4 font-sans">
+              <a
+                className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#ecc741] px-8 py-3.5 text-sm font-bold text-[#102745] transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-md hover:shadow-[#ecc741]/15"
+                href="mailto:4scompany.information@gmail.com"
+                onClick={handleEmailClick}
+              >
+                4scompany.information@gmail.com
+              </a>
+              <span className="rounded-xl border border-white/10 bg-white/5 px-8 py-3.5 text-sm font-semibold text-slate-200 select-all shadow-inner">
+                {locale === 'vi' ? "Hotline: 0912.345.678" : "Hotline: +84 912 345 678"}
+              </span>
             </div>
           </section>
 
