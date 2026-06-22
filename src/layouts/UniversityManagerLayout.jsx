@@ -1,42 +1,12 @@
-import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import fourSLogo from "../assets/logo-4s.png";
 
-const INITIAL_SCHOOL_INFO = {
-  name: "Trường THPT Chuyên Lê Hồng Phong",
-  address: "235 Nguyễn Văn Cừ, Phường 4, Quận 5, TP. Hồ Chí Minh",
-  phone: "028 3839 8506",
-  email: "info@thpt-lehongphong-tphcm.edu.vn",
-  website: "thpt-lehongphong-tphcm.edu.vn",
-  principal: "Phạm Thị Lệ Hằng",
-  totalStudents: 1450,
-  totalClasses: 36,
-  taxCode: "0310298734",
-};
-
-const INITIAL_STUDENTS = [
-  { id: "STU001", name: "Nguyễn Minh Anh", class: "12 Chuyên Toán", email: "minhanh.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Investigative (Nghiên cứu)", hollandCode: "IAS", matchSchool: "Đại học Bách Khoa TP.HCM (HCMUT)" },
-  { id: "STU002", name: "Trần Hoàng Nam", class: "12 Chuyên Lý", email: "hoangnam.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Realistic (Kỹ thuật)", hollandCode: "RIE", matchSchool: "Đại học Sư phạm Kỹ thuật (HCMUTE)" },
-  { id: "STU003", name: "Lê Thị Mai Chi", class: "12 Chuyên Anh", email: "maichi.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Social (Xã hội)", hollandCode: "SAE", matchSchool: "Đại học KHXH&NV TP.HCM (USSH)" },
-  { id: "STU004", name: "Phạm Đức Minh", class: "12 Tin học", email: "ducminh.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Investigative (Nghiên cứu)", hollandCode: "ISR", matchSchool: "Đại học Khoa học Tự nhiên (HCMUS)" },
-  { id: "STU005", name: "Vũ Phương Thảo", class: "12 Song ngữ", email: "phuongthao.lhp@gmail.com", quizStatus: "Pending", mainTrait: "—", hollandCode: "—", matchSchool: "—" },
-  { id: "STU006", name: "Đỗ Gia Bảo", class: "11 Chuyên Hóa", email: "giabao.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Enterprising (Quản lý)", hollandCode: "ECS", matchSchool: "Đại học Kinh tế TP.HCM (UEH)" },
-  { id: "STU007", name: "Nguyễn Trúc Quỳnh", class: "11 Chuyên Sinh", email: "trucquynh.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Investigative (Nghiên cứu)", hollandCode: "ISA", matchSchool: "Đại học Y Dược TP.HCM (UMP)" },
-  { id: "STU008", name: "Lê Huy Hoàng", class: "11 Tin học", email: "huyhoang.lhp@gmail.com", quizStatus: "Pending", mainTrait: "—", hollandCode: "—", matchSchool: "—" },
-  { id: "STU009", name: "Hoàng Ngọc Linh", class: "10 Chuyên Văn", email: "ngoclinh.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Artistic (Nghệ thuật)", hollandCode: "AES", matchSchool: "Đại học Mỹ thuật TP.HCM" },
-  { id: "STU010", name: "Phạm Hải Đăng", class: "10 Chuyên Tin", email: "haidang.lhp@gmail.com", quizStatus: "Completed", mainTrait: "Investigative (Nghiên cứu)", hollandCode: "IRC", matchSchool: "Đại học Bách Khoa TP.HCM (HCMUT)" },
-];
-
-function SchoolLayout({ onLogout = () => {} }) {
+function UniversityManagerLayout({ onLogout = () => {} }) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isVi = i18n.resolvedLanguage === "vi";
   const isEnglish = i18n.resolvedLanguage !== "vi";
-
-  // Shared in-memory states
-  const [schoolInfo, setSchoolInfo] = useState(INITIAL_SCHOOL_INFO);
-  const [students, setStudents] = useState(INITIAL_STUDENTS);
 
   function handleLanguageChange(lang) {
     i18n.changeLanguage(lang);
@@ -48,9 +18,7 @@ function SchoolLayout({ onLogout = () => {} }) {
   }
 
   const NAV_ITEMS = [
-    { label: isVi ? "Dashboard & Tổng quan" : "Dashboard & Overview", to: "/school/dashboard" },
-    { label: isVi ? "Danh sách Học sinh" : "Student Directory", to: "/school/students" },
-    { label: isVi ? "Thông tin Trường học" : "School Profile", to: "/school/settings" },
+    { label: isVi ? "Quản lý Đại học" : "University Management", to: "/school-manager/university" },
   ];
 
   return (
@@ -60,28 +28,30 @@ function SchoolLayout({ onLogout = () => {} }) {
         <aside className="hidden min-h-screen w-[290px] shrink-0 border-r border-slate-200/80 bg-white px-5 py-6 lg:flex lg:flex-col shadow-sm">
           <button
             className="flex items-center gap-3 px-1 py-1 text-left transition hover:opacity-90 focus:outline-none"
-            onClick={() => navigate("/school/dashboard")}
+            onClick={() => navigate("/school-manager/university")}
             type="button"
           >
             <img alt="4S logo" className="h-16 w-16 object-contain" src={fourSLogo} />
-            <span className="font-['Sora'] text-lg font-bold text-slate-900 leading-tight">4S School Portal</span>
+            <span className="font-['Sora'] text-lg font-bold text-slate-900 leading-tight">4S Admin Portal</span>
           </button>
 
-          <div className="mt-3 px-2 py-1.5 rounded-xl bg-slate-50 border border-slate-100">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-              {isVi ? "Trường quản lý" : "Managed School"}
+          <div className="mt-3 px-2 py-1.5 rounded-xl bg-teal-50/50 border border-teal-100/50 text-teal-800">
+            <p className="text-[10px] uppercase font-bold tracking-wider opacity-75">
+              {isVi ? "Vai trò hệ thống" : "System Role"}
             </p>
-            <p className="text-xs font-semibold text-slate-700 truncate mt-0.5">{schoolInfo.name}</p>
+            <p className="text-xs font-bold truncate mt-0.5">
+              {isVi ? "Quản lý Đại học" : "University Admin"}
+            </p>
           </div>
 
-          <nav aria-label="School navigation" className="mt-7 space-y-2">
+          <nav aria-label="University manager navigation" className="mt-7 space-y-2">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 className={({ isActive }) =>
                   `flex items-center rounded-xl border px-3 py-2.5 text-sm font-semibold transition ${
                     isActive
-                      ? "border-teal-500 bg-teal-50/70 text-teal-700 shadow-sm"
+                      ? "border-teal-550 bg-teal-50/70 text-teal-700 shadow-sm"
                       : "border-slate-100 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-200"
                   }`
                 }
@@ -109,10 +79,10 @@ function SchoolLayout({ onLogout = () => {} }) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-500 font-medium">
-                  {isVi ? "Ban Giám Hiệu" : "School Management"}
+                  {isVi ? "Quản lý Tuyển sinh" : "Admissions & Universities"}
                 </p>
                 <h1 className="font-['Sora'] text-xl font-semibold text-slate-900">
-                  {isVi ? "Cổng Thông Tin Học Đường 4S" : "4S School Management Console"}
+                  {isVi ? "Cổng Quản Trị Đại Học 4S" : "4S University Management Console"}
                 </h1>
               </div>
 
@@ -144,14 +114,14 @@ function SchoolLayout({ onLogout = () => {} }) {
             </div>
 
             {/* Mobile Navigation */}
-            <nav aria-label="School mobile navigation" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
+            <nav aria-label="University manager mobile navigation" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:hidden">
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.to}
                   className={({ isActive }) =>
                     `rounded-xl border px-3 py-2 text-center text-sm font-semibold transition ${
                       isActive
-                        ? "border-teal-500 bg-teal-50/70 text-teal-700 shadow-sm"
+                        ? "border-teal-550 bg-teal-50/70 text-teal-700 shadow-sm"
                         : "border-slate-100 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-200"
                     }`
                   }
@@ -171,7 +141,7 @@ function SchoolLayout({ onLogout = () => {} }) {
           </header>
 
           <main className="w-full flex-1 px-4 py-5 md:px-6 md:py-6">
-            <Outlet context={{ schoolInfo, setSchoolInfo, students, setStudents }} />
+            <Outlet />
           </main>
         </div>
       </div>
@@ -179,4 +149,4 @@ function SchoolLayout({ onLogout = () => {} }) {
   );
 }
 
-export default SchoolLayout;
+export default UniversityManagerLayout;

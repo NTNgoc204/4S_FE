@@ -401,7 +401,7 @@ function SchoolStudentsPage() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right">
                       <div className="flex justify-end gap-2">
-                        {item.quizStatus === "Completed" && (
+                        {item.quizStatus === "Completed" ? (
                           <button
                             className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 shadow-sm"
                             onClick={() => setSelectedStudent(item)}
@@ -409,14 +409,9 @@ function SchoolStudentsPage() {
                           >
                             {text.actionView}
                           </button>
+                        ) : (
+                          <span className="text-slate-400 text-xs italic font-normal mr-2">—</span>
                         )}
-                        <button
-                          className="inline-flex h-9 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 shadow-sm"
-                          onClick={() => handleResetTest(item.id, item.name)}
-                          type="button"
-                        >
-                          {text.actionReset}
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -457,8 +452,8 @@ function SchoolStudentsPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-1.5 pt-2 border-t border-slate-100">
-                {item.quizStatus === "Completed" && (
+              {item.quizStatus === "Completed" && (
+                <div className="flex justify-end gap-1.5 pt-2 border-t border-slate-100">
                   <button
                     className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                     onClick={() => setSelectedStudent(item)}
@@ -466,15 +461,8 @@ function SchoolStudentsPage() {
                   >
                     {text.actionView}
                   </button>
-                )}
-                <button
-                  className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100"
-                  onClick={() => handleResetTest(item.id, item.name)}
-                  type="button"
-                >
-                  {text.actionReset}
-                </button>
-              </div>
+                </div>
+              )}
             </article>
           ))
         )}

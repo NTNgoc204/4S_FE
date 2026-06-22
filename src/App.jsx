@@ -32,7 +32,6 @@ import AccountantTransactionsPage from "./pages/Accountant/AccountantTransaction
 import SchoolLayout from "./layouts/SchoolLayout";
 import SchoolDashboardPage from "./pages/SchoolManager/SchoolDashboardPage";
 import SchoolStudentsPage from "./pages/SchoolManager/SchoolStudentsPage";
-import SchoolEventsPage from "./pages/SchoolManager/SchoolEventsPage";
 import SchoolSettingsPage from "./pages/SchoolManager/SchoolSettingsPage";
 import ContactLayout from "./layouts/ContactLayout";
 import ContactDashboardPage from "./pages/Contact/ContactDashboardPage";
@@ -47,6 +46,8 @@ import CheckoutPage from "./pages/Payment/CheckoutPage";
 import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
 import EduCheckoutPage from "./pages/Payment/EduCheckoutPage";
+import UniversityManagerLayout from "./layouts/UniversityManagerLayout";
+import UniversityManagementPage from "./pages/UniversityManager/UniversityManagementPage";
 
 function App() {
   const { t } = useTranslation();
@@ -258,11 +259,11 @@ function App() {
           <Route path="/contact/registrations" element={<ContactRegistrationsPage />} />
         </Route>
 
-        {/* School Layout - cho school manager */}
+        {/* School Layout - cho school (THPT Manager) */}
         <Route
           element={
             <ProtectedRoute
-              roles={["school_manager", "school"]}
+              roles={["school"]}
               currentRole={role}
               isAuthenticated={isLoggedIn}
               useRedux={true}
@@ -273,8 +274,25 @@ function App() {
         >
           <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
           <Route path="/school/students" element={<SchoolStudentsPage />} />
-          <Route path="/school/events" element={<SchoolEventsPage />} />
           <Route path="/school/settings" element={<SchoolSettingsPage />} />
+        </Route>
+
+        {/* University Manager Layout - cho school_manager (University Admin) */}
+        <Route
+          element={
+            <ProtectedRoute
+              roles={["school_manager"]}
+              currentRole={role}
+              isAuthenticated={isLoggedIn}
+              useRedux={true}
+            >
+              <UniversityManagerLayout onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/school-manager/dashboard" element={<Navigate to="/school-manager/university" replace />} />
+          <Route path="/school-manager/university" element={<UniversityManagementPage />} />
+          <Route path="/school/university" element={<Navigate to="/school-manager/university" replace />} />
         </Route>
 
 
