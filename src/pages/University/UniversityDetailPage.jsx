@@ -314,9 +314,102 @@ function UniversityDetailPage() {
             />
           </div>
 
-          <div className="mt-4 rounded-2xl border border-[#18d0ac]/20 bg-[#18d0ac]/8 p-4 text-sm text-slate-300">
-            {t("limitedDataNotice")}
-          </div>
+          {/* Description / Introduction (if present) */}
+          {universityDetail.description && (
+            <div className="mt-6 border-t border-white/10 pt-5">
+              <h4 className="font-['Sora'] text-base font-semibold text-slate-200">
+                {locale === "vi" ? "Giới thiệu chung" : "Overview & Background"}
+              </h4>
+              <p className="mt-2 text-xs text-slate-300 leading-relaxed font-light">
+                {universityDetail.description}
+              </p>
+            </div>
+          )}
+
+          {/* Majors Portfolio (if present) */}
+          {universityDetail.majors && universityDetail.majors.length > 0 && (
+            <div className="mt-6 border-t border-white/10 pt-5">
+              <h4 className="font-['Sora'] text-base font-semibold text-slate-200 mb-3">
+                {locale === "vi" ? "Ngành nghề đào tạo tuyển sinh" : "Academic Programs & Majors"}
+              </h4>
+              <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#132c48]/30">
+                <table className="min-w-full text-[11px] text-slate-300">
+                  <thead className="bg-[#11273f] text-slate-200 font-bold border-b border-white/10">
+                    <tr>
+                      <th className="px-4 py-2.5 text-left">{locale === "vi" ? "Tên ngành" : "Major"}</th>
+                      <th className="px-3 py-2.5 text-left">{locale === "vi" ? "Mã tuyển sinh" : "Admission Code"}</th>
+                      <th className="px-3 py-2.5 text-center">{locale === "vi" ? "Chỉ tiêu" : "Quota"}</th>
+                      <th className="px-3 py-2.5 text-right">{locale === "vi" ? "Điểm chuẩn" : "Cut-off"}</th>
+                      <th className="px-4 py-2.5 text-right">{locale === "vi" ? "Học phí ước tính" : "Estimated Tuition"}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 font-medium">
+                    {universityDetail.majors.map((major) => (
+                      <tr key={major.id} className="hover:bg-white/5 transition">
+                        <td className="px-4 py-2.5">
+                          <p className="font-bold text-slate-100">{major.name}</p>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <span className="rounded bg-white/10 text-slate-300 px-1 py-0.2 text-[8px] font-semibold border border-white/5">
+                              {major.degreeType}
+                            </span>
+                            <span className="rounded bg-white/5 text-slate-400 px-1 py-0.2 text-[8px] border border-white/5">
+                              {major.language}
+                            </span>
+                            {major.majorDescription && (
+                              <span 
+                                className="text-slate-450 hover:text-slate-200 text-[8px] cursor-help"
+                                title={major.majorDescription}
+                              >
+                                ℹ️ {locale === "vi" ? "Mô tả ngành" : "Description"}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-slate-400">{major.description || "—"}</td>
+                        <td className="px-3 py-2.5 text-center text-slate-300">{major.quota || "—"}</td>
+                        <td className="px-3 py-2.5 text-right font-extrabold text-[#18d0ac]">{major.score}</td>
+                        <td className="px-4 py-2.5 text-right font-mono text-slate-200">
+                          {Number(major.tuition).toLocaleString("vi-VN")} VND / {locale === "vi" ? "học kỳ" : "semester"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Scholarships (if present) */}
+          {universityDetail.scholarships && universityDetail.scholarships.length > 0 && (
+            <div className="mt-6 border-t border-white/10 pt-5">
+              <h4 className="font-['Sora'] text-base font-semibold text-slate-200 mb-3">
+                {locale === "vi" ? "Thông tin học bổng" : "Scholarships & Financial Aid"}
+              </h4>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {universityDetail.scholarships.map((sch) => (
+                  <div key={sch.id} className="bg-[#132c48]/40 border border-white/10 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <h5 className="font-bold text-xs text-slate-200 font-['Sora'] leading-tight">{sch.name}</h5>
+                        <span className="rounded bg-[#18d0ac]/15 text-[#18d0ac] border border-[#18d0ac]/25 font-bold text-[10px] px-2 py-0.5">
+                          {sch.value}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-2 font-light leading-relaxed">
+                        {locale === "vi" ? `Điều kiện: ${sch.requirement}` : `Requirements: ${sch.requirement}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(!universityDetail.majors || universityDetail.majors.length === 0) && (
+            <div className="mt-4 rounded-2xl border border-[#18d0ac]/20 bg-[#18d0ac]/8 p-4 text-xs text-slate-300">
+              {t("limitedDataNotice")}
+            </div>
+          )}
         </section>
       </section>
     </main>

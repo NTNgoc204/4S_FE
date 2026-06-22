@@ -54,7 +54,7 @@ const UI_TEXT = {
 };
 
 function SchoolDashboardPage() {
-  const { students, events, schoolInfo } = useOutletContext();
+  const { students, schoolInfo } = useOutletContext();
   const { i18n } = useTranslation();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
   const text = UI_TEXT[locale];
@@ -69,10 +69,6 @@ function SchoolDashboardPage() {
   }, [students, totalStudentsCount]);
 
   const completionPercent = ((completedQuizCount / totalStudentsCount) * 100).toFixed(1);
-
-  const scheduledEventsCount = useMemo(() => {
-    return events.filter(e => e.status === "Scheduled").length;
-  }, [events]);
 
   // Holland trait distributions
   const careerData = useMemo(() => {
@@ -114,7 +110,7 @@ function SchoolDashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
           <p className="text-sm font-medium text-slate-500">{text.kpiTotalStudents}</p>
           <p className="mt-2 font-['Sora'] text-2xl font-semibold text-teal-600">
@@ -132,16 +128,6 @@ function SchoolDashboardPage() {
           </p>
           <span className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-500">
             {completedQuizCount.toLocaleString()} {text.studentsSuffix}
-          </span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">{text.kpiEvents}</p>
-          <p className="mt-2 font-['Sora'] text-2xl font-semibold text-amber-600">
-            {events.length}
-          </p>
-          <span className="mt-3 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-500">
-            {scheduledEventsCount} {text.activeSuffix}
           </span>
         </div>
 
