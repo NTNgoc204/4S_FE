@@ -46,6 +46,7 @@ import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import CheckoutPage from "./pages/Payment/CheckoutPage";
 import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
+import EduCheckoutPage from "./pages/Payment/EduCheckoutPage";
 
 function App() {
   const { t } = useTranslation();
@@ -73,6 +74,7 @@ function App() {
         dispatch(refreshTokenRequest());
       } else {
         // Nếu không có trạng thái đăng nhập cũ và đang ở trang bảo mật, quay về trang chủ
+        const path = window.location.pathname;
         const isPublicPath = [
           "/",
           "/login",
@@ -82,8 +84,10 @@ function App() {
           "/for-schools",
           "/about-us",
           "/not-found",
-          "/pricing"
-        ].includes(window.location.pathname);
+          "/pricing",
+          "/school-payment",
+          "/school-checkout"
+        ].some(p => path === p || path.startsWith(p + "/"));
 
         if (!isPublicPath) {
           navigate("/");
@@ -120,6 +124,10 @@ function App() {
   return (
     <>
       <Routes>
+        {/* Standalone B2B Public Pages (No Header/Footer from PublicLayout) */}
+        <Route path="/school-payment/:registrationId" element={<SchoolPaymentPortalPage />} />
+        <Route path="/school-checkout/:registrationId?" element={<EduCheckoutPage />} />
+
         {/* Public Layout - cho public users + student users */}
         <Route
           element={
@@ -144,7 +152,6 @@ function App() {
             path="/pricing"
             element={<PricingPage currentPlan={plan} isLoggedIn={isLoggedIn} />}
           />
-          <Route path="/school-payment/:registrationId" element={<SchoolPaymentPortalPage />} />
 
           {/* Protected Student Routes */}
           <Route
