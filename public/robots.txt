@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /accountant/
+Disallow: /school/
+Disallow: /school-manager/
+Disallow: /profile/
+Disallow: /chat/
+Disallow: /checkout/
+Disallow: /payment-qr/
+Disallow: /dashboard/
+Disallow: /consultation/
 
 Sitemap: https://4s-company.vercel.app/sitemap.xml
