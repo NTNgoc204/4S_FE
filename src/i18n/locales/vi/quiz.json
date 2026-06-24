@@ -8,8 +8,8 @@
   "compareButton": "So sánh {{count}} trường ->",
   "summaryTitle": "Tổng quan hồ sơ của bạn",
   "meta": {
-    "title": "Trắc Nghiệm Tính Cách Holland - Định Hướng Nghề Nghiệp 4S",
-    "description": "Làm bài trắc nghiệm Holland khoa học để nhận biết nhóm tính cách nổi trội của bản thân và gợi ý trường đại học phù hợp nhất."
+    "title": "Trắc Nghiệm Holland RIASEC Hướng Nghiệp AI - 4S",
+    "description": "Làm bài trắc nghiệm tính cách Holland RIASEC 4S để nhận gợi ý ngành học và trường đại học phù hợp qua phân tích của trí tuệ nhân tạo AI."
   },
   "confirmModal": {
     "title": "Làm lại bài trắc nghiệm?",

@@ -72,8 +72,8 @@ function ForSchoolsPage() {
   return (
     <>
       <Helmet>
-        <title>{locale === 'vi' ? 'Hợp Tác Tuyển Sinh & Hướng Nghiệp Cho Nhà Trường - 4S' : 'School Partnerships & Career Guidance - 4S'}</title>
-        <meta name="description" content={locale === 'vi' ? 'Đồng hành cùng các trường THPT và Đại học để mang lại giải pháp hướng nghiệp bằng AI, tăng cơ hội kết nối học sinh chất lượng.' : 'Partner with high schools and universities to deliver AI-driven career guidance, increasing student outreach and enrollment.'} />
+        <title>{locale === 'vi' ? 'Giải Pháp Hướng Nghiệp & Chọn Trường THPT - Hợp Tác 4S' : 'School Partnerships & Career Guidance - 4S'}</title>
+        <meta name="description" content={locale === 'vi' ? 'Đồng hành cùng 4S đưa giải pháp hướng nghiệp bằng AI và hệ thống chọn trường đại học phù hợp vào nhà trường, hỗ trợ học sinh THPT định hướng hiệu quả.' : 'Partner with high schools and universities to deliver AI-driven career guidance, increasing student outreach and enrollment.'} />
         <link rel="canonical" href={`${siteUrl}/for-schools`} />
         
         {/* Open Graph / Facebook */}
