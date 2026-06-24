@@ -181,15 +181,15 @@ function HomePage() {
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh" />
-        <meta property="og:description" content="Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế." />
+        <meta property="og:title" content={locale === 'vi' ? '4S - Hướng Nghiệp AI & Tìm Trường Đại Học Phù Hợp' : '4S - Smart Career Guidance & University Matching'} />
+        <meta property="og:description" content={locale === 'vi' ? 'Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và trợ lý tư vấn AI.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
         <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
         <meta property="og:url" content={siteUrl} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh" />
-        <meta property="twitter:description" content="Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế." />
+        <meta property="twitter:title" content={locale === 'vi' ? '4S - Hướng Nghiệp AI & Tìm Trường Đại Học Phù Hợp' : '4S - Smart Career Guidance & University Matching'} />
+        <meta property="twitter:description" content={locale === 'vi' ? 'Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và trợ lý tư vấn AI.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
         <meta property="twitter:image" content={`${siteUrl}/assets/logo-4s.png`} />
 
         {/* Schema JSON-LD */}
@@ -200,7 +200,7 @@ function HomePage() {
             "name": "4S Career Guidance",
             "url": siteUrl,
             "logo": `${siteUrl}/assets/logo-4s.png`,
-            "description": "Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và AI.",
+            "description": locale === 'vi' ? 'Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và AI.' : 'Smart career guidance and university matching platform helping students find their best paths.',
             "sameAs": []
           })}
         </script>

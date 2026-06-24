@@ -73,8 +73,8 @@ function AboutPage() {
         <link rel="canonical" href={`${siteUrl}/about-us`} />
         
         {/* Open Graph / Facebook */}
-        <meta property="og:title" content={locale === 'vi' ? 'Về Chúng Tôi - Định Hướng Nghề Nghiệp 4S' : 'About Us - 4S Career Guidance'} />
-        <meta property="og:description" content={locale === 'vi' ? 'Tìm hiểu về sứ mệnh, giá trị cốt lõi và đội ngũ phát triển đằng sau hệ thống định hướng nghề nghiệp thông minh 4S.' : 'Learn about the mission, core values, and development team behind the 4S smart career guidance system.'} />
+        <meta property="og:title" content={locale === 'vi' ? 'Về Chúng Tôi - Định Hướng Nghề Nghiệp AI 4S' : 'About Us - 4S Career Guidance'} />
+        <meta property="og:description" content={locale === 'vi' ? 'Tìm hiểu sứ mệnh phát triển hệ thống tư vấn hướng nghiệp AI 4S giúp học sinh THPT tìm kiếm ngành học và trường đại học phù hợp nhất.' : 'Learn about the mission, core values, and development team behind the 4S smart career guidance system.'} />
         <meta property="og:url" content={`${siteUrl}/about-us`} />
         <meta property="og:image" content={`${siteUrl}/assets/logo-4s.png`} />
       </Helmet>
