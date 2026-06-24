@@ -174,10 +174,10 @@ function HomePage() {
   return (
     <>
       <Helmet>
-        <title>{locale === 'vi' ? '4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh' : '4S - Smart Career Guidance & University Matching'}</title>
-        <meta name="description" content={locale === 'vi' ? 'Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
+        <title>{locale === 'vi' ? '4S - Hướng Nghiệp AI & Tìm Trường Đại Học Phù Hợp' : '4S - Smart Career Guidance & University Matching'}</title>
+        <meta name="description" content={locale === 'vi' ? 'Nền tảng hướng nghiệp thông minh giúp học sinh tìm kiếm ngành học và trường đại học phù hợp qua trắc nghiệm Holland và trợ lý tư vấn AI.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
         <link rel="canonical" href={siteUrl} />
-        <meta name="keywords" content="hướng nghiệp, trắc nghiệm holland, chọn trường đại học, chọn ngành học, tư vấn học đường, career guidance, university matching, holland test" />
+        <meta name="keywords" content="huong nghiep ai, chon truong phu hop, trac nghiem holland 4s, tim truong dai hoc, dinh huong nghe nghiep, 4s huong nghiep, career guidance, university matching" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
