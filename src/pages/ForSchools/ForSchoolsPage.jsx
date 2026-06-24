@@ -58,7 +58,7 @@ function ForSchoolsPage() {
   const benefits = ["reach", "quality", "transparent"];
   const steps = ["info", "review", "track", "maintain"];
 
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s-company.vercel.app';
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   // Trigger scroll reveals
@@ -74,6 +74,7 @@ function ForSchoolsPage() {
       <Helmet>
         <title>{locale === 'vi' ? 'Hợp Tác Tuyển Sinh & Hướng Nghiệp Cho Nhà Trường - 4S' : 'School Partnerships & Career Guidance - 4S'}</title>
         <meta name="description" content={locale === 'vi' ? 'Đồng hành cùng các trường THPT và Đại học để mang lại giải pháp hướng nghiệp bằng AI, tăng cơ hội kết nối học sinh chất lượng.' : 'Partner with high schools and universities to deliver AI-driven career guidance, increasing student outreach and enrollment.'} />
+        <link rel="canonical" href={`${siteUrl}/for-schools`} />
         
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Hợp Tác Tuyển Sinh & Hướng Nghiệp Cho Nhà Trường - 4S' : 'School Partnerships & Career Guidance - 4S'} />

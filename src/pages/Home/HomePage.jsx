@@ -115,7 +115,7 @@ function HomePage() {
   const currentPlan = String(outletContext?.currentPlan ?? '').toLowerCase()
   const isProAccount = currentPlan !== 'free' && currentPlan !== ''
 
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app'
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s-company.vercel.app'
 
   // Trigger custom scroll reveal animations
   useScrollReveal()
@@ -176,6 +176,7 @@ function HomePage() {
       <Helmet>
         <title>{locale === 'vi' ? '4S - Hướng Nghiệp & Định Hướng Trường Đại Học Thông Minh' : '4S - Smart Career Guidance & University Matching'}</title>
         <meta name="description" content={locale === 'vi' ? 'Khám phá trường đại học và lộ trình nghề nghiệp phù hợp với năng lực, sở thích và tài chính của bạn bằng công nghệ AI và dữ liệu thực tế.' : 'Discover universities and career paths matching your abilities, interests, and budget using advanced AI and real student data.'} />
+        <link rel="canonical" href={siteUrl} />
         <meta name="keywords" content="hướng nghiệp, trắc nghiệm holland, chọn trường đại học, chọn ngành học, tư vấn học đường, career guidance, university matching, holland test" />
         
         {/* Open Graph / Facebook */}

@@ -38,7 +38,7 @@ function AboutPage() {
   // Trigger scroll reveals
   useScrollReveal()
 
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s-company.vercel.app';
 
   const handleEmailClick = (e) => {
     e.preventDefault();
@@ -70,6 +70,7 @@ function AboutPage() {
       <Helmet>
         <title>{locale === 'vi' ? 'Về Chúng Tôi - Định Hướng Nghề Nghiệp 4S' : 'About Us - 4S Career Guidance'}</title>
         <meta name="description" content={locale === 'vi' ? 'Tìm hiểu về sứ mệnh, giá trị cốt lõi và đội ngũ phát triển đằng sau hệ thống định hướng nghề nghiệp thông minh 4S.' : 'Learn about the mission, core values, and development team behind the 4S smart career guidance system.'} />
+        <link rel="canonical" href={`${siteUrl}/about-us`} />
         
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={locale === 'vi' ? 'Về Chúng Tôi - Định Hướng Nghề Nghiệp 4S' : 'About Us - 4S Career Guidance'} />

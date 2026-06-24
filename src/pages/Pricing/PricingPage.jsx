@@ -99,7 +99,7 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
   plans.sort((a, b) => (sortOrder[a.planCode] ?? 99) - (sortOrder[b.planCode] ?? 99));
 
   const isPlansLoading = loading && dbPlans.length === 0;
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s.vercel.app';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://4s-company.vercel.app';
 
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
@@ -126,6 +126,7 @@ function PricingPage({ isLoggedIn = false, currentPlan = '' }) {
       <Helmet>
         <title>{t('pricing:meta.title', 'Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S')}</title>
         <meta name="description" content={t('pricing:meta.description', 'Xem các gói dịch vụ Pro và Enterprise giúp bạn mở khóa đầy đủ tính năng tư vấn hướng nghiệp AI và tìm trường đại học phù hợp.')} />
+        <link rel="canonical" href={`${siteUrl}/pricing`} />
         
         {/* Open Graph / Facebook */}
         <meta property="og:title" content={t('pricing:meta.title', 'Bảng Giá Dịch Vụ - Định Hướng Nghề Nghiệp 4S')} />
