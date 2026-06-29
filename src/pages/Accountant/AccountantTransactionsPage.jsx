@@ -3,6 +3,11 @@ import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import ConfirmModal from "../../components/ConfirmModal";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchRegistrationsRequest,
+  confirmPaymentRequest,
+} from "../../feature/edu/eduSlice";
 
 function fmtVND(n) {
   return `${Number(n).toLocaleString("vi-VN")} VND`;
@@ -10,31 +15,31 @@ function fmtVND(n) {
 
 const UI_TEXT = {
   vi: {
-    title: "Sổ Giao dịch Học sinh & Hoàn tiền",
-    subtitle: "Tra cứu lịch sử thanh toán nâng cấp VIP, hoàn tiền và phê duyệt thủ công.",
-    searchPlaceholder: "Tìm mã giao dịch, tên học sinh, email...",
-    statusAll: "Trạng thái (Tất cả)",
-    statusSuccess: "Success (Thành công)",
-    statusPending: "Pending (Chờ duyệt)",
-    statusRefunded: "Refunded (Đã hoàn tiền)",
-    statusExpired: "Expired (Hết hạn)",
-    colTxId: "Mã GD",
-    colStudent: "Học sinh / Email",
-    colPlan: "Gói cước",
-    colAmount: "Số tiền",
-    colDate: "Thời gian",
-    colStatus: "Trạng thái",
-    colActions: "Hành động",
-    noTransactions: "Không tìm thấy giao dịch nào.",
-    actionApprove: "Duyệt thủ công",
-    actionInvoice: "Xuất Hóa đơn VAT",
-    actionRefund: "Hoàn tiền (Refund)",
-    actionRefundMobile: "Hoàn tiền",
-    confirmApprove: "Xác nhận duyệt thủ công giao dịch",
-    confirmRefund: "Bạn có chắc chắn muốn hoàn tiền cho giao dịch không? Quyền lợi gói cước của học sinh sẽ bị đảo ngược.",
-    toastApproved: "Đã duyệt thủ công giao dịch. Doanh thu tổng đã được cập nhật.",
-    toastRefunded: "Giao dịch đã được hoàn tiền. Chỉ số doanh thu tổng đã giảm tương ứng.",
-    labelPlan: "Gói: ",
+    title: "Sá»• Giao dá»‹ch Há»c sinh & HoÃ n tiá»n",
+    subtitle: "Tra cá»©u lá»‹ch sá»­ thanh toÃ¡n nÃ¢ng cáº¥p VIP, hoÃ n tiá»n vÃ  phÃª duyá»‡t thá»§ cÃ´ng.",
+    searchPlaceholder: "TÃ¬m mÃ£ giao dá»‹ch, tÃªn há»c sinh, email...",
+    statusAll: "Tráº¡ng thÃ¡i (Táº¥t cáº£)",
+    statusSuccess: "Success (ThÃ nh cÃ´ng)",
+    statusPending: "Pending (Chá» duyá»‡t)",
+    statusRefunded: "Refunded (ÄÃ£ hoÃ n tiá»n)",
+    statusExpired: "Expired (Háº¿t háº¡n)",
+    colTxId: "MÃ£ GD",
+    colStudent: "Há»c sinh / Email",
+    colPlan: "GÃ³i cÆ°á»›c",
+    colAmount: "Sá»‘ tiá»n",
+    colDate: "Thá»i gian",
+    colStatus: "Tráº¡ng thÃ¡i",
+    colActions: "HÃ nh Ä‘á»™ng",
+    noTransactions: "KhÃ´ng tÃ¬m tháº¥y giao dá»‹ch nÃ o.",
+    actionApprove: "Duyá»‡t thá»§ cÃ´ng",
+    actionInvoice: "Xuáº¥t HÃ³a Ä‘Æ¡n VAT",
+    actionRefund: "HoÃ n tiá»n (Refund)",
+    actionRefundMobile: "HoÃ n tiá»n",
+    confirmApprove: "XÃ¡c nháº­n duyá»‡t thá»§ cÃ´ng giao dá»‹ch",
+    confirmRefund: "Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n hoÃ n tiá»n cho giao dá»‹ch khÃ´ng? Quyá»n lá»£i gÃ³i cÆ°á»›c cá»§a há»c sinh sáº½ bá»‹ Ä‘áº£o ngÆ°á»£c.",
+    toastApproved: "ÄÃ£ duyá»‡t thá»§ cÃ´ng giao dá»‹ch. Doanh thu tá»•ng Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t.",
+    toastRefunded: "Giao dá»‹ch Ä‘Ã£ Ä‘Æ°á»£c hoÃ n tiá»n. Chá»‰ sá»‘ doanh thu tá»•ng Ä‘Ã£ giáº£m tÆ°Æ¡ng á»©ng.",
+    labelPlan: "GÃ³i: ",
   },
   en: {
     title: "Student Transactions & Refunds Ledger",
@@ -70,15 +75,17 @@ function AccountantTransactionsPage() {
   const { i18n } = useTranslation();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
   const text = UI_TEXT[locale];
+  const dispatch = useDispatch();
 
-  const [activeTab, setActiveTab] = useState("students"); // "students" or "schools"
+  const { registrations: schoolRegistrations } = useSelector((s) => s.edu);
+
+  const [activeTab, setActiveTab] = useState("students");
 
   // Student transactions state
   const [incSearchText, setIncSearchText] = useState("");
   const [incStatusFilter, setIncStatusFilter] = useState("all");
 
-  // School registrations state
-  const [schoolRegistrations, setSchoolRegistrations] = useState([]);
+  // School registrations state — from Redux (edu slice)
   const [schoolSearchText, setSchoolSearchText] = useState("");
   const [schoolStatusFilter, setSchoolStatusFilter] = useState("all");
 
@@ -108,29 +115,13 @@ function AccountantTransactionsPage() {
     setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
   };
 
-  // Load school registrations from localStorage
-  const loadSchoolRegistrations = () => {
-    const data = localStorage.getItem("4s_school_registrations");
-    if (data) {
-      setSchoolRegistrations(JSON.parse(data));
-    }
-  };
-
+  // Load school registrations via saga on mount
   useEffect(() => {
-    loadSchoolRegistrations();
-
-    const handleUpdate = () => {
-      loadSchoolRegistrations();
-    };
-
-    window.addEventListener("storage", handleUpdate);
+    dispatch(fetchRegistrationsRequest());
+    const handleUpdate = () => dispatch(fetchRegistrationsRequest());
     window.addEventListener("4s_registrations_updated", handleUpdate);
-
-    return () => {
-      window.removeEventListener("storage", handleUpdate);
-      window.removeEventListener("4s_registrations_updated", handleUpdate);
-    };
-  }, []);
+    return () => window.removeEventListener("4s_registrations_updated", handleUpdate);
+  }, [dispatch]);
 
   // Filter incomes list (Student)
   const filteredIncomes = useMemo(() => {
@@ -164,13 +155,13 @@ function AccountantTransactionsPage() {
 
   function handleManualApprove(id) {
     showConfirm(
-      locale === "vi" ? "Duyệt giao dịch" : "Approve Transaction",
+      locale === "vi" ? "Duyá»‡t giao dá»‹ch" : "Approve Transaction",
       `${text.confirmApprove} ${id}?`,
       () => {
         setIncomes((prev) =>
           prev.map((item) => (item.id === id ? { ...item, status: "Success" } : item))
         );
-        toast.success(`${text.toastApproved.replace("giao dịch", id)}`);
+        toast.success(`${text.toastApproved.replace("giao dá»‹ch", id)}`);
       },
       "warning"
     );
@@ -178,19 +169,19 @@ function AccountantTransactionsPage() {
 
   function handleRefund(id) {
     showConfirm(
-      locale === "vi" ? "Hoàn tiền giao dịch" : "Refund Transaction",
-      `${text.confirmRefund.replace("giao dịch", id)}`,
+      locale === "vi" ? "HoÃ n tiá» n giao dá»‹ch" : "Refund Transaction",
+      `${text.confirmRefund.replace("giao dá»‹ch", id)}`,
       () => {
         setIncomes((prev) =>
           prev.map((item) => (item.id === id ? { ...item, status: "Refunded" } : item))
         );
-        toast.warn(`${text.toastRefunded.replace("Giao dịch", `Giao dịch ${id}`)}`);
+        toast.warn(`${text.toastRefunded.replace("Giao dá»‹ch", `Giao dá»‹ch ${id}`)}`);
       },
       "danger"
     );
   }
 
-  // Handle accountant confirms bank transfer from school
+  // Handle accountant confirms bank transfer from school → dispatch confirmPaymentSaga
   function handleConfirmSchoolPayment(reg) {
     showConfirm(
       locale === "vi" ? "Xác nhận nhận tiền chuyển khoản" : "Confirm Received Fund",
@@ -198,43 +189,32 @@ function AccountantTransactionsPage() {
         ? `Bạn có chắc chắn đã nhận đủ số tiền ${fmtVND(reg.price)} từ trường "${reg.schoolName}" cho đơn hàng ${reg.id}?`
         : `Are you sure you have received ${fmtVND(reg.price)} from school "${reg.schoolName}" for order ${reg.id}?`,
       () => {
-        const updated = schoolRegistrations.map((r) => {
-          if (r.id === reg.id) {
-            return { ...r, status: "Paid" };
-          }
-          return r;
-        });
-
-        localStorage.setItem("4s_school_registrations", JSON.stringify(updated));
-        setSchoolRegistrations(updated);
-
-        // Create notification for Contact agent to generate key
-        const notifId = "NOTIF_" + Date.now();
-        const newNotif = {
-          id: notifId,
-          role: "contact",
-          title: locale === "vi" ? `Thanh toán học đường thành công: ${reg.schoolName}` : `School Payment Successful: ${reg.schoolName}`,
-          message: locale === "vi"
-            ? `Trường ${reg.schoolName} đã được xác nhận thanh toán đơn ${reg.id}. Vui lòng sinh Key kích hoạt học đường.`
-            : `School ${reg.schoolName} has been confirmed paid for order ${reg.id}. Please generate subscription key.`,
-          createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
-          isRead: false,
-          type: "payment_confirmed",
-        };
-
-        const storedNotifs = localStorage.getItem("4s_notifications");
-        const currentNotifs = storedNotifs ? JSON.parse(storedNotifs) : [];
-        currentNotifs.push(newNotif);
-        localStorage.setItem("4s_notifications", JSON.stringify(currentNotifs));
-
-        // Dispatch custom events
-        window.dispatchEvent(new Event("4s_registrations_updated"));
-        window.dispatchEvent(new Event("4s_notifications_updated"));
-
-        toast.success(
-          locale === "vi"
-            ? `Xác nhận thanh toán đơn ${reg.id} thành công. Đã thông báo cho ban tiếp nhận!`
-            : `Confirmed payment for order ${reg.id} successfully. Contact team has been notified!`
+        dispatch(
+          confirmPaymentRequest({
+            id: reg.id,
+            onSuccess: () => {
+              // FE notification → Contact
+              const newNotif = {
+                id: "NOTIF_" + Date.now(),
+                role: "contact",
+                title: locale === "vi"
+                  ? `Thanh toán học đường thành công: ${reg.schoolName}`
+                  : `School Payment Successful: ${reg.schoolName}`,
+                message: locale === "vi"
+                  ? `Trường ${reg.schoolName} đã được xác nhận thanh toán đơn ${reg.id}. Vui lòng nhập email học sinh để cấp key kích hoạt.`
+                  : `School ${reg.schoolName} payment confirmed for order ${reg.id}. Please import student emails.`,
+                createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
+                isRead: false,
+                type: "payment_confirmed",
+              };
+              const stored = localStorage.getItem("4s_notifications");
+              const notifs = stored ? JSON.parse(stored) : [];
+              notifs.push(newNotif);
+              localStorage.setItem("4s_notifications", JSON.stringify(notifs));
+              window.dispatchEvent(new Event("4s_notifications_updated"));
+              window.dispatchEvent(new Event("4s_registrations_updated"));
+            },
+          })
         );
       },
       "warning"
@@ -247,10 +227,10 @@ function AccountantTransactionsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-['Sora'] text-xl font-semibold text-slate-900">
-            {activeTab === "students" ? text.title : (locale === "vi" ? "Phê duyệt Thanh toán Học đường" : "School Payment Confirmations")}
+            {activeTab === "students" ? text.title : (locale === "vi" ? "PhÃª duyá»‡t Thanh toÃ¡n Há»c Ä‘Æ°á»ng" : "School Payment Confirmations")}
           </h2>
           <p className="text-sm text-slate-500">
-            {activeTab === "students" ? text.subtitle : (locale === "vi" ? "Xác nhận tiền chuyển khoản từ các trường học đăng ký mua gói dịch vụ." : "Verify bank transfer from schools registering for career guidance subscriptions.")}
+            {activeTab === "students" ? text.subtitle : (locale === "vi" ? "XÃ¡c nháº­n tiá»n chuyá»ƒn khoáº£n tá»« cÃ¡c trÆ°á»ng há»c Ä‘Äƒng kÃ½ mua gÃ³i dá»‹ch vá»¥." : "Verify bank transfer from schools registering for career guidance subscriptions.")}
           </p>
         </div>
       </div>
@@ -266,7 +246,7 @@ function AccountantTransactionsPage() {
           onClick={() => setActiveTab("students")}
           type="button"
         >
-          {locale === "vi" ? "Giao dịch cá nhân (Học sinh)" : "Student Transactions"}
+          {locale === "vi" ? "Giao dá»‹ch cÃ¡ nhÃ¢n (Há»c sinh)" : "Student Transactions"}
         </button>
         <button
           className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
@@ -277,7 +257,7 @@ function AccountantTransactionsPage() {
           onClick={() => setActiveTab("schools")}
           type="button"
         >
-          {locale === "vi" ? "Xác nhận học đường (Trường học)" : "School Confirmations"}
+          {locale === "vi" ? "XÃ¡c nháº­n há»c Ä‘Æ°á»ng (TrÆ°á»ng há»c)" : "School Confirmations"}
         </button>
       </div>
 
@@ -450,7 +430,7 @@ function AccountantTransactionsPage() {
               <input
                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none shadow-sm"
                 onChange={(e) => setSchoolSearchText(e.target.value)}
-                placeholder={locale === "vi" ? "Tìm mã đơn, tên trường, email..." : "Search Order ID, school name..."}
+                placeholder={locale === "vi" ? "TÃ¬m mÃ£ Ä‘Æ¡n, tÃªn trÆ°á»ng, email..." : "Search Order ID, school name..."}
                 type="text"
                 value={schoolSearchText}
               />
@@ -459,11 +439,11 @@ function AccountantTransactionsPage() {
                 onChange={(e) => setSchoolStatusFilter(e.target.value)}
                 value={schoolStatusFilter}
               >
-                <option value="all">{locale === "vi" ? "Trạng thái (Tất cả)" : "Status (All)"}</option>
-                <option value="Pending">{locale === "vi" ? "Chờ tiếp nhận" : "Pending Inquiry"}</option>
-                <option value="Quoted">{locale === "vi" ? "Chờ chuyển khoản" : "Awaiting Transfer"}</option>
-                <option value="Paid">{locale === "vi" ? "Đã nhận tiền (Chờ sinh Key)" : "Paid (Awaiting Key)"}</option>
-                <option value="KeyGenerated">{locale === "vi" ? "Đã hoàn thành cấp Key" : "Completed / Key Created"}</option>
+                <option value="all">{locale === "vi" ? "Tráº¡ng thÃ¡i (Táº¥t cáº£)" : "Status (All)"}</option>
+                <option value="Pending">{locale === "vi" ? "Chá» tiáº¿p nháº­n" : "Pending Inquiry"}</option>
+                <option value="Quoted">{locale === "vi" ? "Chá» chuyá»ƒn khoáº£n" : "Awaiting Transfer"}</option>
+                <option value="Paid">{locale === "vi" ? "ÄÃ£ nháº­n tiá»n (Chá» sinh Key)" : "Paid (Awaiting Key)"}</option>
+                <option value="Completed">{locale === "vi" ? "ÄÃ£ hoÃ n thÃ nh cáº¥p Key" : "Completed / Key Created"}</option>
               </select>
             </div>
           </article>
@@ -474,20 +454,20 @@ function AccountantTransactionsPage() {
               <table className="min-w-full text-slate-800">
                 <thead className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.12em] text-slate-500 bg-slate-50 font-semibold">
                   <tr>
-                    <th className="px-4 py-3.5">{locale === "vi" ? "Mã Đơn" : "REG ID"}</th>
-                    <th className="px-4 py-3.5">{locale === "vi" ? "Trường học / Người liên hệ" : "School / Rep"}</th>
-                    <th className="px-4 py-3.5">{locale === "vi" ? "Gói đăng ký" : "Plan"}</th>
-                    <th className="px-4 py-3.5 text-right">{locale === "vi" ? "Số tiền chuyển" : "Price"}</th>
-                    <th className="px-4 py-3.5">{locale === "vi" ? "Ngày yêu cầu" : "Date"}</th>
-                    <th className="px-4 py-3.5">{locale === "vi" ? "Trạng thái" : "Status"}</th>
-                    <th className="px-4 py-3.5 text-right">{locale === "vi" ? "Hành động" : "Actions"}</th>
+                    <th className="px-4 py-3.5">{locale === "vi" ? "MÃ£ ÄÆ¡n" : "REG ID"}</th>
+                    <th className="px-4 py-3.5">{locale === "vi" ? "TrÆ°á»ng há»c / NgÆ°á»i liÃªn há»‡" : "School / Rep"}</th>
+                    <th className="px-4 py-3.5">{locale === "vi" ? "GÃ³i Ä‘Äƒng kÃ½" : "Plan"}</th>
+                    <th className="px-4 py-3.5 text-right">{locale === "vi" ? "Sá»‘ tiá»n chuyá»ƒn" : "Price"}</th>
+                    <th className="px-4 py-3.5">{locale === "vi" ? "NgÃ y yÃªu cáº§u" : "Date"}</th>
+                    <th className="px-4 py-3.5">{locale === "vi" ? "Tráº¡ng thÃ¡i" : "Status"}</th>
+                    <th className="px-4 py-3.5 text-right">{locale === "vi" ? "HÃ nh Ä‘á»™ng" : "Actions"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredSchoolRegistrations.length === 0 ? (
                     <tr>
                       <td className="px-4 py-8 text-center text-sm text-slate-400" colSpan={7}>
-                        {locale === "vi" ? "Không tìm thấy đơn đăng ký nào." : "No school registrations found."}
+                        {locale === "vi" ? "KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n Ä‘Äƒng kÃ½ nÃ o." : "No school registrations found."}
                       </td>
                     </tr>
                   ) : (
@@ -499,7 +479,7 @@ function AccountantTransactionsPage() {
                         <td className="px-4 py-4">
                           <p className="text-sm font-bold text-slate-900 leading-tight">{item.schoolName}</p>
                           <p className="text-xs text-slate-550 mt-1 font-semibold">
-                            {item.representative} • {item.phoneNumber}
+                            {item.representative} â€¢ {item.phoneNumber}
                           </p>
                           <p className="text-xs text-slate-400 mt-0.5">{item.email}</p>
                         </td>
@@ -522,15 +502,15 @@ function AccountantTransactionsPage() {
                                 ? "bg-blue-50 text-blue-700 border-blue-200"
                                 : item.status === "Paid"
                                 ? "bg-teal-50 text-teal-700 border-teal-200"
-                                : item.status === "KeyGenerated"
+                                : item.status === "Completed"
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-250"
                                 : "bg-slate-100 text-slate-600 border-slate-200"
                             }`}
                           >
-                            {item.status === "Pending" && (locale === "vi" ? "Chờ tiếp nhận" : "Pending")}
-                            {item.status === "Quoted" && (locale === "vi" ? "Chờ chuyển khoản" : "Awaiting payment")}
-                            {item.status === "Paid" && (locale === "vi" ? "Đã nhận tiền" : "Paid")}
-                            {item.status === "KeyGenerated" && (locale === "vi" ? "Đã cấp key" : "Completed")}
+                            {item.status === "Pending" && (locale === "vi" ? "Chá» tiáº¿p nháº­n" : "Pending")}
+                            {item.status === "Quoted" && (locale === "vi" ? "Chá» chuyá»ƒn khoáº£n" : "Awaiting payment")}
+                            {item.status === "Paid" && (locale === "vi" ? "ÄÃ£ nháº­n tiá»n" : "Paid")}
+                            {item.status === "Completed" && (locale === "vi" ? "ÄÃ£ cáº¥p key" : "Completed")}
                           </span>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-right">
@@ -541,15 +521,15 @@ function AccountantTransactionsPage() {
                                 onClick={() => handleConfirmSchoolPayment(item)}
                                 type="button"
                               >
-                                {locale === "vi" ? "Xác nhận đã nhận tiền" : "Confirm Received"}
+                                {locale === "vi" ? "XÃ¡c nháº­n Ä‘Ã£ nháº­n tiá»n" : "Confirm Received"}
                               </button>
                             ) : item.status === "Pending" ? (
                               <span className="text-xs text-slate-400 font-semibold italic">
-                                {locale === "vi" ? "Chờ Contact báo giá..." : "Awaiting quote..."}
+                                {locale === "vi" ? "Chá» Contact bÃ¡o giÃ¡..." : "Awaiting quote..."}
                               </span>
                             ) : (
                               <span className="text-xs text-teal-600 font-bold border border-teal-150 bg-teal-50/50 rounded-lg px-2.5 py-1">
-                                {locale === "vi" ? "Thanh toán hợp lệ" : "Payment Verified"}
+                                {locale === "vi" ? "Thanh toÃ¡n há»£p lá»‡" : "Payment Verified"}
                               </span>
                             )}
                           </div>
@@ -566,7 +546,7 @@ function AccountantTransactionsPage() {
           <section className="space-y-3.5 md:hidden">
             {filteredSchoolRegistrations.length === 0 ? (
               <p className="text-center py-6 text-sm text-slate-400">
-                {locale === "vi" ? "Không tìm thấy đơn đăng ký nào." : "No school registrations found."}
+                {locale === "vi" ? "KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n Ä‘Äƒng kÃ½ nÃ o." : "No school registrations found."}
               </p>
             ) : (
               filteredSchoolRegistrations.map((item) => (
@@ -581,21 +561,21 @@ function AccountantTransactionsPage() {
                           ? "bg-blue-50 text-blue-700 border-blue-200"
                           : item.status === "Paid"
                           ? "bg-teal-50 text-teal-700 border-teal-200"
-                          : item.status === "KeyGenerated"
+                          : item.status === "Completed"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-250"
                           : "bg-slate-100 text-slate-600 border-slate-200"
                       }`}
                     >
-                      {item.status === "Pending" && (locale === "vi" ? "Chờ tiếp nhận" : "Pending")}
-                      {item.status === "Quoted" && (locale === "vi" ? "Chờ chuyển khoản" : "Awaiting payment")}
-                      {item.status === "Paid" && (locale === "vi" ? "Đã nhận tiền" : "Paid")}
-                      {item.status === "KeyGenerated" && (locale === "vi" ? "Đã cấp key" : "Completed")}
+                      {item.status === "Pending" && (locale === "vi" ? "Chá» tiáº¿p nháº­n" : "Pending")}
+                      {item.status === "Quoted" && (locale === "vi" ? "Chá» chuyá»ƒn khoáº£n" : "Awaiting payment")}
+                      {item.status === "Paid" && (locale === "vi" ? "ÄÃ£ nháº­n tiá»n" : "Paid")}
+                      {item.status === "Completed" && (locale === "vi" ? "ÄÃ£ cáº¥p key" : "Completed")}
                     </span>
                   </div>
 
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm leading-snug">{item.schoolName}</h4>
-                    <p className="text-xs text-slate-500 mt-1 font-medium">Rep: {item.representative} • {item.phoneNumber}</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">Rep: {item.representative} â€¢ {item.phoneNumber}</p>
                     <p className="text-xs text-slate-400">{item.email}</p>
                     <div className="mt-2.5 flex items-center justify-between">
                       <span className="text-xs text-slate-600 font-bold">{item.planName} ({item.studentCount} HS)</span>
@@ -613,15 +593,15 @@ function AccountantTransactionsPage() {
                           onClick={() => handleConfirmSchoolPayment(item)}
                           type="button"
                         >
-                          {locale === "vi" ? "Xác nhận nhận tiền" : "Confirm Received"}
+                          {locale === "vi" ? "XÃ¡c nháº­n nháº­n tiá»n" : "Confirm Received"}
                         </button>
                       ) : item.status === "Pending" ? (
                         <span className="text-xs text-slate-400 italic">
-                          {locale === "vi" ? "Chờ báo giá..." : "Awaiting quote..."}
+                          {locale === "vi" ? "Chá» bÃ¡o giÃ¡..." : "Awaiting quote..."}
                         </span>
                       ) : (
                         <span className="text-xs text-teal-600 font-bold">
-                          {locale === "vi" ? "Đã nhận tiền" : "Paid Verified"}
+                          {locale === "vi" ? "ÄÃ£ nháº­n tiá»n" : "Paid Verified"}
                         </span>
                       )}
                     </div>
@@ -648,3 +628,4 @@ function AccountantTransactionsPage() {
 }
 
 export default AccountantTransactionsPage;
+

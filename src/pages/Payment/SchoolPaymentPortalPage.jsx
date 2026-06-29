@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -25,8 +25,8 @@ export default function SchoolPaymentPortalPage() {
         const defaultMocks = [
           {
             id: "REG1001",
-            schoolName: "THPT Nguyễn Thượng Hiền",
-            representative: "Nguyễn Văn An",
+            schoolName: "THPT Nguyá»…n ThÆ°á»£ng Hiá»n",
+            representative: "Nguyá»…n VÄƒn An",
             phoneNumber: "0912.345.678",
             email: "an.nguyen@thptnth.edu.vn",
             planName: "Edu Premium",
@@ -38,8 +38,8 @@ export default function SchoolPaymentPortalPage() {
           },
           {
             id: "REG1002",
-            schoolName: "THPT Chuyên Lê Hồng Phong",
-            representative: "Trần Thị Bình",
+            schoolName: "THPT ChuyÃªn LÃª Há»“ng Phong",
+            representative: "Tráº§n Thá»‹ BÃ¬nh",
             phoneNumber: "0987654321",
             email: "binh.tran@thptlhp.edu.vn",
             planName: "Edu Premium",
@@ -60,8 +60,8 @@ export default function SchoolPaymentPortalPage() {
       if (!matched && registrationId === "mock-edu") {
         const mockReg = {
           id: "mock-edu",
-          schoolName: "THPT Nguyễn Thượng Hiền (Demo)",
-          representative: "Nguyễn Văn An",
+          schoolName: "THPT Nguyá»…n ThÆ°á»£ng Hiá»n (Demo)",
+          representative: "Nguyá»…n VÄƒn An",
           phoneNumber: "0912.345.678",
           email: "an.nguyen@thptnth.edu.vn",
           planName: "Edu Premium",
@@ -111,32 +111,11 @@ export default function SchoolPaymentPortalPage() {
     if (registration && registration.activationKey) {
       navigator.clipboard.writeText(registration.activationKey);
       setCopied(true);
-      toast.success(isVi ? "Đã sao chép khóa kích hoạt!" : "Activation Key copied to clipboard!");
+      toast.success(isVi ? "ÄÃ£ sao chÃ©p khÃ³a kÃ­ch hoáº¡t!" : "Activation Key copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  const handleGenerateB2BQR = () => {
-    try {
-      const data = localStorage.getItem("4s_school_registrations");
-      if (!data) return;
-      const list = JSON.parse(data);
-      const targetId = registrationId;
-      
-      const updated = list.map((r) => {
-        if (r.id === targetId) {
-          return { ...r, qrGenerated: true };
-        }
-        return r;
-      });
-
-      localStorage.setItem("4s_school_registrations", JSON.stringify(updated));
-      window.dispatchEvent(new Event("4s_registrations_updated"));
-      toast.success(isVi ? "Khởi tạo cổng thanh toán payOS thành công!" : "payOS payment gateway initialized successfully!");
-    } catch (e) {
-      console.error("Error generating QR:", e);
-    }
-  };
 
   const handlePrint = () => {
     window.print();
@@ -151,7 +130,7 @@ export default function SchoolPaymentPortalPage() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500 font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
-          <p className="text-sm font-semibold">{isVi ? "Đang tải hóa đơn..." : "Loading invoice details..."}</p>
+          <p className="text-sm font-semibold">{isVi ? "Äang táº£i hÃ³a Ä‘Æ¡n..." : "Loading invoice details..."}</p>
         </div>
       </div>
     );
@@ -167,11 +146,11 @@ export default function SchoolPaymentPortalPage() {
             </svg>
           </div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight font-['Sora']">
-            {isVi ? "Không tìm thấy đơn hàng" : "Order Not Found"}
+            {isVi ? "KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng" : "Order Not Found"}
           </h2>
           <p className="mt-2 text-sm text-slate-500 leading-relaxed">
             {isVi 
-              ? `Mã đơn hàng "${registrationId}" không tồn tại trên hệ thống hoặc đã bị hủy. Vui lòng kiểm tra lại đường dẫn.`
+              ? `MÃ£ Ä‘Æ¡n hÃ ng "${registrationId}" khÃ´ng tá»“n táº¡i trÃªn há»‡ thá»‘ng hoáº·c Ä‘Ã£ bá»‹ há»§y. Vui lÃ²ng kiá»ƒm tra láº¡i Ä‘Æ°á»ng dáº«n.`
               : `Order ID "${registrationId}" does not exist in our system or was cancelled. Please check the URL link.`}
           </p>
           <div className="mt-6">
@@ -179,7 +158,7 @@ export default function SchoolPaymentPortalPage() {
               to="/"
               className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition cursor-pointer"
             >
-              {isVi ? "Quay lại Trang chủ" : "Back to Home"}
+              {isVi ? "Quay láº¡i Trang chá»§" : "Back to Home"}
             </Link>
           </div>
         </div>
@@ -193,8 +172,32 @@ export default function SchoolPaymentPortalPage() {
   const vatAmount = totalPrice - priceBeforeTax;
   const unitPrice = Math.round(priceBeforeTax / registration.studentCount);
 
-  // Dynamic VietQR generator link
-  const qrCodeUrl = `https://img.vietqr.io/image/MB-0912345678-compact2.png?amount=${totalPrice}&addInfo=${registration.id}&accountName=4S%20CORP`;
+  // Expiration calculation (14 days limit as BE)
+  const getExpirationInfo = () => {
+    if (!registration || !registration.createdAt) return null;
+    const createdDate = new Date(registration.createdAt.replace(" ", "T"));
+    const expiredDate = new Date(createdDate.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+    const now = new Date();
+    const diffTime = expiredDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const formattedDate = expiredDate.toLocaleDateString(isVi ? "vi-VN" : "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    return {
+      formattedDate,
+      diffDays,
+      isExpired: diffTime <= 0
+    };
+  };
+
+  const expInfo = getExpirationInfo();
+
+  // Dynamic VietQR generator link (compact2 includes bank logo, account name, amount label)
+  const qrCodeUrl = `https://img.vietqr.io/image/MB-0912345678-compact2.png?amount=${totalPrice}&addInfo=${encodeURIComponent(registration.id)}&accountName=CONG%20TY%20CP%20HUONG%20NGHIEP%204S`;
 
   return (
     <main className="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-sans text-slate-800 print:bg-white print:py-0 print:px-0">
@@ -217,7 +220,7 @@ export default function SchoolPaymentPortalPage() {
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3a2 2 0 002 2zm5-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h6z" />
             </svg>
-            {isVi ? "In báo giá / Tải PDF" : "Print Invoice / PDF"}
+            {isVi ? "In bÃ¡o giÃ¡ / Táº£i PDF" : "Print Invoice / PDF"}
           </button>
         </header>
 
@@ -229,7 +232,7 @@ export default function SchoolPaymentPortalPage() {
             
             {/* PDF Watermark decoration (Hidden on Print) */}
             <div className="absolute top-4 right-4 rounded-lg border border-slate-100 bg-slate-50/50 px-2.5 py-1 text-[10px] font-sans font-bold text-slate-450 select-none print:hidden">
-              {isVi ? "BẢN IN BÁO GIÁ" : "OFFICIAL PROPOSAL"}
+              {isVi ? "Báº¢N IN BÃO GIÃ" : "OFFICIAL PROPOSAL"}
             </div>
 
             <div className="space-y-6">
@@ -238,18 +241,18 @@ export default function SchoolPaymentPortalPage() {
                 <div className="font-sans">
                   <h1 className="font-extrabold text-lg text-slate-900 leading-none tracking-tight">4S CAREER GROUP</h1>
                   <p className="text-[11px] text-slate-550 mt-1.5 font-bold">4S Career Guidance & AI Solutions</p>
-                  <p className="text-[10px] text-slate-450 font-semibold">Hotline: 0912.345.678 • Email: contact@4s.edu.vn</p>
-                  <p className="text-[10px] text-slate-400 font-medium">Techcombank: 190367899999 • Hà Nội, Việt Nam</p>
+                  <p className="text-[10px] text-slate-450 font-semibold">Hotline: 0912.345.678 â€¢ Email: contact@4s.edu.vn</p>
+                  <p className="text-[10px] text-slate-400 font-medium">Techcombank: 190367899999 â€¢ HÃ  Ná»™i, Viá»‡t Nam</p>
                 </div>
                 <div className="text-right font-sans">
                   <h2 className="font-black text-base text-indigo-700 leading-none uppercase tracking-wide">
-                    {isVi ? "BÁO GIÁ DỊCH VỤ" : "PROPOSAL & INVOICE"}
+                    {isVi ? "BÃO GIÃ Dá»ŠCH Vá»¤" : "PROPOSAL & INVOICE"}
                   </h2>
                   <p className="text-xs text-slate-900 font-extrabold mt-2 bg-slate-100 inline-block px-2 py-0.5 rounded-md">
                     {registration.id}
                   </p>
                   <p className="text-[10px] text-slate-400 mt-1 font-medium">
-                    {isVi ? "Ngày phát hành:" : "Date issued:"} {new Date(registration.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    {isVi ? "NgÃ y phÃ¡t hÃ nh:" : "Date issued:"} {new Date(registration.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", { year: "numeric", month: "long", day: "numeric" })}
                   </p>
                 </div>
               </div>
@@ -257,18 +260,18 @@ export default function SchoolPaymentPortalPage() {
               {/* Client Info Section */}
               <div className="text-xs space-y-1.5 font-sans border-b border-slate-150 pb-5">
                 <h3 className="text-2xs font-extrabold text-slate-400 uppercase tracking-wider mb-2">
-                  {isVi ? "THÔNG TIN KHÁCH HÀNG" : "CLIENT SPECIFICATIONS"}
+                  {isVi ? "THÃ”NG TIN KHÃCH HÃ€NG" : "CLIENT SPECIFICATIONS"}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-1">
-                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "Trường học:" : "School:"}</span>
+                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "TrÆ°á»ng há»c:" : "School:"}</span>
                   <span className="sm:col-span-9 font-extrabold text-slate-900">{registration.schoolName}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-1">
-                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "Đại diện:" : "Representative:"}</span>
+                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "Äáº¡i diá»‡n:" : "Representative:"}</span>
                   <span className="sm:col-span-9 font-semibold text-slate-800">{registration.representative}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-1">
-                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "Điện thoại:" : "Phone:"}</span>
+                  <span className="sm:col-span-3 text-slate-450 font-bold uppercase tracking-wide">{isVi ? "Äiá»‡n thoáº¡i:" : "Phone:"}</span>
                   <span className="sm:col-span-9 font-medium text-slate-700">{registration.phoneNumber}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-1">
@@ -282,10 +285,10 @@ export default function SchoolPaymentPortalPage() {
                 <table className="min-w-full text-xs">
                   <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
                     <tr>
-                      <th className="px-4 py-3 text-left">{isVi ? "Hạng mục / Gói cước" : "Item Description"}</th>
-                      <th className="px-3 py-3 text-right">{isVi ? "Số lượng" : "Quantity"}</th>
-                      <th className="px-4 py-3 text-right">{isVi ? "Đơn giá" : "Rate"}</th>
-                      <th className="px-4 py-3 text-right">{isVi ? "Thành tiền" : "Total (VND)"}</th>
+                      <th className="px-4 py-3 text-left">{isVi ? "Háº¡ng má»¥c / GÃ³i cÆ°á»›c" : "Item Description"}</th>
+                      <th className="px-3 py-3 text-right">{isVi ? "Sá»‘ lÆ°á»£ng" : "Quantity"}</th>
+                      <th className="px-4 py-3 text-right">{isVi ? "ÄÆ¡n giÃ¡" : "Rate"}</th>
+                      <th className="px-4 py-3 text-right">{isVi ? "ThÃ nh tiá»n" : "Total (VND)"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-150 text-slate-700 bg-white font-medium">
@@ -294,7 +297,7 @@ export default function SchoolPaymentPortalPage() {
                         <p className="font-extrabold text-slate-900 text-sm">{registration.planName}</p>
                         <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
                           {isVi 
-                            ? "Cấp quyền sử dụng hệ thống trắc nghiệm hướng nghiệp thông minh & Trợ lý tư vấn AI chuyên sâu cho học sinh toàn trường." 
+                            ? "Cáº¥p quyá»n sá»­ dá»¥ng há»‡ thá»‘ng tráº¯c nghiá»‡m hÆ°á»›ng nghiá»‡p thÃ´ng minh & Trá»£ lÃ½ tÆ° váº¥n AI chuyÃªn sÃ¢u cho há»c sinh toÃ n trÆ°á»ng." 
                             : "Enterprise licensing for online career guidance quizzes and interactive AI counseling bot for all students."}
                         </p>
                       </td>
@@ -304,19 +307,19 @@ export default function SchoolPaymentPortalPage() {
                     </tr>
                     <tr className="bg-slate-50/50">
                       <td className="px-4 py-2.5 text-right font-semibold text-slate-550" colSpan={3}>
-                        {isVi ? "Tạm tính (Chưa gồm VAT 10%)" : "Subtotal (Excl. VAT)"}
+                        {isVi ? "Táº¡m tÃ­nh (ChÆ°a gá»“m VAT 10%)" : "Subtotal (Excl. VAT)"}
                       </td>
                       <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold text-slate-750">{fmtVND(priceBeforeTax)}</td>
                     </tr>
                     <tr className="bg-slate-50/50">
                       <td className="px-4 py-2.5 text-right font-semibold text-slate-550" colSpan={3}>
-                        {isVi ? "Thuế GTGT (VAT 10%)" : "Value Added Tax (VAT 10%)"}
+                        {isVi ? "Thuáº¿ GTGT (VAT 10%)" : "Value Added Tax (VAT 10%)"}
                       </td>
                       <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold text-slate-750">{fmtVND(vatAmount)}</td>
                     </tr>
                     <tr className="bg-indigo-50/20">
                       <td className="px-4 py-3 text-right font-extrabold text-slate-900" colSpan={3}>
-                        {isVi ? "TỔNG TIỀN PHẢI THANH TOÁN" : "TOTAL AMOUNT PAYABLE"}
+                        {isVi ? "Tá»”NG TIá»€N PHáº¢I THANH TOÃN" : "TOTAL AMOUNT PAYABLE"}
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap font-black text-indigo-700 text-sm">
                         {fmtVND(totalPrice)}
@@ -328,10 +331,10 @@ export default function SchoolPaymentPortalPage() {
 
               {/* Terms of Proposal */}
               <div className="text-[10px] text-slate-400 font-sans space-y-1 leading-relaxed border-t border-slate-100 pt-4 print:pt-2">
-                <p className="font-bold text-slate-500 uppercase tracking-wider">{isVi ? "* ĐIỀU KHOẢN BÁO GIÁ:" : "* TERMS & CONDITIONS:"}</p>
-                <p>1. {isVi ? "Báo giá có hiệu lực trong vòng 14 ngày kể từ ngày phát hành." : "This proposal remains valid for 14 days from issue date."}</p>
-                <p>2. {isVi ? "Mã kích hoạt khóa học sẽ được mở khóa và bàn giao trực tiếp tại cổng thông tin này sau khi thanh toán được hệ thống xác nhận." : "The subscription key will be unlocked and rendered directly on this page once payment is successfully verified."}</p>
-                <p>3. {isVi ? "Mọi thắc mắc vui lòng liên hệ hotline 0912.345.678 để được hỗ trợ kịp thời." : "For support regarding payments or custom billing, contact our accounts department at finance@4s.edu.vn."}</p>
+                <p className="font-bold text-slate-500 uppercase tracking-wider">{isVi ? "* ÄIá»€U KHOáº¢N BÃO GIÃ:" : "* TERMS & CONDITIONS:"}</p>
+                <p>1. {isVi ? `BÃ¡o giÃ¡ cÃ³ hiá»‡u lá»±c trong vÃ²ng 14 ngÃ y ká»ƒ tá»« ngÃ y phÃ¡t hÃ nh (Háº¡n thanh toÃ¡n: ${expInfo?.formattedDate || ""}).` : `This proposal remains valid for 14 days from issue date (Expires: ${expInfo?.formattedDate || ""}).`}</p>
+                <p>2. {isVi ? "MÃ£ kÃ­ch hoáº¡t khÃ³a há»c sáº½ Ä‘Æ°á»£c má»Ÿ khÃ³a vÃ  bÃ n giao trá»±c tiáº¿p táº¡i cá»•ng thÃ´ng tin nÃ y sau khi thanh toÃ¡n Ä‘Æ°á»£c há»‡ thá»‘ng xÃ¡c nháº­n." : "The subscription key will be unlocked and rendered directly on this page once payment is successfully verified."}</p>
+                <p>3. {isVi ? "Má»i tháº¯c máº¯c vui lÃ²ng liÃªn há»‡ hotline 0912.345.678 Ä‘á»ƒ Ä‘Æ°á»£c há»— trá»£ ká»‹p thá»i." : "For support regarding payments or custom billing, contact our accounts department at finance@4s.edu.vn."}</p>
               </div>
             </div>
 
@@ -343,32 +346,20 @@ export default function SchoolPaymentPortalPage() {
             {/* Status Indicator Card */}
             <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
               <h3 className="font-['Sora'] font-bold text-slate-900 text-sm tracking-tight">
-                {isVi ? "Trạng thái thanh toán" : "Payment Status"}
+                {isVi ? "Tráº¡ng thÃ¡i thanh toÃ¡n" : "Payment Status"}
               </h3>
               
               <div className="flex items-center gap-3">
                 {/* Blinking/Static status badge */}
-                {registration.status === "Pending" && (
-                  <>
-                    <span className="flex h-3.5 w-3.5 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
-                    </span>
-                    <div>
-                      <p className="text-sm font-extrabold text-amber-700 uppercase tracking-wider">{isVi ? "Đang chờ duyệt đơn" : "Pending Inquiry"}</p>
-                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Đang chờ ban tiếp nhận gửi báo giá..." : "Waiting for quote confirmation..."}</p>
-                    </div>
-                  </>
-                )}
-                {registration.status === "Quoted" && (
+                {(registration.status === "Pending" || registration.status === "Quoted") && (
                   <>
                     <span className="flex h-3.5 w-3.5 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-blue-500"></span>
                     </span>
                     <div>
-                      <p className="text-sm font-extrabold text-blue-700 uppercase tracking-wider">{isVi ? "Chờ chuyển khoản" : "Awaiting Transfer"}</p>
-                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Vui lòng quét mã QR thanh toán phía dưới" : "Please scan the payment QR code below"}</p>
+                      <p className="text-sm font-extrabold text-blue-700 uppercase tracking-wider">{isVi ? "Chá» chuyá»ƒn khoáº£n" : "Awaiting Transfer"}</p>
+                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Vui lÃ²ng quÃ©t mÃ£ QR thanh toÃ¡n phÃ­a dÆ°á»›i" : "Please scan the payment QR code below"}</p>
                     </div>
                   </>
                 )}
@@ -379,19 +370,19 @@ export default function SchoolPaymentPortalPage() {
                       <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500"></span>
                     </span>
                     <div>
-                      <p className="text-sm font-extrabold text-teal-700 uppercase tracking-wider">{isVi ? "Đã nhận tiền thành công" : "Payment Received"}</p>
-                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Đang chờ cấp khóa kích hoạt học đường..." : "Waiting for key generation..."}</p>
+                      <p className="text-sm font-extrabold text-teal-700 uppercase tracking-wider">{isVi ? "ÄÃ£ nháº­n tiá»n thÃ nh cÃ´ng" : "Payment Received"}</p>
+                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Äang chá» cáº¥p khÃ³a kÃ­ch hoáº¡t há»c Ä‘Æ°á»ng..." : "Waiting for key generation..."}</p>
                     </div>
                   </>
                 )}
-                {registration.status === "KeyGenerated" && (
+                {registration.status === "Completed" && (
                   <>
                     <span className="flex h-3.5 w-3.5">
                       <span className="inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
                     </span>
                     <div>
-                      <p className="text-sm font-extrabold text-emerald-700 uppercase tracking-wider">{isVi ? "Đã hoàn thành cấp Key" : "Order Completed"}</p>
-                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Bản quyền trường học đã sẵn sàng" : "School subscription license activated"}</p>
+                      <p className="text-sm font-extrabold text-emerald-700 uppercase tracking-wider">{isVi ? "ÄÃ£ hoÃ n thÃ nh cáº¥p Key" : "Order Completed"}</p>
+                      <p className="text-2xs text-slate-450 font-semibold mt-0.5">{isVi ? "Báº£n quyá»n trÆ°á»ng há»c Ä‘Ã£ sáºµn sÃ ng" : "School subscription license activated"}</p>
                     </div>
                   </>
                 )}
@@ -400,68 +391,12 @@ export default function SchoolPaymentPortalPage() {
 
             {/* CONDITIONAL RENDER BASED ON STATUS */}
 
-            {/* 1. STATUS: Pending */}
-            {registration.status === "Pending" && (
-              <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm text-center py-10 space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h4 className="text-base font-bold text-slate-900 font-['Sora']">{isVi ? "Yêu cầu đang xử lý" : "Processing Inquiry"}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
-                  {isVi 
-                    ? "Ban tiếp nhận đang kiểm tra số lượng học sinh và lập báo giá chính thức. Vui lòng quay lại trang này sau khi nhận được email thông báo."
-                    : "Our representative is reviewing your student count to draft an official proposal. Please visit this link again after receiving email confirmation."}
-                </p>
-              </article>
-            )}
-
-            {/* 2. STATUS: Quoted (Review & Generate payOS QR) */}
-            {registration.status === "Quoted" && !registration.qrGenerated && (
-              <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
-                  <h4 className="font-['Sora'] font-bold text-slate-900 text-sm tracking-tight">
-                    {isVi ? "Cổng thanh toán học đường" : "School Payment Portal"}
-                  </h4>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                    B2B Invoice
-                  </span>
-                </div>
-
-                <div className="text-center py-6 px-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-4">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h5 className="text-sm font-bold text-slate-900 font-['Sora']">
-                      {isVi ? "Xác nhận & Tạo mã thanh toán" : "Confirm & Initiate Payment"}
-                    </h5>
-                    <p className="text-2xs text-slate-450 leading-relaxed max-w-xs mx-auto">
-                      {isVi 
-                        ? "Vui lòng đối chiếu thông tin báo giá chi tiết của trường bên cột trái. Sau đó bấm nút dưới đây để tạo mã QR chuyển khoản payOS tự động."
-                        : "Please verify proposal details on the left. Click below to initialize real-time payOS QR code."}
-                    </p>
-                  </div>
-                  
-                  <button
-                    onClick={handleGenerateB2BQR}
-                    className="w-full max-w-xs rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:scale-[1.02] active:scale-95 py-2.5 text-xs font-bold text-white transition shadow-md shadow-indigo-900/20 cursor-pointer"
-                  >
-                    {isVi ? "Xác nhận thanh toán (payOS)" : "Confirm & Pay via payOS"}
-                  </button>
-                </div>
-              </article>
-            )}
-
-            {/* 2b. STATUS: Quoted & QR Generated (Show VietQR) */}
-            {registration.status === "Quoted" && registration.qrGenerated && (
+            {/* 1 & 2. STATUS: Pending or Quoted (Show VietQR immediately) */}
+            {(registration.status === "Pending" || registration.status === "Quoted") && (
               <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5 animate-fadeIn">
                 <div className="border-b border-slate-150 pb-3 flex items-center justify-between">
                   <h4 className="font-['Sora'] font-bold text-slate-900 text-sm tracking-tight">
-                    {isVi ? "Thanh toán quét mã QR" : "Scan to pay with VietQR"}
+                    {isVi ? "Thanh toÃ¡n quÃ©t mÃ£ QR" : "Scan to pay with VietQR"}
                   </h4>
                   <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-md flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-500 animate-pulse" />
@@ -471,16 +406,16 @@ export default function SchoolPaymentPortalPage() {
 
                 <div className="flex flex-col items-center gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200/80">
                   {/* QR Image */}
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs">
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs overflow-hidden">
                     <img
                       alt="VietQR code"
-                      className="h-44 w-44 object-contain block"
+                      className="w-56 h-auto object-contain block"
                       src={qrCodeUrl}
                     />
                   </div>
                   <p className="text-3xs text-slate-400 font-medium text-center">
                     {isVi 
-                      ? "* Khuyên dùng: Quét mã QR trên bằng ứng dụng ngân hàng để tự động nhập đầy đủ Số tiền & Nội dung chuyển khoản."
+                      ? "* KhuyÃªn dÃ¹ng: QuÃ©t mÃ£ QR trÃªn báº±ng á»©ng dá»¥ng ngÃ¢n hÃ ng Ä‘á»ƒ tá»± Ä‘á»™ng nháº­p Ä‘áº§y Ä‘á»§ Sá»‘ tiá»n & Ná»™i dung chuyá»ƒn khoáº£n."
                       : "* Recommended: Scan QR above using banking app to auto-fill amount, account, and transfer notes."}
                   </p>
                 </div>
@@ -488,25 +423,42 @@ export default function SchoolPaymentPortalPage() {
                 {/* Bank account credentials */}
                 <div className="text-xs space-y-2.5 font-medium text-slate-700 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">{isVi ? "Ngân hàng:" : "Bank:"}</span>
-                    <span className="font-bold text-slate-800">MB Bank (Quân Đội)</span>
+                    <span className="text-slate-400">{isVi ? "NgÃ¢n hÃ ng:" : "Bank:"}</span>
+                    <span className="font-bold text-slate-800">MB Bank (QuÃ¢n Äá»™i)</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">{isVi ? "Số tài khoản:" : "Account Number:"}</span>
+                    <span className="text-slate-400">{isVi ? "Sá»‘ tÃ i khoáº£n:" : "Account Number:"}</span>
                     <span className="font-extrabold text-slate-900 text-sm">0912345678</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">{isVi ? "Tên tài khoản:" : "Account Owner:"}</span>
+                    <span className="text-slate-400">{isVi ? "TÃªn tÃ i khoáº£n:" : "Account Owner:"}</span>
                     <span className="font-bold text-slate-800">CONG TY CP HUONG NGHIEP 4S</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-slate-150/50 pt-2.5">
-                    <span className="text-slate-400">{isVi ? "Nội dung chuyển khoản:" : "Transfer Note:"}</span>
+                    <span className="text-slate-400">{isVi ? "Ná»™i dung chuyá»ƒn khoáº£n:" : "Transfer Note:"}</span>
                     <span className="font-black text-indigo-700 text-sm">{registration.id}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">{isVi ? "Số tiền chuyển:" : "Amount Payable:"}</span>
+                    <span className="text-slate-400">{isVi ? "Sá»‘ tiá»n chuyá»ƒn:" : "Amount Payable:"}</span>
                     <span className="font-extrabold text-teal-600">{fmtVND(totalPrice)}</span>
                   </div>
+                  {expInfo && (
+                    <div className="flex justify-between items-center border-t border-slate-150/50 pt-2 text-2xs">
+                      <span className="text-slate-400">{isVi ? "Háº¡n thanh toÃ¡n:" : "Payment Expiry:"}</span>
+                      {expInfo.isExpired ? (
+                        <span className="font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md">
+                          {isVi ? "Háº¿t háº¡n (ÄÃ£ tá»± Ä‘á»™ng gia háº¡n)" : "Expired (Auto-renewed)"}
+                        </span>
+                      ) : (
+                        <span className="font-semibold text-slate-600">
+                          {expInfo.formattedDate}{" "}
+                          <span className="text-indigo-650 font-bold">
+                            ({isVi ? `CÃ²n ${expInfo.diffDays} ngÃ y` : `${expInfo.diffDays} days left`})
+                          </span>
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="rounded-xl border border-blue-150 bg-blue-50/30 p-3 flex items-start gap-2.5 text-2xs text-blue-700 leading-relaxed">
@@ -515,7 +467,7 @@ export default function SchoolPaymentPortalPage() {
                   </svg>
                   <p>
                     {isVi 
-                      ? "Hệ thống sẽ tự động phê duyệt ngay lập tức sau khi nhận được đúng số tiền và nội dung chuyển khoản qua payOS."
+                      ? "Há»‡ thá»‘ng sáº½ tá»± Ä‘á»™ng phÃª duyá»‡t ngay láº­p tá»©c sau khi nháº­n Ä‘Æ°á»£c Ä‘Ãºng sá»‘ tiá»n vÃ  ná»™i dung chuyá»ƒn khoáº£n qua payOS."
                       : "The system validates transactions automatically. Please ensure transfer note and amount match exactly."}
                   </p>
                 </div>
@@ -531,10 +483,10 @@ export default function SchoolPaymentPortalPage() {
                   </svg>
                 </div>
                 <div className="space-y-1.5">
-                  <h4 className="text-lg font-black text-slate-900 font-['Sora']">{isVi ? "Xác nhận nhận tiền thành công!" : "Payment Confirmed!"}</h4>
+                  <h4 className="text-lg font-black text-slate-900 font-['Sora']">{isVi ? "XÃ¡c nháº­n nháº­n tiá»n thÃ nh cÃ´ng!" : "Payment Confirmed!"}</h4>
                   <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
                     {isVi 
-                      ? `Hệ thống đã ghi nhận số tiền thanh toán ${fmtVND(totalPrice)} của đơn ${registration.id}.`
+                      ? `Há»‡ thá»‘ng Ä‘Ã£ ghi nháº­n sá»‘ tiá»n thanh toÃ¡n ${fmtVND(totalPrice)} cá»§a Ä‘Æ¡n ${registration.id}.`
                       : `We have successfully received payment of ${fmtVND(totalPrice)} for invoice ${registration.id}.`}
                   </p>
                 </div>
@@ -542,11 +494,11 @@ export default function SchoolPaymentPortalPage() {
                 <div className="rounded-2xl border border-teal-100 bg-teal-50/20 p-4.5 text-xs text-teal-800 text-left leading-relaxed space-y-2 max-w-sm mx-auto">
                   <p className="font-bold flex items-center gap-1.5 text-teal-900">
                     <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse" />
-                    {isVi ? "Đang chờ sinh Activation Key..." : "Preparing Activation Key..."}
+                    {isVi ? "Äang chá» sinh Activation Key..." : "Preparing Activation Key..."}
                   </p>
                   <p className="text-slate-550 text-[11px]">
                     {isVi 
-                      ? "Ban tiếp nhận (Contact) đang thực hiện thủ tục cấp phát key bản quyền và gửi thư bàn giao. Mã Activation Key sẽ tự động hiển thị tại trang này ngay khi hoàn tất."
+                      ? "Ban tiáº¿p nháº­n (Contact) Ä‘ang thá»±c hiá»‡n thá»§ tá»¥c cáº¥p phÃ¡t key báº£n quyá»n vÃ  gá»­i thÆ° bÃ n giao. MÃ£ Activation Key sáº½ tá»± Ä‘á»™ng hiá»ƒn thá»‹ táº¡i trang nÃ y ngay khi hoÃ n táº¥t."
                       : "The accounts team is registering your license package. Your activation credentials will render on this screen immediately once processed."}
                   </p>
                 </div>
@@ -554,7 +506,7 @@ export default function SchoolPaymentPortalPage() {
             )}
 
             {/* 4. STATUS: KeyGenerated (Show Key + instructions) */}
-            {registration.status === "KeyGenerated" && (
+            {registration.status === "Completed" && (
               <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
                 <div className="text-center py-3 space-y-2">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
@@ -562,17 +514,17 @@ export default function SchoolPaymentPortalPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h4 className="text-base font-black text-slate-900 font-['Sora']">{isVi ? "Hoàn tất bàn giao!" : "Licensing Ready!"}</h4>
+                  <h4 className="text-base font-black text-slate-900 font-['Sora']">{isVi ? "HoÃ n táº¥t bÃ n giao!" : "Licensing Ready!"}</h4>
                   <p className="text-2xs text-slate-400 max-w-xs mx-auto leading-relaxed">
                     {isVi 
-                      ? "Thanh toán đã được đối chiếu & Key bản quyền trường học đã kích hoạt thành công."
+                      ? "Thanh toÃ¡n Ä‘Ã£ Ä‘Æ°á»£c Ä‘á»‘i chiáº¿u & Key báº£n quyá»n trÆ°á»ng há»c Ä‘Ã£ kÃ­ch hoáº¡t thÃ nh cÃ´ng."
                       : "Your school portal package key has been generated and validated."}
                   </p>
                 </div>
 
                 {/* Code Card */}
                 <div className="bg-slate-550/5 border border-slate-200/80 rounded-2xl p-5 text-center space-y-2 relative overflow-hidden">
-                  <span className="text-[9px] font-bold text-slate-450 tracking-wider uppercase block">{isVi ? "MÃ KÍCH HOẠT HỌC ĐƯỜNG" : "SCHOOL ACTIVATION KEY"}</span>
+                  <span className="text-[9px] font-bold text-slate-450 tracking-wider uppercase block">{isVi ? "MÃƒ KÃCH HOáº T Há»ŒC ÄÆ¯á»œNG" : "SCHOOL ACTIVATION KEY"}</span>
                   <div className="font-mono text-base font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl py-3 px-4 select-all break-all tracking-wide">
                     {registration.activationKey}
                   </div>
@@ -583,32 +535,32 @@ export default function SchoolPaymentPortalPage() {
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
-                    {copied ? (isVi ? "Đã chép" : "Copied") : (isVi ? "Sao chép mã" : "Copy key")}
+                    {copied ? (isVi ? "ÄÃ£ chÃ©p" : "Copied") : (isVi ? "Sao chÃ©p mÃ£" : "Copy key")}
                   </button>
                 </div>
 
                 {/* Instructions */}
                 <div className="rounded-xl border border-slate-150 bg-slate-50 p-4 text-2xs text-slate-600 leading-relaxed space-y-2">
-                  <p className="font-extrabold text-slate-800 text-2xs">{isVi ? "HƯỚNG DẪN KÍCH HOẠT:" : "ACTIVATION GUIDE:"}</p>
+                  <p className="font-extrabold text-slate-800 text-2xs">{isVi ? "HÆ¯á»šNG DáºªN KÃCH HOáº T:" : "ACTIVATION GUIDE:"}</p>
                   <ol className="list-decimal pl-4 space-y-1.5">
                     <li>
                       {isVi 
-                        ? "Đại diện ban quản lý nhà trường truy cập trang đăng ký tài khoản (Sign-up)."
+                        ? "Äáº¡i diá»‡n ban quáº£n lÃ½ nhÃ  trÆ°á»ng truy cáº­p trang Ä‘Äƒng kÃ½ tÃ i khoáº£n (Sign-up)."
                         : "Go to Sign-up portal to create a School Manager profile."}
                     </li>
                     <li>
                       {isVi 
-                        ? "Chọn hình thức tài khoản 'Quản lý Trường học' (School Manager)."
+                        ? "Chá»n hÃ¬nh thá»©c tÃ i khoáº£n 'Quáº£n lÃ½ TrÆ°á»ng há»c' (School Manager)."
                         : "Select 'School Manager' registration role options."}
                     </li>
                     <li>
                       {isVi 
-                        ? "Nhập mã Activation Key ở trên vào ô đăng ký để liên kết bản quyền gói cước."
+                        ? "Nháº­p mÃ£ Activation Key á»Ÿ trÃªn vÃ o Ã´ Ä‘Äƒng kÃ½ Ä‘á»ƒ liÃªn káº¿t báº£n quyá»n gÃ³i cÆ°á»›c."
                         : "Enter the Activation Key above to link and activate school credits."}
                     </li>
                     <li>
                       {isVi 
-                        ? "Sau khi kích hoạt, bạn có thể nhập danh sách học sinh để cấp tài khoản VIP miễn phí."
+                        ? "Sau khi kÃ­ch hoáº¡t, báº¡n cÃ³ thá»ƒ nháº­p danh sÃ¡ch há»c sinh Ä‘á»ƒ cáº¥p tÃ i khoáº£n VIP miá»…n phÃ­."
                         : "Once logged in, upload student lists to grant VIP licenses immediately."}
                     </li>
                   </ol>
@@ -625,3 +577,4 @@ export default function SchoolPaymentPortalPage() {
     </main>
   );
 }
+

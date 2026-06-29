@@ -6,6 +6,7 @@ import adminReducer from "../feature/admin/adminSlice";
 import questionReducer from "../feature/question/questionSlice";
 import chatReducer from "../feature/chat/chatSlice";
 import universityReducer from "../feature/university/universitySlice";
+import eduReducer from "../feature/edu/eduSlice";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   question: questionReducer,
   chat: chatReducer,
   university: universityReducer,
+  edu: eduReducer,
 });
 
 export default rootReducer;
