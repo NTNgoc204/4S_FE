@@ -244,7 +244,7 @@ export default function SchoolRegisterModal({ isOpen, onClose }) {
               >
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} - {Number(p.price).toLocaleString("vi-VN")} VND/HS
+                    {p.name}
                   </option>
                 ))}
               </select>
