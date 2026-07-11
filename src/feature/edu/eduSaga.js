@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import { toast } from "react-toastify";
 import { eduAPI } from "./eduAPI";
+import { planAPI } from "../plan/planAPI";
 import {
   fetchRegistrationsRequest,
   fetchRegistrationsSuccess,
@@ -16,8 +17,19 @@ import {
   completeRegistrationFailure,
 } from "./eduSlice";
 
-// Helper: map BE response → FE shape
-function mapRegistration(r) {
+// Helper: map BE response → FE shape using real plan prices from BE
+function mapRegistration(r, plans = []) {
+  const keys = r.activationKeys || [];
+
+  // Tìm gói cước trong DB để lấy giá cho 1 học sinh
+  const plan = plans.find((p) => p.id === r.planId);
+  const pricePerStudent = plan ? plan.price : 10000; // Mặc định 10,000 VND nếu không tìm thấy
+
+  // Tính tổng giá dựa trên giá của gói cước nhân với số lượng học sinh đăng ký
+  const calculatedPrice = (r.price || r.totalAmount)
+    ? (r.price || r.totalAmount)
+    : (r.studentCount * pricePerStudent);
+
   return {
     id: r.id,
     schoolName: r.schoolName,
@@ -28,24 +40,31 @@ function mapRegistration(r) {
     planName: r.planName,
     planId: r.planId,
     studentCount: r.studentCount,
-    price: r.price ?? r.totalAmount ?? 0,
+    price: calculatedPrice,
     createdAt: r.createdAt
       ? new Date(r.createdAt).toLocaleString("sv-SE").substring(0, 16)
       : "",
     status: r.status,
     transactionCode: r.transactionCode,
     notes: r.notes,
-    // FE-only fields (chưa có trong BE response)
-    activationKey: r.activationKey ?? "",
-    studentEmails: r.studentEmails ?? [],
+    activationKey: keys.length > 0 ? keys[0].activationKey : "",
+    studentEmails: keys,
   };
+}
+
+// Helper to fetch both plans and registrations and map them
+function* fetchAndMapRegistrations() {
+  const plansResponse = yield call(planAPI.getPlans);
+  const plans = plansResponse.data || [];
+
+  const response = yield call(eduAPI.getRegistrations);
+  return (response.data || []).map((r) => mapRegistration(r, plans));
 }
 
 // ── Fetch registrations ────────────────────────────────────────────────────
 function* fetchRegistrationsSaga() {
   try {
-    const response = yield call(eduAPI.getRegistrations);
-    const mapped = (response.data || []).map(mapRegistration);
+    const mapped = yield call(fetchAndMapRegistrations);
     yield put(fetchRegistrationsSuccess(mapped));
   } catch (error) {
     const msg =
@@ -71,8 +90,7 @@ function* sendQuoteSaga(action) {
     yield put(sendQuoteSuccess());
 
     // Refresh list
-    const response = yield call(eduAPI.getRegistrations);
-    const mapped = (response.data || []).map(mapRegistration);
+    const mapped = yield call(fetchAndMapRegistrations);
     yield put(fetchRegistrationsSuccess(mapped));
 
     yield call(() =>
@@ -100,8 +118,7 @@ function* confirmPaymentSaga(action) {
     yield put(confirmPaymentSuccess());
 
     // Refresh list
-    const response = yield call(eduAPI.getRegistrations);
-    const mapped = (response.data || []).map(mapRegistration);
+    const mapped = yield call(fetchAndMapRegistrations);
     yield put(fetchRegistrationsSuccess(mapped));
 
     yield call(() =>
@@ -133,9 +150,8 @@ function* completeRegistrationSaga(action) {
     yield put(completeRegistrationSuccess());
 
     // 2. Tải lại danh sách từ BE
-    const response = yield call(eduAPI.getRegistrations);
-    const mapped = (response.data || []).map(mapRegistration);
-    
+    const mapped = yield call(fetchAndMapRegistrations);
+
     // 3. Cập nhật cục bộ các keys nhận được từ BE cho đơn đăng ký này
     const mergedMapped = mapped.map((r) =>
       r.id === id
