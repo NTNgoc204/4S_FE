@@ -18,6 +18,8 @@ import {
 
 // Helper: map BE response → FE shape
 function mapRegistration(r) {
+  const keys = r.activationKeys || [];
+  const calculatedPrice = (r.price || r.totalAmount) ? (r.price || r.totalAmount) : (r.studentCount * 10000);
   return {
     id: r.id,
     schoolName: r.schoolName,
@@ -28,16 +30,15 @@ function mapRegistration(r) {
     planName: r.planName,
     planId: r.planId,
     studentCount: r.studentCount,
-    price: r.price ?? r.totalAmount ?? 0,
+    price: calculatedPrice,
     createdAt: r.createdAt
       ? new Date(r.createdAt).toLocaleString("sv-SE").substring(0, 16)
       : "",
     status: r.status,
     transactionCode: r.transactionCode,
     notes: r.notes,
-    // FE-only fields (chưa có trong BE response)
-    activationKey: r.activationKey ?? "",
-    studentEmails: r.studentEmails ?? [],
+    activationKey: keys.length > 0 ? keys[0].activationKey : "",
+    studentEmails: keys,
   };
 }
 
