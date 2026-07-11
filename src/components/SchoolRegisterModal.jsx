@@ -219,37 +219,6 @@ export default function SchoolRegisterModal({ isOpen, onClose }) {
             />
           </div>
 
-          {/* Plan Selection (if multiple plans exist) */}
-          {plans.length > 0 && (
-            <div>
-              <label
-                className="mb-1.5 block text-xs font-semibold text-slate-300 tracking-wide"
-                htmlFor="planSelect"
-              >
-                {isVi ? "Gói cước đăng ký" : "Subscription Plan"}{" "}
-                <span className="text-rose-400">*</span>
-              </label>
-              <select
-                id="planSelect"
-                className="w-full rounded-xl border border-white/10 bg-slate-800 px-3.5 py-2.5 text-sm text-slate-100 focus:border-[#ecc741] focus:ring-1 focus:ring-[#ecc741] focus:outline-none transition-all shadow-inner"
-                onChange={(e) => {
-                  const p = plans.find((x) => x.id === e.target.value);
-                  if (p) {
-                    setSelectedPlanId(p.id);
-                    setPlanName(p.name);
-                  }
-                }}
-                value={selectedPlanId}
-                disabled={submitting}
-              >
-                {plans.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* Student Count */}
           <div>
