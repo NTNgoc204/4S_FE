@@ -156,6 +156,11 @@ function SignUpPage() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(1); // 1 or 2
 
+  // EDU Activation Key (optional — for school plan students)
+  const [showEduKeyField, setShowEduKeyField] = useState(false);
+  const [eduActivationKey, setEduActivationKey] = useState("");
+  const [eduKeyError, setEduKeyError] = useState("");
+
   // Validate step 1 form
   function validateStep1() {
     const nextEmailError = validateSignupEmail(email, t);
@@ -259,7 +264,15 @@ function SignUpPage() {
       registerStep3Request({
         verifyToken: verifyToken,
         password: password,
-        onSuccess: () => navigate("/login", { replace: true }),
+        onSuccess: () => {
+          if (eduActivationKey && eduActivationKey.trim()) {
+            sessionStorage.setItem(
+              "pending_edu_activation_key",
+              eduActivationKey.trim()
+            );
+          }
+          navigate("/login", { replace: true });
+        },
       }),
     );
   }
@@ -471,10 +484,66 @@ function SignUpPage() {
               value={phoneNumber}
             />
 
+            {/* EDU Activation Key (optional) */}
+            <div className="border-t border-white/10 pt-4">
+              {!showEduKeyField ? (
+                <button
+                  type="button"
+                  onClick={() => setShowEduKeyField(true)}
+                  className="flex items-center gap-1.5 text-sm text-[#ecc741]/80 hover:text-[#ecc741] transition font-medium"
+                  disabled={loading}
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  {"Tôi có mã kích hoạt từ trường (Activation Key)"}
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-slate-200" htmlFor="eduActivationKey">
+                      Mã kích hoạt học đường{" "}
+                      <span className="text-slate-400 font-normal text-xs">(không bắt buộc)</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => { setShowEduKeyField(false); setEduActivationKey(""); setEduKeyError(""); }}
+                      className="text-xs text-slate-500 hover:text-slate-300 transition"
+                      disabled={loading}
+                    >
+                      Bỏ qua
+                    </button>
+                  </div>
+                  <input
+                    id="eduActivationKey"
+                    type="text"
+                    value={eduActivationKey}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      setEduActivationKey(val);
+                      if (eduKeyError) setEduKeyError("");
+                    }}
+                    placeholder="EDU-XXXXXXXX"
+                    maxLength={12}
+                    disabled={loading}
+                    className={`w-full rounded-xl border bg-white/8 px-4 py-3 text-base font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none disabled:opacity-50 tracking-wider ${
+                      eduKeyError
+                        ? "border-rose-400 focus:border-rose-300"
+                        : "border-white/15 focus:border-[#ecc741]"
+                    }`}
+                  />
+                  {eduKeyError && (
+                    <p className="text-sm font-medium text-rose-300">{eduKeyError}</p>
+                  )}
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Nhập mã được gửi qua email từ nhà trường. Tài khoản sẽ được kích hoạt gói trường sau khi đăng ký thành công.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {displayError ? (
-              <p className="text-sm font-medium text-rose-300">
-                {displayError}
-              </p>
+              <p className="text-sm font-medium text-rose-300">{displayError}</p>
             ) : null}
 
             <button

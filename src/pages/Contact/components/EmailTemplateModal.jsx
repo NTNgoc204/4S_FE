@@ -10,19 +10,35 @@ export default function EmailTemplateModal({
 }) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [isPreparing, setIsPreparing] = useState(true);
 
   useEffect(() => {
     if (registration) {
+      setIsPreparing(true);
+      const timer = setTimeout(() => {
+        setIsPreparing(false);
+      }, 1800); // Simulate payOS link generation delay (1.8s)
+
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() + 14);
+      const expDateStr = expDate.toLocaleDateString(isVi ? "vi-VN" : "en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
       setSubject(
         isVi
-          ? `[4S Career Guidance] Báo giá giải pháp hướng nghiệp - ${registration.schoolName}`
-          : `[4S Career Guidance] Career Guidance Proposal - ${registration.schoolName}`
+          ? `[4S Career Guidance] Báo giá giải pháp hướng nghiệp & Thông tin thanh toán - ${registration.schoolName}`
+          : `[4S Career Guidance] Proposal & Payment Details - ${registration.schoolName}`
       );
       setBody(
         isVi
-          ? `Kính gửi thầy/cô đại diện trường ${registration.schoolName},\n\nBan Tiếp Nhận 4S xin gửi lời chào trân trọng nhất.\n\nChúng tôi xin gửi kèm bảng báo giá chi tiết và thông tin chuyển khoản dành cho gói cước "${registration.planName}" đăng ký cho ${registration.studentCount} học sinh của quý trường.\n\nQuý trường có thể xem báo giá và thanh toán trực tuyến qua mã QR tại Cổng thanh toán trường học: ${window.location.origin}/school-payment/${registration.id}\n\nThông tin thanh toán chuyển khoản thủ công:\n- Số tài khoản: 190367899999\n- Ngân hàng: Techcombank\n- Chủ tài khoản: CONG TY CP HUONG NGHIEP 4S\n- Số tiền: ${fmtVND(registration.price)}\n- Nội dung chuyển khoản: ${registration.id}\n\nSau khi chuyển khoản thành công hoặc xác nhận từ cổng thanh toán, mã kích hoạt khóa học (Activation Key) sẽ được gửi lại cho quý trường qua email này.\n\nTrân trọng,\nBan Tiếp Nhận 4S Career Guidance.`
-          : `Dear representative of ${registration.schoolName},\n\n4S Career Guidance Team would like to send you our warmest greetings.\n\nWe would like to send the detailed proposal and payment instructions for the "${registration.planName}" subscription for ${registration.studentCount} students of your school.\n\nYou can review the detailed proposal and make payment online via QR code at our School Payment Portal: ${window.location.origin}/school-payment/${registration.id}\n\nBank transfer details for manual payments:\n- Account number: 190367899999\n- Bank: Techcombank\n- Account name: 4S HUONG NGHIEP CORP\n- Total amount: ${fmtVND(registration.price)}\n- Transfer note: ${registration.id}\n\nUpon successful verification, the Activation Key will be generated and sent to you automatically.\n\nBest regards,\n4S Career Guidance Team.`
+          ? `Kính gửi thầy/cô đại diện trường ${registration.schoolName},\n\nBan Tiếp Nhận 4S xin gửi lời chào trân trọng nhất.\n\nChúng tôi xin gửi kèm bảng báo giá chi tiết và thông tin chuyển khoản dành cho gói cước "${registration.planName}" đăng ký cho ${registration.studentCount} học sinh của quý trường.\n\nQuý trường có thể quét trực tiếp mã QR chuyển khoản (VietQR) trong file đính kèm hoặc thực hiện chuyển khoản ngân hàng theo thông tin dưới đây:\n- Ngân hàng: MB Bank (Ngân hàng Quân Đội)\n- Số tài khoản: 0912345678\n- Chủ tài khoản: CONG TY CP HUONG NGHIEP 4S\n- Số tiền: ${fmtVND(registration.price)}\n- Nội dung chuyển khoản: ${registration.id}\n\n* Lưu ý: Báo giá này có hiệu lực trong vòng 14 ngày (Hạn thanh toán: trước ngày ${expDateStr}).\n\nSau khi chuyển khoản thành công, hệ thống sẽ đối soát tự động và gửi mã kích hoạt khóa học (Activation Key) cho quý trường qua email này.\n\nTrân trọng,\nBan Tiếp Nhận 4S Career Guidance.`
+          : `Dear representative of ${registration.schoolName},\n\n4S Career Guidance Team would like to send you our warmest greetings.\n\nWe would like to send the detailed proposal and payment instructions for the "${registration.planName}" subscription for ${registration.studentCount} students of your school.\n\nYou can scan the payment QR code (VietQR) attached in the invoice PDF or make a bank transfer using the details below:\n- Bank: MB Bank (Military Bank)\n- Account number: 0912345678\n- Account name: CONG TY CP HUONG NGHIEP 4S\n- Total amount: ${fmtVND(registration.price)}\n- Transfer note: ${registration.id}\n\n* Note: This proposal remains valid for 14 days (Payment deadline: before ${expDateStr}).\n\nUpon successful verification, the Activation Key will be sent to you automatically via email.\n\nBest regards,\n4S Career Guidance Team.`
       );
+
+      return () => clearTimeout(timer);
     }
   }, [registration, isVi]);
 
@@ -40,9 +56,8 @@ export default function EmailTemplateModal({
   const vatAmount = totalPrice - priceBeforeTax;
   const unitPrice = Math.round(priceBeforeTax / registration.studentCount);
 
-  // Generate QR code for B2B School Payment Portal link
-  const portalUrl = `${window.location.origin}/school-payment/${registration.id}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(portalUrl)}`;
+  // Generate direct payment QR code for the bank transfer (compact2 includes bank name + account info)
+  const qrCodeUrl = `https://img.vietqr.io/image/MB-0912345678-compact2.png?amount=${totalPrice}&addInfo=${encodeURIComponent(registration.id)}&accountName=CONG%20TY%20CP%20HUONG%20NGHIEP%204S`;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -120,101 +135,101 @@ export default function EmailTemplateModal({
                   {isVi ? "Hủy" : "Cancel"}
                 </button>
                 <button
-                  className="rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer"
+                  className={`rounded-xl px-5 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer ${
+                    isPreparing
+                      ? "bg-indigo-400 cursor-not-allowed opacity-80"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
                   type="submit"
+                  disabled={isPreparing}
                 >
-                  {isVi ? "Gửi Email & Báo Giá" : "Send Email & Quote"}
+                  {isPreparing ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      {isVi ? "Đang chuẩn bị thông tin báo giá..." : "Preparing quote details..."}
+                    </span>
+                  ) : (
+                    isVi ? "Gửi Email & Báo Giá" : "Send Email & Quote"
+                  )}
                 </button>
               </div>
             </div>
           </form>
 
-          {/* Column Right: PDF Quote Preview */}
-          <div className="bg-white rounded-2xl border border-slate-250 p-6.5 shadow-2xs font-serif flex flex-col justify-between relative min-h-[460px]">
-            {/* Paper Watermark Decor */}
-            <div className="absolute top-2 right-2 rounded-lg border border-slate-100 bg-slate-50/50 px-2 py-0.5 text-[9px] font-sans font-bold text-slate-400 select-none">
-              PDF PREVIEW
+          {/* Column Right: Email Preview */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs flex flex-col justify-between relative min-h-[480px] font-sans">
+            {/* Email Watermark Decor */}
+            <div className="absolute top-3 right-3 rounded-lg border border-indigo-100 bg-indigo-50/50 px-2 py-0.5 text-[9px] font-bold text-indigo-500 select-none">
+              {isVi ? "XEM TRƯỚC EMAIL" : "EMAIL PREVIEW"}
             </div>
 
-            <div className="space-y-5">
-              {/* PDF Header */}
-              <div className="flex items-start justify-between gap-3 border-b-2 border-slate-900 pb-3">
-                <div className="font-sans">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-none">4S CAREER GROUP</h4>
-                  <p className="text-[9px] text-slate-500 mt-1 font-semibold">4S Career Guidance & AI Solutions</p>
-                  <p className="text-[9px] text-slate-400 font-medium">Techcombank: 190367899999 • Hà Nội</p>
+            <div className="space-y-4">
+              {/* Email Envelope Info Headers */}
+              <div className="border-b border-slate-150 pb-3 text-xs space-y-2 text-slate-500 font-medium">
+                <div className="flex items-start">
+                  <span className="font-bold text-slate-400 uppercase tracking-wider w-16 shrink-0">{isVi ? "Từ:" : "From:"}</span>
+                  <span className="text-slate-700 font-semibold">4S Career Guidance &lt;system@4s.vn&gt;</span>
                 </div>
-                <div className="text-right font-sans">
-                  <h4 className="font-extrabold text-sm text-indigo-750 leading-none">{isVi ? "BÁO GIÁ DỊCH VỤ" : "PROPOSAL QUOTE"}</h4>
-                  <p className="text-[10px] text-slate-900 font-bold mt-1.5">{registration.id}</p>
-                  <p className="text-[9px] text-slate-400 mt-0.5">{todayStr}</p>
+                <div className="flex items-start">
+                  <span className="font-bold text-slate-400 uppercase tracking-wider w-16 shrink-0">{isVi ? "Đến:" : "To:"}</span>
+                  <span className="text-slate-700 font-semibold">{registration.email}</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="font-bold text-slate-400 uppercase tracking-wider w-16 shrink-0">{isVi ? "Tiêu đề:" : "Subject:"}</span>
+                  <span className="text-indigo-650 font-bold">{subject}</span>
                 </div>
               </div>
 
-              {/* School Client Info */}
-              <div className="text-xs space-y-1 font-sans">
-                <div className="flex"><span className="w-24 text-slate-450 font-bold uppercase tracking-wider">{isVi ? "Khách hàng:" : "Client:"}</span><span className="font-bold text-slate-950">{registration.schoolName}</span></div>
-                <div className="flex"><span className="w-24 text-slate-450 font-bold uppercase tracking-wider">{isVi ? "Đại diện:" : "Rep:"}</span><span className="font-semibold text-slate-800">{registration.representative} ({registration.phoneNumber})</span></div>
-                <div className="flex"><span className="w-24 text-slate-450 font-bold uppercase tracking-wider">Email:</span><span className="font-medium text-slate-700">{registration.email}</span></div>
-              </div>
+              {/* Email Body Template Container */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-3xs overflow-y-auto max-h-[360px] text-slate-800 text-[13px] leading-relaxed">
+                {/* Email Title Header */}
+                <h4 className="font-bold text-indigo-600 text-sm border-b border-indigo-100 pb-2 mt-0">
+                  {isVi ? "Thông Tin Thanh Toán Gói EDU - 4sCompany" : "EDU Subscription Payment Details - 4sCompany"}
+                </h4>
 
-              {/* Items Table */}
-              <div className="overflow-hidden border border-slate-200 rounded-lg font-sans">
-                <table className="min-w-full text-[11px]">
-                  <thead className="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold">
-                    <tr>
-                      <th className="px-3 py-2 text-left">{isVi ? "Hạng mục / Gói cước" : "Item / Service"}</th>
-                      <th className="px-2 py-2 text-right">{isVi ? "Số lượng" : "Qty"}</th>
-                      <th className="px-3 py-2 text-right">{isVi ? "Đơn giá" : "Rate"}</th>
-                      <th className="px-3 py-2 text-right">{isVi ? "Thành tiền" : "Amount"}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-150 text-slate-700 bg-white font-medium">
-                    <tr>
-                      <td className="px-3 py-2.5">
-                        <p className="font-bold text-slate-900">{registration.planName}</p>
-                        <p className="text-[9px] text-slate-400 font-medium">Hệ thống trắc nghiệm hướng nghiệp & AI</p>
-                      </td>
-                      <td className="px-2 py-2.5 text-right font-semibold">{registration.studentCount} HS</td>
-                      <td className="px-3 py-2.5 text-right whitespace-nowrap">{fmtVND(unitPrice)}</td>
-                      <td className="px-3 py-2.5 text-right whitespace-nowrap font-semibold">{fmtVND(priceBeforeTax)}</td>
-                    </tr>
-                    <tr className="bg-slate-50/50">
-                      <td className="px-3 py-2 text-right font-bold text-slate-500" colSpan={3}>Tạm tính (Chưa VAT 10%)</td>
-                      <td className="px-3 py-2 text-right whitespace-nowrap font-bold text-slate-650">{fmtVND(priceBeforeTax)}</td>
-                    </tr>
-                    <tr className="bg-slate-50/50">
-                      <td className="px-3 py-2 text-right font-bold text-slate-500" colSpan={3}>Thuế GTGT (VAT 10%)</td>
-                      <td className="px-3 py-2 text-right whitespace-nowrap font-bold text-slate-650">{fmtVND(vatAmount)}</td>
-                    </tr>
-                    <tr className="bg-indigo-50/30">
-                      <td className="px-3 py-2 text-right font-extrabold text-slate-900" colSpan={3}>{isVi ? "TỔNG THÀNH TIỀN" : "TOTAL AMOUNT"}</td>
-                      <td className="px-3 py-2 text-right whitespace-nowrap font-black text-indigo-700">{fmtVND(totalPrice)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                {/* Email content entered by user */}
+                <div className="whitespace-pre-line text-slate-700 my-3 font-normal leading-relaxed">
+                  {body}
+                </div>
 
-            {/* QR Payment info */}
-            <div className="mt-5 border-t border-dashed border-slate-300 pt-4 flex items-center justify-between gap-5 font-sans bg-slate-50 rounded-xl p-3.5 border border-slate-200">
-              <div className="space-y-1 text-3xs min-w-0 flex-1 leading-relaxed">
-                <h5 className="font-extrabold text-slate-900 uppercase tracking-wide flex items-center gap-1.5 leading-none text-2xs mb-1">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
-                  {isVi ? "CỔNG THANH TOÁN TRƯỜNG HỌC" : "SCHOOL PAYMENT PORTAL"}
-                </h5>
-                <p className="text-indigo-650 font-bold mt-1 truncate">
-                  Link: 4s.vn/school-payment/{registration.id}
+                {/* Bank Transfer Box (matches BE generated code) */}
+                {isPreparing ? (
+                  <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-center my-4 animate-pulse space-y-3">
+                    <div className="h-4 bg-slate-200 rounded w-1/3 mx-auto" />
+                    <div className="h-3.5 bg-slate-200 rounded w-2/3 mx-auto" />
+                    <div className="h-28 w-28 bg-slate-200 rounded-lg mx-auto" />
+                  </div>
+                ) : (
+                  <div className="bg-slate-50 border border-dashed border-slate-250 rounded-xl p-5 text-center my-4 space-y-4">
+                    <h5 className="font-bold text-slate-700 text-xs mt-0">{isVi ? "Thông tin chuyển khoản" : "Bank Transfer Details"}</h5>
+                    
+                    <div className="space-y-1 text-slate-650 text-xs">
+                      <p><strong>{isVi ? "Số tiền:" : "Amount:"}</strong> <span className="text-rose-500 font-extrabold text-[15px]">{fmtVND(totalPrice)}</span></p>
+                      <p><strong>{isVi ? "Nội dung chuyển khoản (Transaction Code):" : "Memo (Transaction Code):"}</strong> <span className="text-blue-600 font-mono font-bold text-xs">{registration.id}</span></p>
+                    </div>
+
+                    {/* QR Code image — compact2 template includes bank logo, account name, transfer amount */}
+                    <div className="flex justify-center my-2">
+                      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-3xs overflow-hidden">
+                        <img
+                          alt="Mã QR Chuyển Tiền"
+                          className="w-48 h-auto object-contain block mx-auto"
+                          src={qrCodeUrl}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Email Footer */}
+                <p className="text-[10px] text-slate-400 border-t border-slate-100 pt-3 mt-4 text-center font-medium">
+                  {isVi 
+                    ? "Đây là email tự động từ hệ thống của 4sCompany. Vui lòng không trả lời trực tiếp email này."
+                    : "This is an automated email from the 4sCompany system. Please do not reply directly to this email."}
                 </p>
-              </div>
-
-              {/* Portal Link QR preview image */}
-              <div className="shrink-0 rounded-lg border border-slate-200 bg-white p-1.5 shadow-2xs">
-                <img
-                  alt="Portal Link QR"
-                  className="h-20 w-20 object-contain block"
-                  src={qrCodeUrl}
-                />
               </div>
             </div>
           </div>

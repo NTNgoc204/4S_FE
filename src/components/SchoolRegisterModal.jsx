@@ -36,10 +36,13 @@ export default function SchoolRegisterModal({ isOpen, onClose }) {
         id: regId,
         schoolName: schoolName.trim(),
         representative: representative.trim(),
+        contactName: representative.trim(), // Match BE DTO ContactName
         phoneNumber: phoneNumber.trim(),
         email: email.trim().toLowerCase(),
         planName,
+        planId: "d3b07384-d113-4c5e-855d-7a6c2d76a715", // Match BE DTO PlanId (Mock Guid)
         studentCount: Number(studentCount),
+        notes: "", // Match BE DTO Notes
         price,
         createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
         status: "Pending",

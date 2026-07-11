@@ -6,6 +6,7 @@ import { adminSaga } from "../feature/admin/adminSaga";
 import { questionSaga } from "../feature/question/questionSaga";
 import { chatSaga } from "../feature/chat/chatSaga";
 import { universitySaga } from "../feature/university/universitySaga";
+import { eduSaga } from "../feature/edu/eduSaga";
 
 export function* rootSaga() {
   yield all([
@@ -16,5 +17,6 @@ export function* rootSaga() {
     questionSaga(),
     chatSaga(),
     universitySaga(),
+    eduSaga(),
   ]);
 }

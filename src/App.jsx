@@ -45,7 +45,6 @@ import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import CheckoutPage from "./pages/Payment/CheckoutPage";
 import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
-import EduCheckoutPage from "./pages/Payment/EduCheckoutPage";
 import UniversityManagerLayout from "./layouts/UniversityManagerLayout";
 import UniversityManagementPage from "./pages/UniversityManager/UniversityManagementPage";
 
@@ -86,8 +85,7 @@ function App() {
           "/about-us",
           "/not-found",
           "/pricing",
-          "/school-payment",
-          "/school-checkout"
+          "/school-payment"
         ].some(p => path === p || path.startsWith(p + "/"));
 
         if (!isPublicPath) {
@@ -127,7 +125,6 @@ function App() {
       <Routes>
         {/* Standalone B2B Public Pages (No Header/Footer from PublicLayout) */}
         <Route path="/school-payment/:registrationId" element={<SchoolPaymentPortalPage />} />
-        <Route path="/school-checkout/:registrationId?" element={<EduCheckoutPage />} />
 
         {/* Public Layout - cho public users + student users */}
         <Route
