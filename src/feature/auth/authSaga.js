@@ -2,6 +2,7 @@ import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import { toast } from "react-toastify";
 import i18n from "../../i18n/i18n";
 import { authAPI } from "./authAPI";
+import { eduAPI } from "../edu/eduAPI";
 import { getErrorMessage } from "../../util/errorConstants";
 import {
   registerStep1Request,
@@ -155,6 +156,22 @@ function* loginSaga(action) {
 
     // Fetch user info after login
     yield call(getMeSaga);
+
+    // Check for pending school activation key from signup page
+    const pendingKey = yield call(() => sessionStorage.getItem("pending_edu_activation_key"));
+    if (pendingKey) {
+      try {
+        yield call(eduAPI.activateKey, pendingKey);
+        yield call(() => sessionStorage.removeItem("pending_edu_activation_key"));
+        yield call(() => toast.success("Gói học đường của bạn đã được tự động kích hoạt thành công!"));
+        // Re-fetch user info to update the active plan in the UI
+        yield call(getMeSaga);
+      } catch (keyError) {
+        const errorMsg = getErrorMessage(keyError, "Không thể kích hoạt tự động gói học đường");
+        yield call(() => toast.warn(`Cổng học đường: ${errorMsg}. Vui lòng thử kích hoạt lại trong hồ sơ.`));
+        yield call(() => sessionStorage.removeItem("pending_edu_activation_key"));
+      }
+    }
 
     yield call(() => toast.success(i18n.t("auth:loginSuccess")));
   } catch (error) {

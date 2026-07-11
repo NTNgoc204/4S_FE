@@ -98,14 +98,16 @@ export default function ContactRegistrationsPage() {
   };
 
   // ── Dispatch completeRegistration saga ────────────────────────────────────
-  const handleImportSuccess = (id, sharedKey, emailList) => {
+  const handleImportSuccess = (id, formData, modalCallback) => {
     dispatch(
       completeRegistrationRequest({
         id,
-        sharedKey,
-        emailList,
-        onSuccess: () => {
+        formData,
+        onSuccess: (keysList) => {
           window.dispatchEvent(new Event("4s_registrations_updated"));
+          if (modalCallback) {
+            modalCallback(keysList);
+          }
         },
       })
     );

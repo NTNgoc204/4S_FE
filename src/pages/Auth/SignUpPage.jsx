@@ -264,7 +264,15 @@ function SignUpPage() {
       registerStep3Request({
         verifyToken: verifyToken,
         password: password,
-        onSuccess: () => navigate("/login", { replace: true }),
+        onSuccess: () => {
+          if (eduActivationKey && eduActivationKey.trim()) {
+            sessionStorage.setItem(
+              "pending_edu_activation_key",
+              eduActivationKey.trim()
+            );
+          }
+          navigate("/login", { replace: true });
+        },
       }),
     );
   }

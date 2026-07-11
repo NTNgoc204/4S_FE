@@ -14,4 +14,18 @@ export const eduAPI = {
   // Cập nhật status (truyền string: Quoted | Paid | Completed)
   updateStatus: (id, status) =>
     apiClient.put(`/api/edu/update-status/${id}?status=${status}`),
+
+  // Import key từ file word (.docx)
+  importKeys: (id, formData) =>
+    apiClient.post(`/api/edu/import-keys/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
+  // Kích hoạt key học đường cho học sinh
+  activateKey: (key) =>
+    apiClient.post("/api/edu/activate", {
+      activationKey: key,
+    }),
 };

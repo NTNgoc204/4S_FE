@@ -124,32 +124,43 @@ function* confirmPaymentSaga(action) {
 
 // ── Complete: after import emails → update-status=Completed ───────────────
 function* completeRegistrationSaga(action) {
-  const { id, sharedKey, emailList, onSuccess } = action.payload;
+  const { id, formData, onSuccess } = action.payload;
   try {
-    yield call(eduAPI.updateStatus, id, "Completed");
+    // 1. Gọi API import keys của BE bằng file docx
+    const importResponse = yield call(eduAPI.importKeys, id, formData);
+    const keysList = importResponse.data || []; // Mảng các đối tượng chứa email & activationKey từ BE
+
     yield put(completeRegistrationSuccess());
 
-    // Refresh list
+    // 2. Tải lại danh sách từ BE
     const response = yield call(eduAPI.getRegistrations);
     const mapped = (response.data || []).map(mapRegistration);
-    // Merge FE-only fields (key + emailList) vào item vừa completed
+    
+    // 3. Cập nhật cục bộ các keys nhận được từ BE cho đơn đăng ký này
     const mergedMapped = mapped.map((r) =>
-      r.id === id ? { ...r, activationKey: sharedKey, studentEmails: emailList } : r
+      r.id === id
+        ? {
+            ...r,
+            status: "Completed",
+            activationKey: keysList[0]?.activationKey || "", // Lưu key đầu làm đại diện
+            studentEmails: keysList, // Lưu danh sách các keys chi tiết
+          }
+        : r
     );
     yield put(fetchRegistrationsSuccess(mergedMapped));
 
     yield call(() =>
       toast.success(
-        `Đã tạo key ${sharedKey} và gửi đến ${emailList.length} học sinh!`
+        `Import file thành công! Đã sinh mã kích hoạt học đường.`
       )
     );
 
     if (typeof onSuccess === "function") {
-      yield call(onSuccess);
+      yield call(onSuccess, keysList);
     }
   } catch (error) {
     const msg =
-      error?.response?.data?.message || "Lỗi cập nhật trạng thái hoàn tất.";
+      error?.response?.data?.message || "Lỗi nhập tệp và cấp mã kích hoạt.";
     yield put(completeRegistrationFailure(msg));
     yield call(() => toast.error(msg));
   }
