@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const STATUS_STYLES = {
   Pending: "bg-amber-50 text-amber-700 border-amber-255",
@@ -66,7 +67,16 @@ Website: ${window.location.origin}`);
     const bccString = studentEmails.join(",");
     const mailtoUrl = `mailto:${item.email}?subject=${subject}&body=${body}${bccString ? `&bcc=${encodeURIComponent(bccString)}` : ""}`;
 
-    window.open(mailtoUrl, "_self");
+    // Hiển thị toast thông báo cho người dùng biết
+    toast.success(isVi ? "Đang mở ứng dụng Email để soạn thư bàn giao..." : "Opening email app for key handover...");
+
+    // Tạo link ẩn để trigger mailto chuẩn xác, tránh lỗi Network của Chrome
+    const tempLink = document.createElement("a");
+    tempLink.href = mailtoUrl;
+    tempLink.style.display = "none";
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
   };
 
   return (

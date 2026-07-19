@@ -52,7 +52,7 @@ function mapRegistration(r, plans = []) {
     console.error("Error reading localStorage:", e);
   }
 
-  const finalKey = keys.length > 0 ? keys[0].activationKey : localKey;
+  const finalKey = r.key || (keys.length > 0 ? keys[0].activationKey : localKey);
   const finalStudentEmails = keys.length > 0 
     ? keys 
     : (localStudentEmails.length > 0 
