@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="vi">
   <head>
+    <!-- Anti-FOUC: apply theme attrs synchronously before any paint -->
+    <script>
+      (function() {
+        try {
+          var mode  = localStorage.getItem('theme_mode')  || 'dark';
+          var color = localStorage.getItem('color_theme') || 'emerald';
+          document.documentElement.setAttribute('data-theme-mode',  mode);
+          document.documentElement.setAttribute('data-color-theme', color);
+        } catch(e) {}
+      })();
+    </script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

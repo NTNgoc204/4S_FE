@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import fourSLogo from "../../assets/logo-4s.png";
@@ -387,7 +387,7 @@ function ProfilePage() {
         <div className="mx-auto flex w-[min(1360px,96vw)] items-center justify-between gap-4 px-1 py-3">
           <div className="flex items-center gap-4">
             <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 cursor-pointer"
               onClick={() => navigate(-1)}
               type="button"
             >
@@ -395,7 +395,9 @@ function ProfilePage() {
                 <path d="M15 5 8 12l7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
             </button>
-            <img alt="4S logo" className="h-18 w-18 object-contain" src={fourSLogo} />
+            <Link to="/" className="cursor-pointer transition hover:opacity-90 flex items-center">
+              <img alt="4S logo" className="h-18 w-18 object-contain" src={fourSLogo} />
+            </Link>
             <div>
               <h1 className="font-['Sora'] text-xl font-semibold">{t("profile:edit.title")}</h1>
               <p className="text-sm text-slate-300">{t("profile:edit.subtitle")}</p>
