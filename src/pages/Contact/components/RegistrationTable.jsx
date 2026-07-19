@@ -90,25 +90,10 @@ export default function RegistrationTable({
 
                     {/* Keys issued column */}
                     <td className="px-4 py-4.5 whitespace-nowrap">
-                      {item.status === "Completed" && item.studentEmails?.length > 0 ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSelectedRegKeys({
-                              schoolName: item.schoolName,
-                              keys: item.studentEmails,
-                            })
-                          }
-                          className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-2.5 py-1 transition flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>
-                            {item.studentEmails.length} {isVi ? "Mã" : "Keys"}
-                          </span>
-                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </button>
+                      {item.status === "Completed" && item.activationKey ? (
+                        <code className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1 select-all tracking-wider">
+                          {item.activationKey}
+                        </code>
                       ) : (
                         <span className="text-xs text-slate-350 italic font-medium">—</span>
                       )}
@@ -199,25 +184,14 @@ export default function RegistrationTable({
               </div>
 
               {/* Shared key (mobile) */}
-              {item.status === "Completed" && item.studentEmails?.length > 0 && (
+              {item.status === "Completed" && item.activationKey && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 space-y-1">
                   <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">
-                    {isVi ? "Danh sách mã kích hoạt học sinh" : "Student activation keys list"}
+                    {isVi ? "Mã kích hoạt (dùng chung)" : "Activation Key (shared)"}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedRegKeys({
-                        schoolName: item.schoolName,
-                        keys: item.studentEmails,
-                      })
-                    }
-                    className="w-full text-left font-bold text-xs text-emerald-800 underline hover:text-emerald-950 transition cursor-pointer"
-                  >
-                    {isVi
-                      ? `Xem chi tiết ${item.studentEmails.length} mã học sinh`
-                      : `View details of ${item.studentEmails.length} student keys`}
-                  </button>
+                  <code className="block text-sm font-mono font-extrabold text-emerald-800 select-all tracking-widest">
+                    {item.activationKey}
+                  </code>
                 </div>
               )}
 

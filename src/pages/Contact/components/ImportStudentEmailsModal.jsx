@@ -245,7 +245,7 @@ export default function ImportStudentEmailsModal({
             <button
               className={`rounded-xl px-5 py-2 text-xs font-bold text-white transition shadow-sm cursor-pointer flex items-center gap-2 ${
                 canSubmit
-                  ? "bg-indigo-650 hover:bg-indigo-700"
+                  ? "bg-indigo-600 hover:bg-indigo-700"
                   : "bg-slate-300 cursor-not-allowed"
               }`}
               disabled={!canSubmit}
