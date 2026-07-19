@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Configure Tailwind v4 dark: variant to use data-theme-mode="dark" instead of media query */
+@variant dark (&:where([data-theme-mode="dark"], [data-theme-mode="dark"] *));
+
 @theme {
   --font-sans: "Be Vietnam Pro", sans-serif;
   --font-display: "Be Vietnam Pro", sans-serif;
@@ -13,6 +16,32 @@
   --color-text-muted: var(--text-muted);
   --color-text-dim: var(--text-dim);
   --color-border-main: var(--border-main);
+}
+
+/* Butter-smooth transition when toggling dark/light mode */
+body, 
+main, 
+header, 
+footer, 
+nav, 
+aside, 
+section, 
+div, 
+h1, h2, h3, h4, h5, h6, 
+p, 
+span, 
+a, 
+button, 
+input, 
+select, 
+textarea, 
+label,
+svg,
+svg path {
+  transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.18s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Color themes declarations (Emerald, Ocean, Violet, Sunset) */
@@ -41,9 +70,9 @@
   --secondary-color: #ecc741;
 }
 :root[data-theme-mode="dark"][data-color-theme="emerald"] {
-  --bg-main: #041326;
-  --bg-panel: #11243b;
-  --bg-panel-darker: #0c1c2f;
+  --bg-main: #051a16;       /* very dark teal-black */
+  --bg-panel: #0d2820;      /* dark emerald panel */
+  --bg-panel-darker: #091e17; /* darker emerald for header/footer */
 }
 :root[data-theme-mode="light"][data-color-theme="emerald"] {
   --bg-main: #f3faf7;
@@ -126,6 +155,196 @@ html[data-theme-mode="dark"] {
   color: var(--text-main);
 }
 
+html[data-theme-mode="dark"] body,
+html[data-theme-mode="dark"] #root {
+  background-color: var(--bg-main);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DARK MODE — COLOR THEME BACKGROUND OVERRIDES
+   Map all hardcoded Emerald navy hex classes → CSS variables so that
+   Ocean / Violet / Sunset dark themes show their own background colors.
+   Uses  to avoid overriding the default.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Main page background (deepest / outermost) ── */
+html[data-theme-mode="dark"] .bg-\[\#041326\],
+html[data-theme-mode="dark"] .bg-\[\#061528\],
+html[data-theme-mode="dark"] .bg-\[\#020d1c\],
+html[data-theme-mode="dark"] .min-h-screen,
+html[data-theme-mode="dark"] body,
+html[data-theme-mode="dark"] #root {
+  background-color: var(--bg-main) !important;
+  background-image: none !important;
+}
+
+/* ── Translucent main bg overlays ── */
+html[data-theme-mode="dark"] .bg-\[\#041326\]\/60,
+html[data-theme-mode="dark"] .bg-\[\#041326\]\/80,
+html[data-theme-mode="dark"] .bg-\[\#041326\]\/95,
+html[data-theme-mode="dark"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="dark"] .bg-\[\#071322\]\/98,
+html[data-theme-mode="dark"] .bg-\[\#071a30\],
+html[data-theme-mode="dark"] .bg-\[\#081a30\],
+html[data-theme-mode="dark"] .bg-\[\#081a30\]\/62,
+html[data-theme-mode="dark"] .bg-\[\#091424\]\/40,
+html[data-theme-mode="dark"] .bg-\[\#091526\],
+html[data-theme-mode="dark"] .bg-\[\#091526\]\/50,
+html[data-theme-mode="dark"] .bg-\[\#091b32\],
+html[data-theme-mode="dark"] .bg-\[\#0a1424\],
+html[data-theme-mode="dark"] .bg-\[\#0a1424\]\/60,
+html[data-theme-mode="dark"] .bg-\[\#0b172a\] {
+  background-color: var(--bg-main) !important;
+  background-image: none !important;
+}
+
+/* ── Card / Panel backgrounds ── */
+html[data-theme-mode="dark"] .bg-\[\#0b223c\],
+html[data-theme-mode="dark"] .bg-\[\#0c1c30\],
+html[data-theme-mode="dark"] .bg-\[\#0c1c30\]\/50,
+html[data-theme-mode="dark"] .bg-\[\#0c1e34\],
+html[data-theme-mode="dark"] .bg-\[\#0c233c\],
+html[data-theme-mode="dark"] .bg-\[\#0c233c\]\/60,
+html[data-theme-mode="dark"] .bg-\[\#0c1e36\],
+html[data-theme-mode="dark"] .bg-\[\#0c1e36\]\/90,
+html[data-theme-mode="dark"] .bg-\[\#0e213a\],
+html[data-theme-mode="dark"] .bg-\[\#0e213a\]\/50,
+html[data-theme-mode="dark"] .bg-\[\#10213a\],
+html[data-theme-mode="dark"] .bg-\[\#102944\],
+html[data-theme-mode="dark"] .bg-\[\#112542\],
+html[data-theme-mode="dark"] .bg-\[\#11273f\],
+html[data-theme-mode="dark"] .bg-\[\#122237\],
+html[data-theme-mode="dark"] .bg-\[\#122237\]\/60,
+html[data-theme-mode="dark"] .bg-\[\#122238\],
+html[data-theme-mode="dark"] .bg-\[\#122238\]\/40,
+html[data-theme-mode="dark"] .bg-\[\#122238\]\/60,
+html[data-theme-mode="dark"] .bg-\[\#132c48\],
+html[data-theme-mode="dark"] .bg-\[\#142947\],
+html[data-theme-mode="dark"] .bg-\[\#142c46\],
+html[data-theme-mode="dark"] .bg-\[\#172b49\],
+html[data-theme-mode="dark"] .bg-\[\#172c43\],
+html[data-theme-mode="dark"] .bg-\[\#172c44\],
+html[data-theme-mode="dark"] .bg-\[\#172c44\]\/80,
+html[data-theme-mode="dark"] .bg-\[\#172d47\],
+html[data-theme-mode="dark"] .bg-\[\#172d47\]\/90,
+html[data-theme-mode="dark"] .bg-\[\#193550\],
+html[data-theme-mode="dark"] .bg-\[\#1a2b42\],
+html[data-theme-mode="dark"] .bg-\[\#1a3352\],
+html[data-theme-mode="dark"] .bg-\[\#1b2d47\],
+html[data-theme-mode="dark"] .bg-\[\#1b2d47\]\/30,
+html[data-theme-mode="dark"] .bg-\[\#1d3350\],
+html[data-theme-mode="dark"] .bg-\[\#1d3551\],
+html[data-theme-mode="dark"] .bg-\[\#1d3551\]\/95,
+html[data-theme-mode="dark"] .bg-\[\#1e3451\],
+html[data-theme-mode="dark"] .bg-\[\#1f3857\],
+html[data-theme-mode="dark"] .bg-\[\#1f3857\]\/90,
+html[data-theme-mode="dark"] .bg-\[\#203a59\]\/88,
+html[data-theme-mode="dark"] .bg-\[\#203a59\]\/93,
+html[data-theme-mode="dark"] .bg-\[\#15283c\],
+html[data-theme-mode="dark"] .bg-\[\#07192f\],
+html[data-theme-mode="dark"] .bg-\[\#1e3451\],
+html[data-theme-mode="dark"] .bg-\[\#09152b\]\/80 {
+  background-color: var(--bg-panel) !important;
+  background-image: none !important;
+}
+
+
+
+/* ── Gradient backgrounds — neutralize to CSS variable ── */
+html[data-theme-mode="dark"] .from-\[\#041326\],
+html[data-theme-mode="dark"] .from-\[\#061528\],
+html[data-theme-mode="dark"] .from-\[\#0e1c2e\]\/60,
+html[data-theme-mode="dark"] .from-\[\#172c44\],
+html[data-theme-mode="dark"] .from-\[\#172c44\]\/80 {
+  --tw-gradient-from: var(--bg-panel) !important;
+}
+
+html[data-theme-mode="dark"] .to-\[\#041326\],
+html[data-theme-mode="dark"] .to-\[\#061528\],
+html[data-theme-mode="dark"] .to-\[\#070f1a\],
+html[data-theme-mode="dark"] .to-\[\#122238\] {
+  --tw-gradient-to: var(--bg-main) !important;
+}
+
+/* ── Card / panel gradient backgrounds (quiz card, chat panel, etc.)      ──
+   Tailwind v4 encodes gradient colors as oklab() so --tw-gradient-from
+   cannot accept a CSS-variable hex. Instead we kill the gradient entirely
+   and apply a solid panel color that matches the active color theme.
+   Applied to ALL dark themes so each card visually reflects its palette.   */
+html[data-theme-mode="dark"] .from-\[\#213a58\],
+html[data-theme-mode="dark"] .from-\[\#213a58\]\/95,
+html[data-theme-mode="dark"] .from-\[\#1a3352\],
+html[data-theme-mode="dark"] .from-\[\#182f4a\],
+html[data-theme-mode="dark"] .from-\[\#182f4a\]\/98,
+html[data-theme-mode="dark"] .from-\[\#1b3655\],
+html[data-theme-mode="dark"] .from-\[\#193550\],
+html[data-theme-mode="dark"] .from-\[\#263f5f\]\/95,
+html[data-theme-mode="dark"] .from-\[\#223a57\]\/95,
+html[data-theme-mode="dark"] .to-\[\#182f4a\],
+html[data-theme-mode="dark"] .to-\[\#182f4a\]\/98,
+html[data-theme-mode="dark"] .to-\[\#172c44\],
+html[data-theme-mode="dark"] .to-\[\#142947\] {
+  background-color: var(--bg-panel) !important;
+  background-image: none !important;
+}
+
+/* ── Accent / hover colors: remap gold [#ecc741] → primary color to match theme ── */
+/* Hover borders */
+html[data-theme-mode="dark"] .hover\:border-\[\#ecc741\]\/60:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.6) !important;
+}
+html[data-theme-mode="dark"] .hover\:border-\[\#ecc741\]\/55:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.55) !important;
+}
+html[data-theme-mode="dark"] .hover\:border-\[\#ecc741\]\/40:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.45) !important;
+}
+html[data-theme-mode="dark"] .hover\:border-\[\#ecc741\]\/20:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.25) !important;
+}
+
+/* Hover backgrounds */
+html[data-theme-mode="dark"] .hover\:bg-\[\#ecc741\]:hover {
+  background-color: var(--primary-color) !important;
+  color: var(--bg-main) !important;
+}
+html[data-theme-mode="dark"] .hover\:bg-\[\#ecc741\]\/10:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.12) !important;
+}
+html[data-theme-mode="dark"] .hover\:bg-\[\#ecc741\]\/20:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.2) !important;
+}
+html[data-theme-mode="dark"] .hover\:bg-\[\#ecc741\]\/24:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.24) !important;
+}
+html[data-theme-mode="dark"] .hover\:text-\[\#ecc741\]:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Selected answer state (border + bg) */
+html[data-theme-mode="dark"] .border-\[\#ecc741\]:not(.text-\[\#ecc741\]):not(.bg-gradient-to-r) {
+  border-color: var(--primary-color) !important;
+}
+html[data-theme-mode="dark"] .bg-\[\#ecc741\]:not(.text-\[\#11243b\]):not(.bg-gradient-to-r) {
+  background-color: var(--primary-color) !important;
+}
+
+/* Selected answer option button (full override background and text color to match theme) */
+html[data-theme-mode="dark"] .border-\[\#ecc741\].bg-\[\#ecc741\].text-\[\#11243b\] {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: var(--bg-main) !important;
+  font-weight: 600 !important;
+}
+
+/* Card borders on ConsultationPage */
+html[data-theme-mode="dark"] .border-\[\#66789c\]\/34,
+html[data-theme-mode="dark"] .border-\[\#1f7f7a\]\/38 {
+  border-color: var(--border-main) !important;
+}
+
+/* ── White translucent overlays — keep as-is in dark mode (they look fine) ── */
+
 /* Light Mode base styles & overrides */
 html[data-theme-mode="light"],
 html[data-theme-mode="light"] body,
@@ -158,6 +377,8 @@ html[data-theme-mode="light"] .bg-\[\#1a2b42\],
 html[data-theme-mode="light"] .bg-\[\#10213a\],
 html[data-theme-mode="light"] .bg-\[\#172b49\],
 html[data-theme-mode="light"] .bg-\[\#1e3451\],
+html[data-theme-mode="light"] .from-\[\#263f5f\]\/95,
+html[data-theme-mode="light"] .from-\[\#223a57\]\/95,
 html[data-theme-mode="light"] .bg-\[\#15283c\] {
   background-color: var(--bg-panel) !important;
   background-image: none !important;
@@ -227,6 +448,7 @@ html[data-theme-mode="light"] .border-white\/10,
 html[data-theme-mode="light"] .border-white\/12,
 html[data-theme-mode="light"] .border-white\/15,
 html[data-theme-mode="light"] .border-\[\#66789c\]\/34,
+html[data-theme-mode="light"] .border-\[\#1f7f7a\]\/38,
 html[data-theme-mode="light"] .border-\[\#5f7396\]\/45,
 html[data-theme-mode="light"] .border-\[\#ecc741\]\/30,
 html[data-theme-mode="light"] .border-slate-800 {
@@ -366,24 +588,94 @@ html[data-theme-mode="light"] .text-slate-200 {
 
 .glass-card-hover:hover {
   background: rgba(17, 24, 39, 0.65);
-  border-color: rgba(14, 216, 171, 0.3);
+  border-color: rgba(var(--primary-color-rgb), 0.35) !important;
   transform: translateY(-6px) scale(1.01);
   box-shadow: 
     0 20px 40px -10px rgba(0, 0, 0, 0.7),
-    0 0 30px -5px rgba(14, 216, 171, 0.15);
+    0 0 30px -5px rgba(var(--primary-color-rgb), 0.18) !important;
 }
 
-/* Premium Glowing Boundary (Rainbow border) */
-@keyframes rainbow-border {
-  0% { border-color: rgba(14, 216, 171, 0.4); box-shadow: 0 0 20px rgba(14, 216, 171, 0.1); }
-  33% { border-color: rgba(236, 199, 65, 0.4); box-shadow: 0 0 20px rgba(236, 199, 65, 0.1); }
-  66% { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
-  100% { border-color: rgba(14, 216, 171, 0.4); box-shadow: 0 0 20px rgba(14, 216, 171, 0.1); }
-}
-
+/* Premium Glowing Boundary (Rotating conic-gradient rainbow border sweep using CSS Masking) */
 .rainbow-glow {
-  animation: rainbow-border 8s infinite linear;
-  border-width: 1px;
+  position: relative;
+  z-index: 0;
+  border-radius: 24px !important;
+  border: 1px solid transparent !important; /* Always transparent so the rainbow border is visible */
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease !important;
+}
+
+html[data-theme-mode="light"] .rainbow-glow {
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Beautiful native multi-layered rainbow shadow on hover (automatically clipped behind translucent background) */
+.rainbow-glow:hover {
+  transform: translateY(-6px) scale(1.01) !important;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.45),
+    -10px -10px 25px -5px rgba(239, 68, 68, 0.14),
+    10px -10px 25px -5px rgba(249, 115, 22, 0.14),
+    10px 10px 25px -5px rgba(16, 185, 129, 0.14),
+    -10px 10px 25px -5px rgba(59, 130, 246, 0.14) !important;
+}
+
+html[data-theme-mode="light"] .rainbow-glow:hover {
+  box-shadow: 
+    0 20px 40px -12px rgba(0, 0, 0, 0.1),
+    -10px -10px 25px -5px rgba(239, 68, 68, 0.12),
+    10px -10px 25px -5px rgba(249, 115, 22, 0.12),
+    10px 10px 25px -5px rgba(16, 185, 129, 0.12),
+    -10px 10px 25px -5px rgba(59, 130, 246, 0.12) !important;
+}
+
+/* Ensure all children stack above the pseudoelement layers */
+.rainbow-glow > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Custom property for rotating gradient angle */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Flowing color track restricted ONLY to the 1px border area via mask (ALWAYS VISIBLE) */
+.rainbow-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 24px;
+  padding: 1px; /* Thinner border thickness for elegance */
+  opacity: 0.32; /* Always visible and soft */
+  background: conic-gradient(
+    from var(--angle) at 50% 50%,
+    #ef4444, #f97316, #ecc741, #10b981, #3b82f6, #6366f1, #8b5cf6, #ef4444
+  );
+  -webkit-mask: 
+     linear-gradient(#fff 0 0) content-box, 
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  animation: rotate-gradient 10s linear infinite; /* 10s slow clockwise rotation */
+}
+
+.rainbow-glow:hover::before {
+  opacity: 0.6; /* Brighten the border line on hover */
+}
+
+@keyframes rotate-gradient {
+  0% {
+    --angle: 0deg;
+  }
+  100% {
+    --angle: 360deg;
+  }
 }
 
 /* Liquid Background / Glowing Blobs */
@@ -672,6 +964,10 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
+.nav-link-underline.active {
+  color: var(--primary-color) !important;
+}
+
 .nav-link-underline::after {
   content: '';
   position: absolute;
@@ -680,7 +976,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 2px;
   bottom: -4px;
   left: 0;
-  background-color: #ecc741;
+  background-color: var(--primary-color) !important;
   transform-origin: bottom right;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -955,13 +1251,24 @@ html[data-theme-mode="light"] .glow-blob {
 }
 
 /* glass-card light mode styling */
-html[data-theme-mode="light"] .glass-card {
+html[data-theme-mode="light"] .glass-card:not(.rainbow-glow) {
   background: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.10) !important;
   color: var(--text-main) !important;
+}
+
+/* Premium Pro card in light mode */
+html[data-theme-mode="light"] .glass-card.rainbow-glow {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: var(--text-main) !important;
+  animation: rainbow-border-light 8s infinite linear !important;
+  border-width: 1px !important;
+  border-style: solid !important;
 }
 
 html[data-theme-mode="light"] .glass-card-hover:hover {

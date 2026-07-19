@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import Skeleton from '../../../components/Skeleton'
 import { getFormattedPriceParts } from '../util/pricingHelpers'
 
@@ -11,11 +12,21 @@ function PricingCard({
   t,
 }) {
   const { value, currency } = getFormattedPriceParts(plan, t)
+  const [hasRevealed, setHasRevealed] = useState(false)
+
+  useEffect(() => {
+    // Staggered entry animation takes up to 1.2s. Removing delay after 1.5s ensures
+    // theme toggle switches all card backgrounds instantly and in perfect sync.
+    const timer = setTimeout(() => {
+      setHasRevealed(true)
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <article
       className={`relative flex flex-col rounded-[32px] border p-8 transition-all duration-500 hover:scale-[1.02] ${plan.borderClass} ${plan.cardClass} reveal-on-scroll`}
-      style={{ transitionDelay: `${index * 150}ms` }}
+      style={hasRevealed ? {} : { transitionDelay: `${index * 150}ms` }}
     >
       {/* Popular / Focus badge */}
       {plan.badge ? (
