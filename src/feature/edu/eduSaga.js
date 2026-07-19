@@ -30,6 +30,20 @@ function mapRegistration(r, plans = []) {
     ? (r.price || r.totalAmount)
     : (r.studentCount * pricePerStudent);
 
+  // Đọc mã kích hoạt dự phòng từ localStorage nếu Backend không trả về trong API list
+  let localKey = "";
+  try {
+    const storedKeys = localStorage.getItem("4s_school_activation_keys");
+    if (storedKeys) {
+      const keysMap = JSON.parse(storedKeys);
+      localKey = keysMap[r.id] || "";
+    }
+  } catch (e) {
+    console.error("Error reading localStorage:", e);
+  }
+
+  const finalKey = keys.length > 0 ? keys[0].activationKey : localKey;
+
   return {
     id: r.id,
     schoolName: r.schoolName,
@@ -47,8 +61,8 @@ function mapRegistration(r, plans = []) {
     status: r.status,
     transactionCode: r.transactionCode,
     notes: r.notes,
-    activationKey: keys.length > 0 ? keys[0].activationKey : "",
-    studentEmails: keys,
+    activationKey: finalKey,
+    studentEmails: finalKey ? [{ email: r.email, activationKey: finalKey }] : [],
   };
 }
 
@@ -153,6 +167,19 @@ function* completeRegistrationSaga(action) {
     const importResponse = yield call(eduAPI.importKeys, id, formData);
     const keysList = importResponse.data || []; // Mảng các đối tượng chứa email & activationKey từ BE
 
+    // Lưu khoá kích hoạt nhận được vào localStorage để hiển thị lâu dài sau khi F5
+    const sharedKey = keysList[0]?.activationKey || "";
+    if (sharedKey) {
+      try {
+        const storedKeys = localStorage.getItem("4s_school_activation_keys");
+        const keysMap = storedKeys ? JSON.parse(storedKeys) : {};
+        keysMap[id] = sharedKey;
+        localStorage.setItem("4s_school_activation_keys", JSON.stringify(keysMap));
+      } catch (e) {
+        console.error("Failed to save key to localStorage:", e);
+      }
+    }
+
     yield put(completeRegistrationSuccess());
 
     // 2. Tải lại danh sách từ BE
@@ -164,8 +191,8 @@ function* completeRegistrationSaga(action) {
         ? {
             ...r,
             status: "Completed",
-            activationKey: keysList[0]?.activationKey || "", // Lưu key đầu làm đại diện
-            studentEmails: keysList, // Lưu danh sách các keys chi tiết
+            activationKey: sharedKey,
+            studentEmails: keysList,
           }
         : r
     );
