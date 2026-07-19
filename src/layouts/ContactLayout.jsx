@@ -13,6 +13,11 @@ export default function ContactLayout({ onLogout = () => {} }) {
   // System network status monitoring
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
+  // Sidebar toggle state (persisted in localStorage)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem("4s_contact_sidebar_collapsed") === "true";
+  });
+
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
     const goOffline = () => setIsOnline(false);
@@ -29,6 +34,14 @@ export default function ContactLayout({ onLogout = () => {} }) {
   function handleLanguageChange(lang) {
     i18n.changeLanguage(lang);
   }
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("4s_contact_sidebar_collapsed", String(next));
+      return next;
+    });
+  };
 
   const NAV_ITEMS = [
     {
@@ -59,8 +72,14 @@ export default function ContactLayout({ onLogout = () => {} }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 selection:bg-indigo-500/20 selection:text-indigo-900">
       <div className="mx-auto flex w-full max-w-[1600px]">
-        {/* Sidebar – Desktop */}
-        <aside className="hidden min-h-screen w-[280px] shrink-0 border-r border-slate-200 bg-white px-5 py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)]">
+        {/* Sidebar – Desktop with smooth transition toggle */}
+        <aside
+          className={`hidden min-h-screen shrink-0 border-slate-200 bg-white py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)] transition-all duration-300 ${
+            isSidebarCollapsed
+              ? "w-0 border-r-0 px-0 overflow-hidden opacity-0"
+              : "w-[280px] border-r px-5 opacity-100"
+          }`}
+        >
           <button
             className="flex items-center gap-3 px-2 py-1 text-left transition hover:opacity-90 active:scale-98 cursor-pointer focus:outline-none"
             onClick={() => navigate("/contact/dashboard")}
@@ -108,6 +127,18 @@ export default function ContactLayout({ onLogout = () => {} }) {
           <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white px-4 py-3 md:px-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
+                {/* Toggle Sidebar Button */}
+                <button
+                  onClick={toggleSidebar}
+                  className="hidden lg:flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-indigo-650 transition shadow-2xs cursor-pointer focus:outline-none"
+                  type="button"
+                  title={isSidebarCollapsed ? (isVi ? "Hiện thanh bên" : "Show sidebar") : (isVi ? "Ẩn thanh bên" : "Hide sidebar")}
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={isSidebarCollapsed ? "M4 6h16M4 12h16M4 18h16" : "M4 6h16M4 12h10M4 18h16"} />
+                  </svg>
+                </button>
+
                 {/* System Status Indicators */}
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
@@ -181,7 +212,7 @@ export default function ContactLayout({ onLogout = () => {} }) {
             </nav>
           </header>
 
-          <main className="w-full flex-1 px-4 py-5 md:px-6 md:py-6">
+          <main className="w-full flex-1 px-4 py-5 md:px-6 md:py-6 overflow-hidden">
             <Outlet />
           </main>
         </div>

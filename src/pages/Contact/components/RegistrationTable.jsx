@@ -87,7 +87,7 @@ Website: ${window.location.origin}`);
           <table className="min-w-full">
             <thead className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.12em] text-slate-500 bg-slate-50 font-semibold">
               <tr>
-                <th className="px-4 py-3.5">{isVi ? "Mã đơn" : "REG ID"}</th>
+                <th className="px-4 py-3.5">{isVi ? "Mã giao dịch" : "TX Code"}</th>
                 <th className="px-4 py-3.5">{isVi ? "Trường học / Người liên hệ" : "School / Rep"}</th>
                 <th className="px-4 py-3.5">{isVi ? "Gói cước / Học sinh" : "Plan / Students"}</th>
                 <th className="px-4 py-3.5 text-right">{isVi ? "Tổng tiền" : "Total Price"}</th>
@@ -107,8 +107,8 @@ Website: ${window.location.origin}`);
               ) : (
                 registrations.map((item) => (
                   <tr className="hover:bg-slate-50/50 transition-colors" key={item.id}>
-                    <td className="px-4 py-4.5 text-sm font-bold text-slate-700 whitespace-nowrap">
-                      {item.id}
+                    <td className="px-4 py-4.5 text-xs font-mono font-bold text-slate-650 whitespace-nowrap" title={item.id}>
+                      {item.transactionCode || "—"}
                     </td>
                     <td className="px-4 py-4.5">
                       <p className="text-sm font-bold text-slate-900 leading-tight">{item.schoolName}</p>
@@ -222,7 +222,9 @@ Website: ${window.location.origin}`);
           registrations.map((item) => (
             <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3" key={item.id}>
               <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <span className="text-xs font-bold text-slate-700">{item.id}</span>
+                <span className="text-xs font-mono font-bold text-slate-650" title={item.id}>
+                  TX: {item.transactionCode || "—"}
+                </span>
                 <StatusBadge status={item.status} isVi={isVi} size="xs" />
               </div>
 
