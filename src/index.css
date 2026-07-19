@@ -72,7 +72,7 @@
   --bg-panel: #ffffff;
   --bg-panel-darker: #f1f5f9;
   --text-main: #0f172a;
-  --text-muted: #475569;
+  --text-muted: #334155;
   --text-dim: #64748b;
   --border-main: rgba(0, 0, 0, 0.08);
 }
@@ -84,112 +84,203 @@ html[data-theme-mode="dark"] {
 }
 
 /* Light Mode base styles & overrides */
-html[data-theme-mode="light"] {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-}
-
-html[data-theme-mode="light"] body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-}
-
-/* Light mode utility overrides for backgrounds */
+html[data-theme-mode="light"],
+html[data-theme-mode="light"] body,
+html[data-theme-mode="light"] #root,
+html[data-theme-mode="light"] .min-h-screen,
+html[data-theme-mode="light"] main,
 html[data-theme-mode="light"] .bg-\[\#041326\],
-html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
 html[data-theme-mode="light"] .bg-\[\#061528\],
-html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="light"] .bg-\[\#020d1c\] {
+  background-color: var(--bg-main) !important;
+  background-image: none !important;
+  color: var(--text-main) !important;
+}
+
+/* Override all cards, panels, articles, and lists */
+html[data-theme-mode="light"] article,
+html[data-theme-mode="light"] aside,
+html[data-theme-mode="light"] section.glass-card,
+html[data-theme-mode="light"] .glass-card,
+html[data-theme-mode="light"] div.glass-card,
+html[data-theme-mode="light"] .bg-\[\#203a59\]\/93,
+html[data-theme-mode="light"] .bg-\[\#172c43\],
+html[data-theme-mode="light"] .bg-\[\#172d47\]\/90,
 html[data-theme-mode="light"] .bg-\[\#122237\]\/60,
+html[data-theme-mode="light"] .bg-\[\#1b2d47\]\/30,
+html[data-theme-mode="light"] .bg-\[\#203a59\]\/88,
 html[data-theme-mode="light"] .bg-\[\#0c233c\]\/60,
 html[data-theme-mode="light"] .bg-\[\#0c1e36\],
 html[data-theme-mode="light"] .bg-\[\#081a30\]\/60,
-html[data-theme-mode="light"] .bg-\[\#172c43\],
-html[data-theme-mode="light"] .bg-\[\#203a59\]\/93,
-html[data-theme-mode="light"] .bg-\[\#172d47\]\/90,
-html[data-theme-mode="light"] .bg-\[\#1b2d47\]\/30,
-html[data-theme-mode="light"] .bg-\[\#203a59\]\/88,
-html[data-theme-mode="light"] .bg-white\/5,
-html[data-theme-mode="light"] .bg-white\/8,
-html[data-theme-mode="light"] .bg-white\/\[0\.03\] {
+html[data-theme-mode="light"] .bg-\[\#1a2b42\],
+html[data-theme-mode="light"] .bg-\[\#10213a\],
+html[data-theme-mode="light"] .bg-\[\#172b49\],
+html[data-theme-mode="light"] .bg-\[\#1e3451\],
+html[data-theme-mode="light"] .bg-\[\#15283c\] {
   background-color: var(--bg-panel) !important;
+  background-image: none !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-main) !important;
 }
 
-html[data-theme-mode="light"] .bg-gradient-to-b {
-  background-image: linear-gradient(to bottom, var(--bg-panel) 95%, var(--bg-panel-darker) 98%) !important;
+/* Header, Footer, and Navigation bars */
+html[data-theme-mode="light"] header,
+html[data-theme-mode="light"] footer,
+html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
+html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="light"] .bg-\[\#172c43\],
+html[data-theme-mode="light"] .bg-\[\#07192f\] {
+  background-color: var(--bg-panel-darker) !important;
+  border-color: var(--border-main) !important;
 }
 
-html[data-theme-mode="light"] .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, var(--bg-panel), var(--bg-panel-darker)) !important;
+/* Typography Overrides */
+html[data-theme-mode="light"] h1,
+html[data-theme-mode="light"] h2,
+html[data-theme-mode="light"] h3,
+html[data-theme-mode="light"] h4,
+html[data-theme-mode="light"] h5,
+html[data-theme-mode="light"] h6,
+html[data-theme-mode="light"] .text-slate-100,
+html[data-theme-mode="light"] .text-white,
+html[data-theme-mode="light"] .text-slate-200,
+html[data-theme-mode="light"] .text-slate-50 {
+  color: var(--text-main) !important;
 }
 
-/* Light mode utility overrides for borders */
+html[data-theme-mode="light"] p,
+html[data-theme-mode="light"] span,
+html[data-theme-mode="light"] li,
+html[data-theme-mode="light"] label,
+html[data-theme-mode="light"] .text-slate-300,
+html[data-theme-mode="light"] .text-slate-400,
+html[data-theme-mode="light"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Form controls (Inputs, Selects, Dropdowns, Textareas) */
+html[data-theme-mode="light"] input,
+html[data-theme-mode="light"] select,
+html[data-theme-mode="light"] textarea,
+html[data-theme-mode="light"] option,
+html[data-theme-mode="light"] .bg-white\/8,
+html[data-theme-mode="light"] .bg-white\/5,
+html[data-theme-mode="light"] .bg-white\/\[0\.03\] {
+  background-color: var(--bg-panel-darker) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-main) !important;
+}
+
+/* Specific button borders/states */
+html[data-theme-mode="light"] button.border-white\/10,
+html[data-theme-mode="light"] button.border-white\/12,
+html[data-theme-mode="light"] button.border-white\/15 {
+  border-color: var(--border-main) !important;
+}
+
+/* Border overrides */
+html[data-theme-mode="light"] .border,
+html[data-theme-mode="light"] .border-t,
+html[data-theme-mode="light"] .border-b,
+html[data-theme-mode="light"] .border-l,
+html[data-theme-mode="light"] .border-r,
 html[data-theme-mode="light"] .border-white\/5,
 html[data-theme-mode="light"] .border-white\/10,
 html[data-theme-mode="light"] .border-white\/12,
 html[data-theme-mode="light"] .border-white\/15,
 html[data-theme-mode="light"] .border-\[\#66789c\]\/34,
 html[data-theme-mode="light"] .border-\[\#5f7396\]\/45,
+html[data-theme-mode="light"] .border-\[\#ecc741\]\/30,
 html[data-theme-mode="light"] .border-slate-800 {
   border-color: var(--border-main) !important;
 }
 
-/* Light mode utility overrides for text colors */
-html[data-theme-mode="light"] .text-slate-300,
-html[data-theme-mode="light"] .text-slate-400 {
-  color: var(--text-muted) !important;
-}
-
+/* Specific text overrides */
+html[data-theme-mode="light"] .text-\[\#eaf2ff\],
 html[data-theme-mode="light"] .text-slate-100,
-html[data-theme-mode="light"] .text-white {
-  color: var(--text-main) !important;
-}
-
 html[data-theme-mode="light"] .text-slate-200 {
   color: var(--text-main) !important;
 }
 
-html[data-theme-mode="light"] .text-\[\#eaf2ff\] {
-  color: var(--text-main) !important;
-}
-
-/* Color theme overrides for primary and secondary brands */
+/* Color theme overrides for primary elements */
 .text-\[\#0ed8ab\],
+.text-\[\#0fe2a8\],
+.text-\[\#14d6af\],
+.text-\[\#17d8b2\],
+.text-\[\#0fbc98\],
+.text-\[\#18c7a5\],
+.text-\[\#0fe2a8\],
+.text-\[emerald\],
+.text-teal-400,
 .text-\[\#0fe2a8\] {
   color: var(--primary-color) !important;
 }
 
 .bg-\[\#0ed8ab\],
-.bg-\[\#0fe2a8\] {
+.bg-\[\#0fe2a8\],
+.bg-\[\#14d6af\],
+.bg-\[\#17d8b2\],
+.bg-\[\#0fbc98\],
+.bg-\[\#18c7a5\],
+.bg-\[\#0fe2a8\],
+.bg-teal-500\/10,
+.bg-teal-500\/12 {
   background-color: var(--primary-color) !important;
 }
 
-.border-\[\#0ed8ab\] {
+.bg-\[\#0ed8ab\]\/10,
+.bg-\[\#0fe2a8\]\/10,
+.bg-\[\#14d6af\]\/12,
+.bg-\[\#18c7a5\]\/14 {
+  background-color: rgba(var(--primary-color-rgb), 0.12) !important;
+}
+
+.bg-\[\#0ed8ab\]\/15,
+.bg-\[\#0fe2a8\]\/15,
+.bg-\[\#14d6af\]\/15,
+.bg-\[\#18c7a5\]\/15 {
+  background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+.hover\:bg-\[\#0ed8ab\]\/20:hover,
+.hover\:bg-\[\#0fe2a8\]\/20:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+
+.border-\[\#0ed8ab\],
+.border-\[\#0fe2a8\],
+.border-\[\#14d6af\],
+.border-\[\#18c7a5\]\/35,
+.border-teal-500\/40,
+.border-teal-500\/60 {
   border-color: var(--primary-color) !important;
 }
 
-.text-\[\#ecc741\],
-.text-\[\#f2cb36\],
-.text-\[\#f4d040\] {
-  color: var(--secondary-color) !important;
+.border-\[\#0ed8ab\]\/35,
+.border-\[\#0fe2a8\]\/35,
+.border-\[\#14d6af\]\/30 {
+  border-color: rgba(var(--primary-color-rgb), 0.35) !important;
 }
 
-.bg-\[\#ecc741\],
-.bg-\[\#f2cb36\],
-.bg-\[\#f4d040\] {
-  background-color: var(--secondary-color) !important;
+/* Gradients using primary colors */
+.from-\[\#17d8b2\],
+.from-\[\#14d6af\],
+.from-teal-500 {
+  --tw-gradient-from: var(--primary-color) !important;
+  --tw-gradient-to: var(--primary-color-hover) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-.border-\[\#ecc741\] {
-  border-color: var(--secondary-color) !important;
+.to-\[\#0fbc98\],
+.to-\[\#0fe2a8\],
+.to-\[\#11d1f2\],
+.to-teal-400 {
+  --tw-gradient-to: var(--primary-color-hover) !important;
 }
 
-/* Gradients that use primary/secondary */
-.bg-gradient-to-r.from-\[\#ecc741\] {
-  background-image: linear-gradient(to right, var(--secondary-color), var(--secondary-color)) !important;
-}
-
-.bg-gradient-to-br.from-\[\#17d8b2\] {
-  background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-color)) !important;
+.bg-gradient-to-br.from-\[\#17d8b2\],
+.bg-gradient-to-br.from-\[\#14d6af\] {
+  background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-color-hover)) !important;
 }
 
 /* Force all legacy Sora classes to map to Be Vietnam Pro */
