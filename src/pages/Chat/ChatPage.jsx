@@ -30,7 +30,12 @@ function ChatPage() {
   const isProAccount = currentPlan !== 'free' && currentPlan !== ''
   const locale = i18n.resolvedLanguage === 'vi' ? 'vi' : 'en'
 
-  const systemBadge = isProAccount
+  const systemBadge = currentPlan === 'edu'
+    ? {
+        label: '🎓',
+        className: 'border-teal-500/45 bg-teal-500/12 text-teal-400',
+      }
+    : isProAccount
     ? {
         label: '\u{1F451}',
         className: 'border-[#ecc741]/35 bg-[#ecc741]/12 text-[#f2cb36]',
