@@ -55,6 +55,13 @@ function App() {
 
   // Get auth state from Redux
   const { isLoggedIn, plan, role, refreshTokenError } = useSelector((state) => state.auth);
+  const { themeMode, colorTheme } = useSelector((state) => state.theme || { themeMode: "dark", colorTheme: "emerald" });
+
+  // Update HTML data-attributes dynamically based on selected theme configs
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme-mode", themeMode || "dark");
+    document.documentElement.setAttribute("data-color-theme", colorTheme || "emerald");
+  }, [themeMode, colorTheme]);
 
   // Track whether we have already fetched user info for the current session
   const hasFetchedMe = useRef(false);
