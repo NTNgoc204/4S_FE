@@ -32,17 +32,32 @@ function mapRegistration(r, plans = []) {
 
   // Đọc mã kích hoạt dự phòng từ localStorage nếu Backend không trả về trong API list
   let localKey = "";
+  let localStudentEmails = [];
   try {
     const storedKeys = localStorage.getItem("4s_school_activation_keys");
     if (storedKeys) {
       const keysMap = JSON.parse(storedKeys);
-      localKey = keysMap[r.id] || "";
+      const savedData = keysMap[r.id];
+      if (savedData) {
+        if (typeof savedData === "object" && savedData.activationKey) {
+          localKey = savedData.activationKey;
+          localStudentEmails = savedData.studentEmails || [];
+        } else {
+          // Fallback cho định dạng cũ lưu kiểu chuỗi string
+          localKey = savedData;
+        }
+      }
     }
   } catch (e) {
     console.error("Error reading localStorage:", e);
   }
 
   const finalKey = keys.length > 0 ? keys[0].activationKey : localKey;
+  const finalStudentEmails = keys.length > 0 
+    ? keys 
+    : (localStudentEmails.length > 0 
+        ? localStudentEmails 
+        : (finalKey ? [{ email: r.email, activationKey: finalKey }] : []));
 
   return {
     id: r.id,
@@ -62,7 +77,7 @@ function mapRegistration(r, plans = []) {
     transactionCode: r.transactionCode,
     notes: r.notes,
     activationKey: finalKey,
-    studentEmails: finalKey ? [{ email: r.email, activationKey: finalKey }] : [],
+    studentEmails: finalStudentEmails,
   };
 }
 
@@ -167,13 +182,16 @@ function* completeRegistrationSaga(action) {
     const importResponse = yield call(eduAPI.importKeys, id, formData);
     const keysList = importResponse.data || []; // Mảng các đối tượng chứa email & activationKey từ BE
 
-    // Lưu khoá kích hoạt nhận được vào localStorage để hiển thị lâu dài sau khi F5
+    // Lưu khoá kích hoạt nhận được và danh sách email học sinh vào localStorage để hiển thị lâu dài sau khi F5
     const sharedKey = keysList[0]?.activationKey || "";
     if (sharedKey) {
       try {
         const storedKeys = localStorage.getItem("4s_school_activation_keys");
         const keysMap = storedKeys ? JSON.parse(storedKeys) : {};
-        keysMap[id] = sharedKey;
+        keysMap[id] = {
+          activationKey: sharedKey,
+          studentEmails: keysList
+        };
         localStorage.setItem("4s_school_activation_keys", JSON.stringify(keysMap));
       } catch (e) {
         console.error("Failed to save key to localStorage:", e);
