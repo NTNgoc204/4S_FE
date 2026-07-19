@@ -36,27 +36,27 @@ export default function RegistrationTable({
   const [selectedRegKeys, setSelectedRegKeys] = useState(null); // { schoolName, keys: [...] }
 
   const handleSendKeyEmail = (item) => {
-    const subject = encodeURIComponent(`[4S Company] Ban giao ma kich hoat tai khoan hoc duong - ${item.schoolName}`);
+    const subject = encodeURIComponent(`[4S Company] Bàn giao mã kích hoạt tài khoản học đường - ${item.schoolName}`);
     const body = encodeURIComponent(
-`Kinh gui Dai dien truong ${item.schoolName},
+`Kính gửi Đại diện trường ${item.schoolName},
 
-Ban Tiep Nhan Hoc Duong - 4S Company xin chan thanh cam on Quy truong da dang ky va hoan tat thanh toan dich vu huong nghiep cua chung toi.
+Ban Tiếp Nhận Học Đường - 4S Company xin chân thành cảm ơn Quý trường đã đăng ký và hoàn tất thanh toán dịch vụ hướng nghiệp của chúng tôi.
 
-Duoi day la thong tin ban giao ma kich hoat tai khoan hoc duong danh cho hoc sinh cua Quy truong:
+Dưới đây là thông tin bàn giao mã kích hoạt tài khoản học đường dành cho học sinh của Quý trường:
 
-- Ten goi cuoc: ${item.planName || "EDU"}
-- So luong: ${item.studentCount} tai khoan hoc sinh
-- Ma kich hoat (Activation Key) dung chung: ${item.activationKey || ""}
+- Tên gói cước: ${item.planName || "EDU"}
+- Số lượng: ${item.studentCount} tài khoản học sinh
+- Mã kích hoạt (Activation Key) dùng chung: ${item.activationKey || ""}
 
-Huong dan kich hoat danh cho hoc sinh:
-1. Hoc sinh truy cap va dang ky tai khoan moi tai website cua 4S Company.
-2. Dang ky tai khoan bang chinh dia chi email cua minh.
-3. Sau khi dang ky va dang nhap thanh cong, nhap ma kich hoat phia tren vao muc "Ma kich hoat hoc duong" de nang cap tai khoan len goi Premium/VIP.
+Hướng dẫn kích hoạt dành cho học sinh:
+1. Học sinh truy cập và đăng ký tài khoản mới tại website của 4S Company.
+2. Đăng ký tài khoản bằng chính địa chỉ email của mình.
+3. Sau khi đăng ký và đăng nhập thành công, nhập mã kích hoạt phía trên vào mục "Mã kích hoạt học đường" để nâng cấp tài khoản lên gói Premium/VIP.
 
-Neu Quy truong hoac cac em hoc sinh can bat ky su ho tro ky thuat nao trong qua trinh kich hoat tai khoan, xin vui lang phan hoi email nay hoac lien he hotline de duoc phuc vu.
+Nếu Quý trường hoặc các em học sinh cần bất kỳ sự hỗ trợ kỹ thuật nào trong quá trình kích hoạt tài khoản, xin vui lòng phản hồi email này hoặc liên hệ hotline để được phục vụ.
 
-Tran trong,
-Ban Tiep Nhan Hoc Duong - 4S Company
+Trân trọng,
+Ban Tiếp Nhận Học Đường - 4S Company
 Website: ${window.location.origin}`);
 
     // Lấy danh sách email học sinh từ studentEmails để đưa vào danh sách gửi ẩn danh (BCC)
