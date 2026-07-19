@@ -204,6 +204,11 @@ function Header({
                 <span className="inline-flex items-center rounded-lg border border-rose-300/40 bg-rose-400/10 px-2.5 py-1.5 text-[10px] font-black tracking-widest text-rose-300 shadow-inner">
                   ADMIN
                 </span>
+              ) : String(reduxAuth.plan).toLowerCase() === "edu" ? (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-teal-500/40 bg-teal-500/10 px-2.5 py-1.5 text-[10px] font-black tracking-widest text-teal-400 shadow-inner">
+                  <span className="text-xs">🎓</span>
+                  <span>EDU</span>
+                </span>
               ) : (String(reduxAuth.plan).toLowerCase() === "pro" || String(reduxAuth.plan).toLowerCase() === "vip") ? (
                 <span className="inline-flex items-center gap-1 rounded-lg border border-[#ecc741]/40 bg-[#ecc741]/10 px-2.5 py-1.5 text-[10px] font-black tracking-widest text-[#f4d040] shadow-inner">
                   <span className="text-xs">👑</span>
