@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { QRCodeSVG } from "qrcode.react";
 import fourSLogo from "../assets/logo-4s.png";
 import NotificationDropdown from "./NotificationDropdown";
+import { toggleThemeMode, setColorTheme } from "../feature/theme/themeSlice";
 
 function Header({
   isLoggedIn = false,
@@ -21,6 +22,10 @@ function Header({
   // Get notification state
   const { unreadCount } = useSelector((state) => state.notification);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  // Get theme state
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const theme = useSelector((state) => state.theme || { themeMode: "dark", colorTheme: "emerald" });
 
   // Get auth state from Redux
   const reduxAuth = useSelector((state) => state.auth);
@@ -243,6 +248,98 @@ function Header({
                   )}
                 </button>
                 <NotificationDropdown isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} />
+              </div>
+
+              {/* Theme Settings Toggle & Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsThemeOpen(!isThemeOpen)}
+                  className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
+                  type="button"
+                  title="Customize Theme"
+                >
+                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>
+                </button>
+                {isThemeOpen && (
+                  <>
+                    {/* Backdrop for click outside */}
+                    <div className="fixed inset-0 z-40" onClick={() => setIsThemeOpen(false)} />
+                    
+                    {/* Dropdown Container */}
+                    <div className="absolute right-0 mt-3 w-64 p-5 rounded-2xl border border-white/10 bg-[#061528] shadow-[0_16px_35px_rgba(0,0,0,0.55)] backdrop-blur-xl z-50 animate-fadeIn">
+                      <h3 className="font-['Sora'] text-xs font-black tracking-widest text-[#0ed8ab] uppercase mb-4">
+                        {isEnglish ? "Theme Settings" : "Tùy biến giao diện"}
+                      </h3>
+                      
+                      {/* Mode Selector */}
+                      <div className="mb-5">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                          {isEnglish ? "Appearance" : "Chế độ"}
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => dispatch(toggleThemeMode())}
+                            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                              theme.themeMode === "light"
+                                ? "border-[#ecc741]/40 bg-[#ecc741]/10 text-[#f4d040]"
+                                : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                            }`}
+                          >
+                            <span>☀️</span>
+                            <span>{isEnglish ? "Light" : "Sáng"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => dispatch(toggleThemeMode())}
+                            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                              theme.themeMode === "dark"
+                                ? "border-[#0ed8ab]/40 bg-[#0ed8ab]/10 text-[#0ed8ab]"
+                                : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                            }`}
+                          >
+                            <span>🌙</span>
+                            <span>{isEnglish ? "Dark" : "Tối"}</span>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Color Themes */}
+                      <div>
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                          {isEnglish ? "Color Preset" : "Chủ đề màu"}
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { id: "emerald", label: isEnglish ? "Emerald" : "Ngọc lục", color: "bg-[#0ed8ab]", text: "text-[#0ed8ab]" },
+                            { id: "ocean", label: isEnglish ? "Ocean" : "Đại dương", color: "bg-[#0ea5e9]", text: "text-[#0ea5e9]" },
+                            { id: "violet", label: isEnglish ? "Violet" : "Màu tím", color: "bg-[#8b5cf6]", text: "text-[#8b5cf6]" },
+                            { id: "sunset", label: isEnglish ? "Sunset" : "Hoàng hôn", color: "bg-[#f97316]", text: "text-[#f97316]" },
+                          ].map((c) => {
+                            const isActive = theme.colorTheme === c.id;
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => dispatch(setColorTheme(c.id))}
+                                className={`flex items-center gap-2 py-2 px-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                                  isActive
+                                    ? `border-white/20 bg-white/10 ${c.text}`
+                                    : "border-white/5 bg-white/[0.02] text-slate-300 hover:bg-white/5"
+                                }`}
+                              >
+                                <span className={`h-2.5 w-2.5 rounded-full ${c.color}`} />
+                                <span>{c.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* User Avatar */}
