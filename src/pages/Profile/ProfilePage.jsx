@@ -49,7 +49,8 @@ function ProfilePage() {
   const dispatch = useDispatch();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
 
-  const { user, avatarUploading, loading } = useSelector((state) => state.auth);
+  const { user, avatarUploading, loading, plan } = useSelector((state) => state.auth);
+  const isFreeAccount = !plan || String(plan).toLowerCase() === "free";
 
   const [form, setForm] = useState({
     fullName: "",
@@ -763,65 +764,67 @@ function ProfilePage() {
           </article>
 
           {/* Kích hoạt gói học đường B2B */}
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left focus:outline-none"
-              onClick={() => setShowEduActivation(!showEduActivation)}
-            >
-              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
-                <svg className="h-5 w-5 text-[#ecc741]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                {locale === "vi" ? "Kích hoạt tài khoản học đường" : "School Plan Activation"}
-              </h2>
-              <svg
-                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
-                  showEduActivation ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          {isFreeAccount && (
+            <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between text-left focus:outline-none"
+                onClick={() => setShowEduActivation(!showEduActivation)}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
+                  <svg className="h-5 w-5 text-[#ecc741]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  {locale === "vi" ? "Kích hoạt tài khoản học đường" : "School Plan Activation"}
+                </h2>
+                <svg
+                  className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
+                    showEduActivation ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-            {showEduActivation && (
-              <form onSubmit={handleActivateKey} className="mt-5 border-t border-white/10 pt-5 space-y-4">
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  {locale === "vi"
-                    ? "Nếu nhà trường của bạn đã đăng ký dịch vụ hướng nghiệp 4S và bàn giao Mã kích hoạt (Activation Key), hãy nhập mã vào ô dưới đây để tự động nâng cấp tài khoản của bạn lên gói học đường VIP."
-                    : "If your school has registered 4S career guidance and handed over an Activation Key, enter it below to upgrade your account to the school VIP plan."}
-                </p>
+              {showEduActivation && (
+                <form onSubmit={handleActivateKey} className="mt-5 border-t border-white/10 pt-5 space-y-4">
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {locale === "vi"
+                      ? "Nếu nhà trường của bạn đã đăng ký dịch vụ hướng nghiệp 4S và bàn giao Mã kích hoạt (Activation Key), hãy nhập mã vào ô dưới đây để tự động nâng cấp tài khoản của bạn lên gói học đường VIP."
+                      : "If your school has registered 4S career guidance and handed over an Activation Key, enter it below to upgrade your account to the school VIP plan."}
+                  </p>
 
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={eduKey}
-                      onChange={(e) => setEduKey(e.target.value.toUpperCase())}
-                      placeholder="EDU-XXXXXXXX"
-                      maxLength={12}
-                      disabled={activatingKey}
-                      className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-2.5 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none disabled:opacity-50 tracking-wider"
-                      required
-                    />
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={eduKey}
+                        onChange={(e) => setEduKey(e.target.value.toUpperCase())}
+                        placeholder="EDU-XXXXXXXX"
+                        maxLength={12}
+                        disabled={activatingKey}
+                        className="w-full rounded-xl border border-white/15 bg-white/8 px-4 py-2.5 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#ecc741] focus:outline-none disabled:opacity-50 tracking-wider"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={activatingKey || !eduKey.trim()}
+                      className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#e2bb28] hover:from-[#fff09e] hover:to-[#f2cb38] px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      {activatingKey && (
+                        <div className="h-4 w-4 rounded-full border-2 border-t-transparent border-slate-900 animate-spin" />
+                      )}
+                      {locale === "vi" ? "Kích hoạt ngay" : "Activate Now"}
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={activatingKey || !eduKey.trim()}
-                    className="rounded-xl bg-gradient-to-r from-[#ffe06e] to-[#e2bb28] hover:from-[#fff09e] hover:to-[#f2cb38] px-6 py-2.5 text-sm font-bold text-slate-900 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    {activatingKey && (
-                      <div className="h-4 w-4 rounded-full border-2 border-t-transparent border-slate-900 animate-spin" />
-                    )}
-                    {locale === "vi" ? "Kích hoạt ngay" : "Activate Now"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </article>
+                </form>
+              )}
+            </article>
+          )}
 
           {/* Lịch sử giao dịch */}
           <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
