@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { QRCodeSVG } from "qrcode.react";
 import fourSLogo from "../assets/logo-4s.png";
 import NotificationDropdown from "./NotificationDropdown";
-import { toggleThemeMode, setColorTheme } from "../feature/theme/themeSlice";
+import { setThemeMode, setColorTheme } from "../feature/theme/themeSlice";
 
 function Header({
   isLoggedIn = false,
@@ -45,12 +45,35 @@ function Header({
   };
 
   const isEnglish = i18n.resolvedLanguage !== "vi";
+
+  // Ref & listener to close theme dropdown when clicking outside
+  const themeRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (themeRef.current && !themeRef.current.contains(event.target)) {
+        setIsThemeOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Color presets map — used by theme picker dropdown
+  const colorMap = {
+    emerald: { id: "emerald", hex: "#0ed8ab", label: isEnglish ? "Emerald" : "Ngọc lục" },
+    ocean:   { id: "ocean",   hex: "#0ea5e9", label: isEnglish ? "Ocean"   : "Đại dương" },
+    violet:  { id: "violet",  hex: "#8b5cf6", label: isEnglish ? "Violet"  : "Màu tím"   },
+    sunset:  { id: "sunset",  hex: "#f97316", label: isEnglish ? "Sunset"  : "Hoàng hôn" },
+  };
   const isAdmin =
     finalIsLoggedIn &&
     String(reduxAuth.role || currentRole).toLowerCase() === "admin";
-  const showThemeSettings =
-    !finalIsLoggedIn ||
-    String(reduxAuth.role || currentRole).toLowerCase() === "student";
+  const isContact =
+    finalIsLoggedIn &&
+    String(reduxAuth.role || currentRole).toLowerCase() === "contact";
+  const showThemeSettings = true;
 
   const navItems = [
     { label: t("home:nav.home"), to: "/" },
@@ -184,11 +207,11 @@ function Header({
             </button>
 
             {/* Awwwards-style Hover Popover Card */}
-            <div className="absolute top-full right-0 mt-3 w-56 p-5 rounded-2xl border border-white/10 bg-[#041326]/95 backdrop-blur-xl shadow-2xl transition-all duration-300 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto z-50 text-center flex flex-col items-center gap-3">
-              <h4 className="text-[10px] font-bold text-white tracking-widest uppercase">
+            <div className="absolute top-full right-0 mt-3 w-56 p-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#041326]/97 backdrop-blur-xl shadow-2xl transition-all duration-300 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto z-50 text-center flex flex-col items-center gap-3">
+              <h4 className="text-[10px] font-bold text-slate-800 dark:text-white tracking-widest uppercase">
                 {isEnglish ? "Scan to Download" : "Quét để tải App"}
               </h4>
-              <div className="relative p-2 bg-white rounded-xl border border-white/5">
+              <div className="relative p-2 bg-white rounded-xl border border-slate-100 dark:border-white/5">
                 <QRCodeSVG
                   value={import.meta.env.VITE_APK_DOWNLOAD_URL || "https://4s.vercel.app"}
                   size={96}
@@ -197,9 +220,9 @@ function Header({
                   level={"L"}
                   includeMargin={false}
                 />
-                <div className="absolute inset-x-2 top-2 h-0.5 bg-[#0ed8ab] shadow-[0_0_8px_#0ed8ab] opacity-60 animate-scanLine pointer-events-none" />
+                <div className="absolute inset-x-2 top-2 h-0.5 bg-primary-color shadow-[0_0_8px_var(--primary-color)] opacity-60 animate-scanLine pointer-events-none" />
               </div>
-              <p className="text-[9px] text-slate-400 font-medium leading-relaxed">
+              <p className="text-[9px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                 {isEnglish ? "Point camera to scan QR Code" : "Hướng camera vào mã QR để quét"}
               </p>
             </div>
@@ -235,115 +258,23 @@ function Header({
               )}
 
               {/* Notification bell dropdown shortcut */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsNotiOpen(!isNotiOpen)}
-                  className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
-                  type="button"
-                >
-                  <svg aria-hidden="true" className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-md animate-pulse">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-                <NotificationDropdown isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} />
-              </div>
-
-              {/* Theme Settings Toggle & Dropdown */}
-              {showThemeSettings && (
+              {isContact && (
                 <div className="relative">
                   <button
-                    onClick={() => setIsThemeOpen(!isThemeOpen)}
+                    onClick={() => setIsNotiOpen(!isNotiOpen)}
                     className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-slate-100 hover:scale-105 cursor-pointer shadow-sm"
                     type="button"
-                    title="Customize Theme"
                   >
-                    <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    <svg aria-hidden="true" className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                     </svg>
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-md animate-pulse">
+                        {unreadCount}
+                      </span>
+                    )}
                   </button>
-                  {isThemeOpen && (
-                    <>
-                      {/* Backdrop for click outside */}
-                      <div className="fixed inset-0 z-40" onClick={() => setIsThemeOpen(false)} />
-                      
-                      {/* Dropdown Container */}
-                      <div className="absolute right-0 mt-3 w-64 p-5 rounded-2xl border border-white/10 bg-[#061528] shadow-[0_16px_35px_rgba(0,0,0,0.55)] backdrop-blur-xl z-50 animate-fadeIn">
-                        <h3 className="font-['Sora'] text-xs font-black tracking-widest text-[#0ed8ab] uppercase mb-4">
-                          {isEnglish ? "Theme Settings" : "Tùy biến giao diện"}
-                        </h3>
-                        
-                        {/* Mode Selector */}
-                        <div className="mb-5">
-                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                            {isEnglish ? "Appearance" : "Chế độ"}
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => dispatch(toggleThemeMode())}
-                              className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
-                                theme.themeMode === "light"
-                                  ? "border-[#ecc741]/40 bg-[#ecc741]/10 text-[#f4d040]"
-                                  : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-                              }`}
-                            >
-                              <span>☀️</span>
-                              <span>{isEnglish ? "Light" : "Sáng"}</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => dispatch(toggleThemeMode())}
-                              className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
-                                theme.themeMode === "dark"
-                                  ? "border-[#0ed8ab]/40 bg-[#0ed8ab]/10 text-[#0ed8ab]"
-                                  : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-                              }`}
-                            >
-                              <span>🌙</span>
-                              <span>{isEnglish ? "Dark" : "Tối"}</span>
-                            </button>
-                          </div>
-                        </div>
-                        
-                        {/* Color Themes */}
-                        <div>
-                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                            {isEnglish ? "Color Preset" : "Chủ đề màu"}
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            {[
-                              { id: "emerald", label: isEnglish ? "Emerald" : "Ngọc lục", color: "bg-[#0ed8ab]", text: "text-[#0ed8ab]" },
-                              { id: "ocean", label: isEnglish ? "Ocean" : "Đại dương", color: "bg-[#0ea5e9]", text: "text-[#0ea5e9]" },
-                              { id: "violet", label: isEnglish ? "Violet" : "Màu tím", color: "bg-[#8b5cf6]", text: "text-[#8b5cf6]" },
-                              { id: "sunset", label: isEnglish ? "Sunset" : "Hoàng hôn", color: "bg-[#f97316]", text: "text-[#f97316]" },
-                            ].map((c) => {
-                              const isActive = theme.colorTheme === c.id;
-                              return (
-                                <button
-                                  key={c.id}
-                                  type="button"
-                                  onClick={() => dispatch(setColorTheme(c.id))}
-                                  className={`flex items-center gap-2 py-2 px-2.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
-                                    isActive
-                                      ? `border-white/20 bg-white/10 ${c.text}`
-                                      : "border-white/5 bg-white/[0.02] text-slate-300 hover:bg-white/5"
-                                  }`}
-                                >
-                                  <span className={`h-2.5 w-2.5 rounded-full ${c.color}`} />
-                                  <span>{c.label}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <NotificationDropdown isOpen={isNotiOpen} onClose={() => setIsNotiOpen(false)} />
                 </div>
               )}
 
@@ -387,6 +318,170 @@ function Header({
               {t("common:actions.getStarted")}
             </button>
           ) : null}
+
+          {/* Theme Settings Toggle & Dropdown — always visible for all users */}
+          {showThemeSettings && (
+            <div className="relative" ref={themeRef}>
+              {/* Toggle button — adapts to mode */}
+              <button
+                onClick={() => setIsThemeOpen(!isThemeOpen)}
+                type="button"
+                title="Customize Theme"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 36, height: 36, borderRadius: 12, cursor: 'pointer',
+                  border: `1px solid ${theme.themeMode === 'light' ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'}`,
+                  background: isThemeOpen
+                    ? (theme.themeMode === 'light' ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.12)')
+                    : (theme.themeMode === 'light' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)'),
+                  color: theme.themeMode === 'light' ? '#334155' : '#cbd5e1',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isThemeOpen ? `0 0 0 2px ${colorMap[theme.colorTheme]?.hex || '#0ed8ab'}40` : 'none',
+                }}
+              >
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+              </button>
+
+              {isThemeOpen && (
+                <>
+                  {/* Dropdown — fully inline styled, immune to CSS variable conflicts */}
+                  <div
+                    className="absolute right-0 mt-3 z-50 animate-fadeIn"
+                    style={{
+                      width: 272,
+                      borderRadius: 20,
+                      padding: '20px',
+                      background: theme.themeMode === 'light'
+                        ? 'rgba(255,255,255,0.95)'
+                        : 'rgba(4,18,38,0.97)',
+                      border: `1px solid ${theme.themeMode === 'light' ? 'rgba(0,0,0,0.09)' : 'rgba(255,255,255,0.09)'}`,
+                      boxShadow: theme.themeMode === 'light'
+                        ? '0 20px 48px -8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.05)'
+                        : '0 20px 48px -8px rgba(0,0,0,0.7)',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                    }}
+                  >
+                    {/* Color preview strip */}
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderRadius: 8, overflow: 'hidden', height: 4 }}>
+                      {Object.values(colorMap).map(c => (
+                        <div key={c.hex} style={{ flex: 1, background: c.hex, opacity: theme.colorTheme === c.id ? 1 : 0.3, transition: 'opacity 0.3s' }} />
+                      ))}
+                    </div>
+
+                    {/* Title */}
+                    <h3 style={{
+                      fontSize: 10, fontWeight: 800, letterSpacing: '0.12em',
+                      textTransform: 'uppercase', marginBottom: 16,
+                      color: colorMap[theme.colorTheme]?.hex || '#0ed8ab',
+                    }}>
+                      {isEnglish ? 'Theme Settings' : 'Tùy biến giao diện'}
+                    </h3>
+
+                    {/* Mode Selector */}
+                    <div style={{ marginBottom: 18 }}>
+                      <p style={{
+                        fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: theme.themeMode === 'light' ? '#94a3b8' : '#475569', marginBottom: 10,
+                      }}>
+                        {isEnglish ? 'Appearance' : 'Chế độ'}
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        {[
+                          { mode: 'light', icon: '☀️', label: isEnglish ? 'Light' : 'Sáng' },
+                          { mode: 'dark',  icon: '🌙', label: isEnglish ? 'Dark'  : 'Tối'  },
+                        ].map(({ mode, icon, label }) => {
+                          const isActiveMode = theme.themeMode === mode;
+                          const primaryHex = colorMap[theme.colorTheme]?.hex || '#0ed8ab';
+                          return (
+                            <button
+                              key={mode}
+                              type="button"
+                              onClick={() => dispatch(setThemeMode(mode))}
+                              style={{
+                                display: 'flex', alignItems: 'center', justifycontent: 'center',
+                                gap: 6, padding: '8px 12px', borderRadius: 12, cursor: 'pointer',
+                                fontSize: 12, fontWeight: 600, transition: 'all 0.2s ease',
+                                border: isActiveMode
+                                  ? `1.5px solid ${primaryHex}60`
+                                  : `1px solid ${theme.themeMode === 'light' ? 'rgba(0,0,0,0.09)' : 'rgba(255,255,255,0.08)'}`,
+                                background: isActiveMode
+                                  ? `${primaryHex}18`
+                                  : (theme.themeMode === 'light' ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)'),
+                                color: isActiveMode
+                                  ? primaryHex
+                                  : (theme.themeMode === 'light' ? '#64748b' : '#94a3b8'),
+                              }}
+                            >
+                              <span>{icon}</span>
+                              <span>{label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{ height: 1, background: theme.themeMode === 'light' ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
+
+                    {/* Color Presets */}
+                    <div>
+                      <p style={{
+                        fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: theme.themeMode === 'light' ? '#94a3b8' : '#475569', marginBottom: 10,
+                      }}>
+                        {isEnglish ? 'Color Preset' : 'Chủ đề màu'}
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        {Object.values(colorMap).map((c) => {
+                          const isActive = theme.colorTheme === c.id;
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => dispatch(setColorTheme(c.id))}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '9px 12px', borderRadius: 12, cursor: 'pointer',
+                                fontSize: 12, fontWeight: 600, transition: 'all 0.2s ease',
+                                border: isActive
+                                  ? `1.5px solid ${c.hex}60`
+                                  : `1px solid ${theme.themeMode === 'light' ? 'rgba(0,0,0,0.09)' : 'rgba(255,255,255,0.07)'}`,
+                                background: isActive
+                                  ? `${c.hex}18`
+                                  : (theme.themeMode === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)'),
+                                color: isActive
+                                  ? c.hex
+                                  : (theme.themeMode === 'light' ? '#64748b' : '#94a3b8'),
+                                transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                              }}
+                            >
+                              {/* Color swatch */}
+                              <span style={{
+                                width: 14, height: 14, borderRadius: '50%', flexShrink: 0,
+                                backgroundColor: c.hex,
+                                boxShadow: isActive ? `0 0 0 2px ${c.hex}40, 0 0 0 3px ${c.hex}20` : 'none',
+                                transition: 'box-shadow 0.2s',
+                              }} />
+                              <span style={{ flex: 1, textAlign: 'left' }}>{c.label}</span>
+                              {/* Checkmark */}
+                              {isActive && (
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+                                  <path d="M2 6l3 3 5-5" stroke={c.hex} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>

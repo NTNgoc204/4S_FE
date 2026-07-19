@@ -404,7 +404,7 @@ function ProfilePage() {
 
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
-              <img alt="" aria-hidden="true" className="ml-2 mr-1 h-4 w-4 opacity-70" src={globeIcon} />
+              <img alt="" aria-hidden="true" className="lang-globe-icon ml-2 mr-1 h-4 w-4 opacity-70" src={globeIcon} />
               <button
                 className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${locale === "en" ? "bg-white/15 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}
                 onClick={() => handleLanguageChange("en")}

@@ -31,36 +31,82 @@
   --border-main: rgba(255, 255, 255, 0.08);
 }
 
+/* --- Color preset rules for custom properties --- */
+
+/* EMERALD */
 :root[data-color-theme="emerald"] {
   --primary-color: #0ed8ab;
   --primary-color-hover: #0fe2a8;
   --primary-color-rgb: 14, 216, 171;
   --secondary-color: #ecc741;
 }
+:root[data-theme-mode="dark"][data-color-theme="emerald"] {
+  --bg-main: #041326;
+  --bg-panel: #11243b;
+  --bg-panel-darker: #0c1c2f;
+}
+:root[data-theme-mode="light"][data-color-theme="emerald"] {
+  --bg-main: #f3faf7;
+  --bg-panel: #ffffff;
+  --bg-panel-darker: #e8f5ed;
+}
+
+/* OCEAN */
 :root[data-color-theme="ocean"] {
   --primary-color: #0ea5e9;
   --primary-color-hover: #38bdf8;
   --primary-color-rgb: 14, 165, 233;
   --secondary-color: #f59e0b;
 }
+:root[data-theme-mode="dark"][data-color-theme="ocean"] {
+  --bg-main: #030e1c;
+  --bg-panel: #0b1a2f;
+  --bg-panel-darker: #061224;
+}
+:root[data-theme-mode="light"][data-color-theme="ocean"] {
+  --bg-main: #f0f7fe;
+  --bg-panel: #ffffff;
+  --bg-panel-darker: #e0f0fd;
+}
+
+/* VIOLET */
 :root[data-color-theme="violet"] {
   --primary-color: #8b5cf6;
   --primary-color-hover: #a78bfa;
   --primary-color-rgb: 139, 92, 246;
   --secondary-color: #ec4899;
 }
+:root[data-theme-mode="dark"][data-color-theme="violet"] {
+  --bg-main: #0b0717;
+  --bg-panel: #160e2a;
+  --bg-panel-darker: #100a20;
+}
+:root[data-theme-mode="light"][data-color-theme="violet"] {
+  --bg-main: #faf5ff;
+  --bg-panel: #ffffff;
+  --bg-panel-darker: #f3e8ff;
+}
+
+/* SUNSET */
 :root[data-color-theme="sunset"] {
   --primary-color: #f97316;
   --primary-color-hover: #fb923c;
   --primary-color-rgb: 249, 115, 22;
   --secondary-color: #eab308;
 }
+:root[data-theme-mode="dark"][data-color-theme="sunset"] {
+  --bg-main: #140d06;
+  --bg-panel: #22150b;
+  --bg-panel-darker: #1a0f08;
+}
+:root[data-theme-mode="light"][data-color-theme="sunset"] {
+  --bg-main: #fdf8f5;
+  --bg-panel: #ffffff;
+  --bg-panel-darker: #fbeee7;
+}
 
-/* Light / Dark Mode variations */
+/* Light / Dark Mode general variables */
 :root[data-theme-mode="dark"] {
-  --bg-main: #041326;
-  --bg-panel: #11243b;
-  --bg-panel-darker: #0c1c2f;
   --text-main: #f8fafc;
   --text-muted: #cbd5e1;
   --text-dim: #94a3b8;
@@ -68,11 +114,8 @@
 }
 
 :root[data-theme-mode="light"] {
-  --bg-main: #f8fafc;
-  --bg-panel: #ffffff;
-  --bg-panel-darker: #f1f5f9;
   --text-main: #0f172a;
-  --text-muted: #475569;
+  --text-muted: #334155;
   --text-dim: #64748b;
   --border-main: rgba(0, 0, 0, 0.08);
 }
@@ -84,112 +127,201 @@ html[data-theme-mode="dark"] {
 }
 
 /* Light Mode base styles & overrides */
-html[data-theme-mode="light"] {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-}
-
-html[data-theme-mode="light"] body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-}
-
-/* Light mode utility overrides for backgrounds */
+html[data-theme-mode="light"],
+html[data-theme-mode="light"] body,
+html[data-theme-mode="light"] #root,
+html[data-theme-mode="light"] .min-h-screen,
+html[data-theme-mode="light"] main,
 html[data-theme-mode="light"] .bg-\[\#041326\],
-html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
 html[data-theme-mode="light"] .bg-\[\#061528\],
-html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="light"] .bg-\[\#020d1c\] {
+  background-color: var(--bg-main) !important;
+  background-image: none !important;
+  color: var(--text-main) !important;
+}
+
+/* Override all cards, panels, articles, and lists */
+html[data-theme-mode="light"] aside,
+html[data-theme-mode="light"] section.glass-card,
+html[data-theme-mode="light"] .glass-card,
+html[data-theme-mode="light"] div.glass-card,
+html[data-theme-mode="light"] .bg-\[\#203a59\]\/93,
+html[data-theme-mode="light"] .bg-\[\#172c43\],
+html[data-theme-mode="light"] .bg-\[\#172d47\]\/90,
 html[data-theme-mode="light"] .bg-\[\#122237\]\/60,
+html[data-theme-mode="light"] .bg-\[\#1b2d47\]\/30,
+html[data-theme-mode="light"] .bg-\[\#203a59\]\/88,
 html[data-theme-mode="light"] .bg-\[\#0c233c\]\/60,
 html[data-theme-mode="light"] .bg-\[\#0c1e36\],
 html[data-theme-mode="light"] .bg-\[\#081a30\]\/60,
-html[data-theme-mode="light"] .bg-\[\#172c43\],
-html[data-theme-mode="light"] .bg-\[\#203a59\]\/93,
-html[data-theme-mode="light"] .bg-\[\#172d47\]\/90,
-html[data-theme-mode="light"] .bg-\[\#1b2d47\]\/30,
-html[data-theme-mode="light"] .bg-\[\#203a59\]\/88,
-html[data-theme-mode="light"] .bg-white\/5,
-html[data-theme-mode="light"] .bg-white\/8,
-html[data-theme-mode="light"] .bg-white\/\[0\.03\] {
+html[data-theme-mode="light"] .bg-\[\#1a2b42\],
+html[data-theme-mode="light"] .bg-\[\#10213a\],
+html[data-theme-mode="light"] .bg-\[\#172b49\],
+html[data-theme-mode="light"] .bg-\[\#1e3451\],
+html[data-theme-mode="light"] .bg-\[\#15283c\] {
   background-color: var(--bg-panel) !important;
+  background-image: none !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-main) !important;
 }
 
-html[data-theme-mode="light"] .bg-gradient-to-b {
-  background-image: linear-gradient(to bottom, var(--bg-panel) 95%, var(--bg-panel-darker) 98%) !important;
+/* Header, Footer, and Navigation bars */
+html[data-theme-mode="light"] header.sticky,
+html[data-theme-mode="light"] footer,
+html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
+html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="light"] .bg-\[\#172c43\],
+html[data-theme-mode="light"] .bg-\[\#07192f\] {
+  background-color: var(--bg-panel-darker) !important;
+  border-color: var(--border-main) !important;
 }
 
-html[data-theme-mode="light"] .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, var(--bg-panel), var(--bg-panel-darker)) !important;
+/* Typography Overrides */
+html[data-theme-mode="light"] h1,
+html[data-theme-mode="light"] h2,
+html[data-theme-mode="light"] h3,
+html[data-theme-mode="light"] h4,
+html[data-theme-mode="light"] h5,
+html[data-theme-mode="light"] h6,
+html[data-theme-mode="light"] .text-slate-100,
+html[data-theme-mode="light"] .text-white,
+html[data-theme-mode="light"] .text-slate-200,
+html[data-theme-mode="light"] .text-slate-50 {
+  color: var(--text-main) !important;
 }
 
-/* Light mode utility overrides for borders */
+html[data-theme-mode="light"] .text-slate-300,
+html[data-theme-mode="light"] .text-slate-400,
+html[data-theme-mode="light"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Form controls (Inputs, Selects, Dropdowns, Textareas) */
+html[data-theme-mode="light"] input,
+html[data-theme-mode="light"] select,
+html[data-theme-mode="light"] textarea,
+html[data-theme-mode="light"] option,
+html[data-theme-mode="light"] .bg-white\/8,
+html[data-theme-mode="light"] .bg-white\/5,
+html[data-theme-mode="light"] .bg-white\/\[0\.03\] {
+  background-color: var(--bg-panel-darker) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-main) !important;
+}
+
+/* Specific button borders/states */
+html[data-theme-mode="light"] button.border-white\/10,
+html[data-theme-mode="light"] button.border-white\/12,
+html[data-theme-mode="light"] button.border-white\/15 {
+  border-color: var(--border-main) !important;
+}
+
+/* Border overrides */
+html[data-theme-mode="light"] .border,
+html[data-theme-mode="light"] .border-t,
+html[data-theme-mode="light"] .border-b,
+html[data-theme-mode="light"] .border-l,
+html[data-theme-mode="light"] .border-r,
 html[data-theme-mode="light"] .border-white\/5,
 html[data-theme-mode="light"] .border-white\/10,
 html[data-theme-mode="light"] .border-white\/12,
 html[data-theme-mode="light"] .border-white\/15,
 html[data-theme-mode="light"] .border-\[\#66789c\]\/34,
 html[data-theme-mode="light"] .border-\[\#5f7396\]\/45,
+html[data-theme-mode="light"] .border-\[\#ecc741\]\/30,
 html[data-theme-mode="light"] .border-slate-800 {
   border-color: var(--border-main) !important;
 }
 
-/* Light mode utility overrides for text colors */
-html[data-theme-mode="light"] .text-slate-300,
-html[data-theme-mode="light"] .text-slate-400 {
-  color: var(--text-muted) !important;
-}
-
+/* Specific text overrides */
+html[data-theme-mode="light"] .text-\[\#eaf2ff\],
 html[data-theme-mode="light"] .text-slate-100,
-html[data-theme-mode="light"] .text-white {
-  color: var(--text-main) !important;
-}
-
 html[data-theme-mode="light"] .text-slate-200 {
   color: var(--text-main) !important;
 }
 
-html[data-theme-mode="light"] .text-\[\#eaf2ff\] {
-  color: var(--text-main) !important;
-}
-
-/* Color theme overrides for primary and secondary brands */
+/* Color theme overrides for primary elements */
 .text-\[\#0ed8ab\],
+.text-\[\#0fe2a8\],
+.text-\[\#14d6af\],
+.text-\[\#17d8b2\],
+.text-\[\#0fbc98\],
+.text-\[\#18c7a5\],
+.text-\[\#0fe2a8\],
+.text-\[emerald\],
+.text-teal-400,
 .text-\[\#0fe2a8\] {
   color: var(--primary-color) !important;
 }
 
 .bg-\[\#0ed8ab\],
+.bg-\[\#0fe2a8\],
+.bg-\[\#14d6af\],
+.bg-\[\#17d8b2\],
+.bg-\[\#0fbc98\],
+.bg-\[\#18c7a5\],
 .bg-\[\#0fe2a8\] {
   background-color: var(--primary-color) !important;
 }
 
-.border-\[\#0ed8ab\] {
+.bg-\[\#0ed8ab\]\/10,
+.bg-\[\#0fe2a8\]\/10,
+.bg-\[\#14d6af\]\/12,
+.bg-\[\#18c7a5\]\/14,
+.bg-teal-500\/10 {
+  background-color: rgba(var(--primary-color-rgb), 0.10) !important;
+}
+
+.bg-teal-500\/12 {
+  background-color: rgba(var(--primary-color-rgb), 0.12) !important;
+}
+
+.bg-\[\#0ed8ab\]\/15,
+.bg-\[\#0fe2a8\]\/15,
+.bg-\[\#14d6af\]\/15,
+.bg-\[\#18c7a5\]\/15 {
+  background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+.hover\:bg-\[\#0ed8ab\]\/20:hover,
+.hover\:bg-\[\#0fe2a8\]\/20:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+
+.border-\[\#0ed8ab\],
+.border-\[\#0fe2a8\],
+.border-\[\#14d6af\],
+.border-\[\#18c7a5\]\/35,
+.border-teal-500\/40,
+.border-teal-500\/60 {
   border-color: var(--primary-color) !important;
 }
 
-.text-\[\#ecc741\],
-.text-\[\#f2cb36\],
-.text-\[\#f4d040\] {
-  color: var(--secondary-color) !important;
+.border-\[\#0ed8ab\]\/35,
+.border-\[\#0fe2a8\]\/35,
+.border-\[\#14d6af\]\/30 {
+  border-color: rgba(var(--primary-color-rgb), 0.35) !important;
 }
 
-.bg-\[\#ecc741\],
-.bg-\[\#f2cb36\],
-.bg-\[\#f4d040\] {
-  background-color: var(--secondary-color) !important;
+/* Gradients using primary colors */
+.from-\[\#17d8b2\],
+.from-\[\#14d6af\],
+.from-teal-500 {
+  --tw-gradient-from: var(--primary-color) !important;
+  --tw-gradient-to: var(--primary-color-hover) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
 }
 
-.border-\[\#ecc741\] {
-  border-color: var(--secondary-color) !important;
+.to-\[\#0fbc98\],
+.to-\[\#0fe2a8\],
+.to-\[\#11d1f2\],
+.to-teal-400 {
+  --tw-gradient-to: var(--primary-color-hover) !important;
 }
 
-/* Gradients that use primary/secondary */
-.bg-gradient-to-r.from-\[\#ecc741\] {
-  background-image: linear-gradient(to right, var(--secondary-color), var(--secondary-color)) !important;
-}
-
-.bg-gradient-to-br.from-\[\#17d8b2\] {
-  background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-color)) !important;
+.bg-gradient-to-br.from-\[\#17d8b2\],
+.bg-gradient-to-br.from-\[\#14d6af\] {
+  background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-color-hover)) !important;
 }
 
 /* Force all legacy Sora classes to map to Be Vietnam Pro */
@@ -603,4 +735,451 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CUSTOM LIGHT MODE OVERRIDES, COLOR THEMES PRESETS & PREMIUM INTERACTION OVERRIDES
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Light Mode Base Elements Override ── */
+html[data-theme-mode="light"] {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
+html[data-theme-mode="light"] body,
+html[data-theme-mode="light"] #root {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main);
+}
+
+/* Page wrapper gradient → plain light bg */
+html[data-theme-mode="light"] .min-h-screen {
+  background-color: var(--bg-main) !important;
+  background-image: none !important;
+}
+
+/* ── Translucent dark blocks override ── */
+html[data-theme-mode="light"] .bg-\[\#081a30\]\/60,
+html[data-theme-mode="light"] .bg-\[\#1a2b42\],
+html[data-theme-mode="light"] .bg-\[\#10213a\],
+html[data-theme-mode="light"] .bg-\[\#172b49\],
+html[data-theme-mode="light"] .bg-\[\#1e3451\],
+html[data-theme-mode="light"] .bg-\[\#15283c\],
+html[data-theme-mode="light"] .bg-\[\#07192f\],
+html[data-theme-mode="light"] .bg-\[\#1d3350\],
+html[data-theme-mode="light"] .bg-\[\#0a1424\]\/60,
+html[data-theme-mode="light"] .bg-\[\#0c1e36\]\/90 {
+  background-color: var(--bg-panel) !important;
+  background-image: none !important;
+}
+
+/* Header sticky / semi-transparent overlays */
+html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
+html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
+html[data-theme-mode="light"] .bg-\[\#09152b\]\/80,
+html[data-theme-mode="light"] .bg-\[\#1d3551\]\/95,
+html[data-theme-mode="light"] .bg-\[\#1d3551\],
+html[data-theme-mode="light"] .bg-\[\#081a30\]\/62,
+html[data-theme-mode="light"] .bg-\[\#081a30\],
+html[data-theme-mode="light"] .bg-\[\#1f3857\]\/90,
+html[data-theme-mode="light"] .bg-\[\#0c1c30\]\/50,
+html[data-theme-mode="light"] .bg-\[\#071322\]\/98,
+html[data-theme-mode="light"] .bg-\[\#0e213a\]\/50 {
+  background-color: var(--bg-panel-darker) !important;
+  background-image: none !important;
+}
+
+/* Translucent white tints (bg-white/5 etc.) */
+html[data-theme-mode="light"] .bg-white\/5,
+html[data-theme-mode="light"] .bg-white\/8,
+html[data-theme-mode="light"] .bg-white\/10,
+html[data-theme-mode="light"] .bg-white\/\[0\.03\],
+html[data-theme-mode="light"] .bg-white\/\[0\.05\],
+html[data-theme-mode="light"] .bg-white\/\[0\.06\] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ── Text overrides: utility classes ONLY ── */
+html[data-theme-mode="light"] .text-white:not(.text-transparent):not([class*="bg-clip-text"]) {
+  color: var(--text-main) !important;
+}
+html[data-theme-mode="light"] .text-\[\#eaf2ff\],
+html[data-theme-mode="light"] .text-slate-50,
+html[data-theme-mode="light"] .text-slate-100,
+html[data-theme-mode="light"] .text-slate-200 {
+  color: var(--text-main) !important;
+}
+
+/* Muted text */
+html[data-theme-mode="light"] .text-slate-300,
+html[data-theme-mode="light"] .text-slate-400,
+html[data-theme-mode="light"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Accent color: force primary color to show in light mode */
+html[data-theme-mode="light"] .text-\[\#0ed8ab\],
+html[data-theme-mode="light"] .text-\[\#0fe2a8\],
+html[data-theme-mode="light"] .text-\[\#14d6af\],
+html[data-theme-mode="light"] .text-\[\#17d8b2\],
+html[data-theme-mode="light"] .text-\[\#0fbc98\],
+html[data-theme-mode="light"] .text-\[\#18c7a5\],
+html[data-theme-mode="light"] .text-\[\#11d6ae\],
+html[data-theme-mode="light"] .text-teal-400 {
+  color: var(--primary-color) !important;
+}
+
+/* Form controls */
+html[data-theme-mode="light"] input,
+html[data-theme-mode="light"] select,
+html[data-theme-mode="light"] textarea,
+html[data-theme-mode="light"] option {
+  background-color: var(--bg-panel-darker) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-main) !important;
+}
+
+/* Border overrides */
+html[data-theme-mode="light"] .border-white\/5,
+html[data-theme-mode="light"] .border-white\/10,
+html[data-theme-mode="light"] .border-white\/12,
+html[data-theme-mode="light"] .border-white\/15,
+html[data-theme-mode="light"] .border-\[\#66789c\]\/34,
+html[data-theme-mode="light"] .border-\[\#5f7396\]\/45,
+html[data-theme-mode="light"] .border-\[\#ecc741\]\/30,
+html[data-theme-mode="light"] .border-\[\#09152b\],
+html[data-theme-mode="light"] .border-slate-800 {
+  border-color: var(--border-main) !important;
+}
+
+/* ── Light Mode Hovers ── */
+html[data-theme-mode="light"] .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html[data-theme-mode="light"] .hover\:bg-white\/8:hover {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+html[data-theme-mode="light"] .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+html[data-theme-mode="light"] .hover\:bg-white\/20:hover {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+}
+html[data-theme-mode="light"] .hover\:bg-\[\#091526\]\/80:hover,
+html[data-theme-mode="light"] .hover\:bg-\[\#122238\]\/60:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme-mode="light"] .hover\:text-white:hover,
+html[data-theme-mode="light"] .hover\:text-slate-100:hover,
+html[data-theme-mode="light"] .hover\:text-slate-200:hover {
+  color: var(--text-main) !important;
+}
+html[data-theme-mode="light"] .hover\:border-white\/20:hover,
+html[data-theme-mode="light"] .hover\:border-white\/25:hover {
+  border-color: rgba(0, 0, 0, 0.18) !important;
+}
+html[data-theme-mode="light"] .hover\:border-\[\#ecc741\]\/20:hover {
+  border-color: rgba(236, 199, 65, 0.5) !important;
+}
+html[data-theme-mode="light"] .bg-white\/\[0\.03\]:hover,
+html[data-theme-mode="light"] .hover\:bg-\[\#ecc741\]\/10:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.12) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* ── Specific Button overrides for New Chat button etc. ── */
+html[data-theme-mode="light"] .bg-\[\#ecc741\]\/10,
+html[data-theme-mode="light"] .bg-\[\#ecc741\]\/8 {
+  background-color: rgba(var(--primary-color-rgb), 0.08) !important;
+}
+html[data-theme-mode="light"] .border-\[\#ecc741\]\/30,
+html[data-theme-mode="light"] .border-\[\#ecc741\]\/40 {
+  border-color: rgba(var(--primary-color-rgb), 0.25) !important;
+}
+html[data-theme-mode="light"] .text-\[\#fcd34d\],
+html[data-theme-mode="light"] .text-\[\#ecc741\] {
+  color: var(--primary-color) !important;
+}
+html[data-theme-mode="light"] .hover\:bg-\[\#ecc741\]\/20:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+/* ── ForSchools page extra dark panels ── */
+html[data-theme-mode="light"] .bg-\[\#091526\]\/50,
+html[data-theme-mode="light"] .bg-\[\#091526\],
+html[data-theme-mode="light"] .bg-\[\#172c44\]\/80,
+html[data-theme-mode="light"] .bg-\[\#172c44\] {
+  background-color: var(--bg-panel) !important;
+  background-image: none !important;
+}
+
+/* ForSchools CTA rounded panels */
+html[data-theme-mode="light"] .from-\[\#172c44\]\/80,
+html[data-theme-mode="light"] .to-\[\#122238\] {
+  --tw-gradient-from: transparent !important;
+  --tw-gradient-to: transparent !important;
+}
+html[data-theme-mode="light"] .from-\[\#172c44\] {
+  background-image: none !important;
+  background-color: var(--bg-panel) !important;
+}
+
+/* Section 4: Quy trình bg */
+html[data-theme-mode="light"] .bg-\[\#091424\]\/40 {
+  background-color: var(--bg-panel-darker) !important;
+  background-image: none !important;
+}
+
+/* Section 4: step cards */
+html[data-theme-mode="light"] .bg-\[\#122238\]\/40,
+html[data-theme-mode="light"] .bg-\[\#122238\]\/60 {
+  background-color: var(--bg-panel) !important;
+  background-image: none !important;
+}
+
+/* CTA section gradient */
+html[data-theme-mode="light"] .from-\[\#0e1c2e\]\/60,
+html[data-theme-mode="light"] .to-\[\#070f1a\] {
+  --tw-gradient-from: var(--bg-panel-darker) !important;
+  --tw-gradient-to: var(--bg-main) !important;
+}
+html[data-theme-mode="light"] .bg-gradient-to-b {
+  background-image: none !important;
+  background-color: var(--bg-panel-darker) !important;
+}
+
+/* Suppress glow blobs in light mode */
+html[data-theme-mode="light"] .glow-blob {
+  opacity: 0 !important;
+}
+
+/* glass-card light mode styling */
+html[data-theme-mode="light"] .glass-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.10) !important;
+  color: var(--text-main) !important;
+}
+
+html[data-theme-mode="light"] .glass-card-hover:hover {
+  background: #f8fafc !important;
+  border-color: rgba(var(--primary-color-rgb), 0.25) !important;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.15), 0 0 20px -5px rgba(var(--primary-color-rgb), 0.10) !important;
+}
+
+
+/* ══════════════════════════════════════════════════
+   COLOR THEME OVERRIDES presets
+   ══════════════════════════════════════════════════ */
+
+/* ── Solid backgrounds ── */
+.bg-\[\#0ed8ab\],
+.bg-\[\#0fe2a8\],
+.bg-\[\#14d6af\],
+.bg-\[\#17d8b2\],
+.bg-\[\#0fbc98\],
+.bg-\[\#18c7a5\],
+.bg-\[\#11d6ae\] {
+  background-color: var(--primary-color) !important;
+}
+
+/* ── Tinted backgrounds (5–25%) ── */
+.bg-\[\#0ed8ab\]\/5 {
+  background-color: rgba(var(--primary-color-rgb), 0.05) !important;
+}
+
+.bg-\[\#0ed8ab\]\/10,
+.bg-\[\#0fe2a8\]\/10,
+.bg-\[\#14d6af\]\/12,
+.bg-\[\#18c7a5\]\/14,
+.bg-\[\#11d6ae\]\/15,
+.bg-teal-500\/10 {
+  background-color: rgba(var(--primary-color-rgb), 0.10) !important;
+}
+
+.bg-teal-500\/12 {
+  background-color: rgba(var(--primary-color-rgb), 0.12) !important;
+}
+
+.bg-teal-500\/15 {
+  background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+.bg-teal-500\/20 {
+  background-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+
+.bg-\[\#0ed8ab\]\/15,
+.bg-\[\#0fe2a8\]\/15,
+.bg-\[\#14d6af\]\/15,
+.bg-\[\#18c7a5\]\/15 {
+  background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+.bg-\[\#0ed8ab\]\/16 {
+  background-color: rgba(var(--primary-color-rgb), 0.16) !important;
+}
+
+.bg-\[\#0ed8ab\]\/20,
+.bg-\[\#0fe2a8\]\/20,
+.bg-\[\#0ed8ab\]\/25,
+.bg-\[\#0fe2a8\]\/25 {
+  background-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+
+/* ── Hover tinted backgrounds ── */
+.hover\:bg-\[\#0ed8ab\]\/20:hover,
+.hover\:bg-\[\#0fe2a8\]\/20:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+
+/* ── Borders ── */
+.border-teal-500 {
+  border-color: var(--primary-color) !important;
+}
+.border-teal-500\/20 {
+  border-color: rgba(var(--primary-color-rgb), 0.20) !important;
+}
+.border-teal-500\/30 {
+  border-color: rgba(var(--primary-color-rgb), 0.30) !important;
+}
+.border-teal-500\/40 {
+  border-color: rgba(var(--primary-color-rgb), 0.40) !important;
+}
+.border-teal-500\/45 {
+  border-color: rgba(var(--primary-color-rgb), 0.45) !important;
+}
+.border-teal-500\/50 {
+  border-color: rgba(var(--primary-color-rgb), 0.50) !important;
+}
+.border-teal-500\/60 {
+  border-color: rgba(var(--primary-color-rgb), 0.60) !important;
+}
+
+.border-\[\#0ed8ab\],
+.border-\[\#0fe2a8\],
+.border-\[\#14d6af\],
+.border-\[\#18c7a5\]\/35,
+.border-\[\#11d6ae\]\/20 {
+  border-color: var(--primary-color) !important;
+}
+
+.border-\[\#0ed8ab\]\/10 {
+  border-color: rgba(var(--primary-color-rgb), 0.10) !important;
+}
+
+.border-\[\#0ed8ab\]\/15 {
+  border-color: rgba(var(--primary-color-rgb), 0.15) !important;
+}
+
+.border-\[\#0ed8ab\]\/20,
+.border-\[\#0ed8ab\]\/25,
+.border-\[\#0ed8ab\]\/30,
+.border-\[\#0ed8ab\]\/35,
+.border-\[\#0ed8ab\]\/40,
+.border-\[\#0ed8ab\]\/45,
+.border-\[\#0fe2a8\]\/35,
+.border-\[\#14d6af\]\/30 {
+  border-color: rgba(var(--primary-color-rgb), 0.35) !important;
+}
+
+/* ── Gradient from-stops ── */
+.from-\[\#0ed8ab\],
+.from-\[\#0fe2a8\],
+.from-\[\#17d8b2\],
+.from-\[\#14d6af\],
+.from-\[\#1be6b4\],
+.from-\[\#13e6ba\],
+.from-\[\#19d2ad\],
+.from-teal-500 {
+  --tw-gradient-from: var(--primary-color) !important;
+}
+
+/* ── Gradient to-stops ── */
+.to-\[\#0ed8ab\],
+.to-\[\#0fbc98\],
+.to-\[\#0fe2a8\],
+.to-\[\#00bb8f\],
+.to-\[\#03b88f\],
+.to-\[\#11d1f2\],
+.to-\[\#04c2ef\],
+.to-teal-400 {
+  --tw-gradient-to: var(--primary-color-hover) !important;
+}
+
+/* ── Full gradient background (br direction) ── */
+.bg-gradient-to-br.from-\[\#17d8b2\],
+.bg-gradient-to-br.from-\[\#14d6af\],
+.bg-gradient-to-br.from-\[\#1be6b4\],
+.bg-gradient-to-br.from-\[\#13e6ba\] {
+  background-image: linear-gradient(to bottom right, var(--primary-color), var(--primary-color-hover)) !important;
+}
+
+/* ── Full gradient background (r direction) ── */
+.bg-gradient-to-r.from-\[\#19d2ad\],
+.bg-gradient-to-r.from-\[\#0fe2a8\] {
+  background-image: linear-gradient(to right, var(--primary-color), var(--primary-color-hover)) !important;
+}
+
+/* Premium Glassmorphic Skeleton Shimmer Effect */
+.premium-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.premium-skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.12) 60%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  animation: premium-shimmer 2s infinite cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Skeleton: light mode adaptation ── */
+html[data-theme-mode="light"] .premium-skeleton {
+  background: #e2e8f0 !important; /* solid premium slate gray */
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme-mode="light"] .premium-skeleton::after {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+}
+
+@keyframes premium-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Profile / SkillDashboard language switcher overrides */
+html[data-theme-mode="light"] .bg-white\/15 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-theme-mode="light"] .lang-globe-icon {
+  filter: invert(1) brightness(0.2) !important;
+  opacity: 0.95 !important;
 }
