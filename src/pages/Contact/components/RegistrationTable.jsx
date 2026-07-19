@@ -34,6 +34,41 @@ export default function RegistrationTable({
 }) {
   const [selectedRegKeys, setSelectedRegKeys] = useState(null); // { schoolName, keys: [...] }
 
+  const handleSendKeyEmail = (item) => {
+    const subject = encodeURIComponent(`[4S Company] Ban giao ma kich hoat tai khoan hoc duong - ${item.schoolName}`);
+    const body = encodeURIComponent(
+`Kinh gui Dai dien truong ${item.schoolName},
+
+Ban Tiep Nhan Hoc Duong - 4S Company xin chan thanh cam on Quy truong da dang ky va hoan tat thanh toan dich vu huong nghiep cua chung toi.
+
+Duoi day la thong tin ban giao ma kich hoat tai khoan hoc duong danh cho hoc sinh cua Quy truong:
+
+- Ten goi cuoc: ${item.planName || "EDU"}
+- So luong: ${item.studentCount} tai khoan hoc sinh
+- Ma kich hoat (Activation Key) dung chung: ${item.activationKey || ""}
+
+Huong dan kich hoat danh cho hoc sinh:
+1. Hoc sinh truy cap va dang ky tai khoan moi tai website cua 4S Company.
+2. Dang ky tai khoan bang chinh dia chi email cua minh.
+3. Sau khi dang ky va dang nhap thanh cong, nhap ma kich hoat phia tren vao muc "Ma kich hoat hoc duong" de nang cap tai khoan len goi Premium/VIP.
+
+Neu Quy truong hoac cac em hoc sinh can bat ky su ho tro ky thuat nao trong qua trinh kich hoat tai khoan, xin vui lang phan hoi email nay hoac lien he hotline de duoc phuc vu.
+
+Tran trong,
+Ban Tiep Nhan Hoc Duong - 4S Company
+Website: ${window.location.origin}`);
+
+    // Lay danh sach email hoc sinh tu studentEmails de dua vao danh sach gui an danh (BCC)
+    const studentEmails = (item.studentEmails || [])
+      .map((se) => se.email)
+      .filter((email) => email && email.toLowerCase() !== item.email.toLowerCase());
+
+    const bccString = studentEmails.join(",");
+    const mailtoUrl = `mailto:${item.email}?subject=${subject}&body=${body}${bccString ? `&bcc=${encodeURIComponent(bccString)}` : ""}`;
+
+    window.open(mailtoUrl, "_self");
+  };
+
   return (
     <>
       {/* Desktop Table */}
@@ -138,12 +173,24 @@ export default function RegistrationTable({
                           </button>
                         )}
                         {item.status === "Completed" && (
-                          <span className="text-xs text-emerald-600 font-bold border border-emerald-150 bg-emerald-50/50 rounded-lg px-2.5 py-1 flex items-center gap-1">
-                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            {isVi ? "Hoàn tất" : "Completed"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="rounded-xl border border-emerald-250 bg-emerald-50/50 hover:bg-emerald-100/60 px-3 py-1.5 text-xs font-bold text-emerald-700 transition shadow-3xs cursor-pointer flex items-center gap-1"
+                              onClick={() => handleSendKeyEmail(item)}
+                              type="button"
+                            >
+                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              {isVi ? "Gửi mail bàn giao" : "Send Keys Email"}
+                            </button>
+                            <span className="text-xs text-emerald-600 font-bold border border-emerald-150 bg-emerald-50/50 rounded-lg px-2.5 py-1 flex items-center gap-1">
+                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                              {isVi ? "Hoàn tất" : "Completed"}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </td>
@@ -235,12 +282,24 @@ export default function RegistrationTable({
                     </button>
                   )}
                   {item.status === "Completed" && (
-                    <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {isVi ? "Hoàn tất" : "Completed"}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        className="rounded-lg border border-emerald-250 bg-emerald-50/50 hover:bg-emerald-100/60 px-2 py-1 text-2xs font-bold text-emerald-700 transition cursor-pointer flex items-center gap-0.5"
+                        onClick={() => handleSendKeyEmail(item)}
+                        type="button"
+                      >
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {isVi ? "Gửi mail" : "Email"}
+                      </button>
+                      <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {isVi ? "Hoàn tất" : "Completed"}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
