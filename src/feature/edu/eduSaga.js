@@ -76,16 +76,20 @@ function* fetchRegistrationsSaga() {
 
 // ── Send quote: create-payment → send-payment-email → update-status=Quoted
 function* sendQuoteSaga(action) {
-  const { id, emailContent, onSuccess } = action.payload;
+  const { id, emailContent, isResend, onSuccess } = action.payload;
   try {
-    // 1. Tạo payment link (QR + payOS)
-    yield call(eduAPI.createPayment, id);
+    if (!isResend) {
+      // 1. Tạo payment link (QR + payOS) - Chỉ chạy lần đầu tiên
+      yield call(eduAPI.createPayment, id);
+    }
 
     // 2. Gửi email báo giá kèm QR cho trường
     yield call(eduAPI.sendPaymentEmail, id, { emailContent });
 
-    // 3. Update status → Quoted
-    yield call(eduAPI.updateStatus, id, "Quoted");
+    if (!isResend) {
+      // 3. Update status → Quoted - Chỉ chạy lần đầu
+      yield call(eduAPI.updateStatus, id, "Quoted");
+    }
 
     yield put(sendQuoteSuccess());
 
@@ -95,7 +99,9 @@ function* sendQuoteSaga(action) {
 
     yield call(() =>
       toast.success(
-        "Đã tạo QR thanh toán và gửi email báo giá cho trường thành công!"
+        isResend
+          ? "Đã gửi lại email báo giá cho trường thành công!"
+          : "Đã tạo QR thanh toán và gửi email báo giá cho trường thành công!"
       )
     );
 
