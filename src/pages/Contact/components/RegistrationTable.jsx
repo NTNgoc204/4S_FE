@@ -59,24 +59,18 @@ Tran trong,
 Ban Tiep Nhan Hoc Duong - 4S Company
 Website: ${window.location.origin}`);
 
-    // Lay danh sach email hoc sinh tu studentEmails de dua vao danh sach gui an danh (BCC)
+    // Lấy danh sách email học sinh từ studentEmails để đưa vào danh sách gửi ẩn danh (BCC)
     const studentEmails = (item.studentEmails || [])
       .map((se) => se.email)
       .filter((email) => email && email.toLowerCase() !== item.email.toLowerCase());
 
     const bccString = studentEmails.join(",");
-    const mailtoUrl = `mailto:${item.email}?subject=${subject}&body=${body}${bccString ? `&bcc=${encodeURIComponent(bccString)}` : ""}`;
+    
+    // Đường dẫn soạn thư trực tiếp trên Gmail Web để tránh phải cấu hình Default App của hệ điều hành
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${item.email}&su=${subject}&body=${body}${bccString ? `&bcc=${encodeURIComponent(bccString)}` : ""}`;
 
-    // Hiển thị toast thông báo cho người dùng biết
-    toast.success(isVi ? "Đang mở ứng dụng Email để soạn thư bàn giao..." : "Opening email app for key handover...");
-
-    // Tạo link ẩn để trigger mailto chuẩn xác, tránh lỗi Network của Chrome
-    const tempLink = document.createElement("a");
-    tempLink.href = mailtoUrl;
-    tempLink.style.display = "none";
-    document.body.appendChild(tempLink);
-    tempLink.click();
-    document.body.removeChild(tempLink);
+    toast.success(isVi ? "Đang mở Gmail Web để soạn thư bàn giao..." : "Opening Gmail Web for key handover...");
+    window.open(gmailUrl, "4s_gmail_compose_window");
   };
 
   return (
