@@ -107,8 +107,8 @@ Website: ${window.location.origin}`);
               ) : (
                 registrations.map((item) => (
                   <tr className="hover:bg-slate-50/50 transition-colors" key={item.id}>
-                    <td className="px-4 py-4.5 text-sm font-bold text-slate-700 whitespace-nowrap">
-                      {item.id}
+                    <td className="px-4 py-4.5 text-xs font-mono font-bold text-slate-500 whitespace-nowrap" title={item.id}>
+                      {item.id && item.id.length > 8 ? `${item.id.substring(0, 8)}...` : item.id}
                     </td>
                     <td className="px-4 py-4.5">
                       <p className="text-sm font-bold text-slate-900 leading-tight">{item.schoolName}</p>
