@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
 import sparklesIcon from '../../../assets/Sparkles.svg'
 import Skeleton from '../../../components/Skeleton'
 import { isOptionActuallyOther } from '../util/quizHelpers'
@@ -32,6 +33,25 @@ function QuizLeftPanel({
   const [activeCustomQuestionId, setActiveCustomQuestionId] = useState('')
   const [selectedCustomOption, setSelectedCustomOption] = useState(null)
 
+  const plan = useSelector((state) => state.auth.plan)
+  const currentPlan = String(plan ?? '').toLowerCase()
+  const isProAccount = currentPlan !== 'free' && currentPlan !== ''
+
+  const systemBadge = currentPlan === 'edu'
+    ? {
+        label: '🎓',
+        className: 'border-teal-500/45 bg-teal-500/12 text-teal-400',
+      }
+    : isProAccount
+    ? {
+        label: '👑',
+        className: 'border-[#ecc741]/35 bg-[#ecc741]/12 text-[#f2cb36]',
+      }
+    : {
+        label: '✨',
+        className: 'border-emerald-300/40 bg-emerald-400/12 text-emerald-300',
+      }
+
   const handleCustomSubmit = (question) => {
     const customText = customAnswers[question.id]?.trim()
     if (!customText) return
@@ -62,8 +82,8 @@ function QuizLeftPanel({
           return (
             <article key={question.id} className="mb-5">
               <div className="flex items-start gap-3">
-                <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
-                  {'\u{1F451}'}
+                <span className={`mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.72rem] ${systemBadge.className}`}>
+                  {systemBadge.label}
                 </span>
 
                 <div className={`w-full max-w-[790px] rounded-2xl border p-4 md:p-5 transition-all duration-300 ${
@@ -170,8 +190,8 @@ function QuizLeftPanel({
 
               {insights[question.id] ? (
                 <div className="mt-3 flex max-w-[790px] items-start gap-3">
-                  <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
-                    {'\u{1F451}'}
+                  <span className={`mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.72rem] ${systemBadge.className}`}>
+                    {systemBadge.label}
                   </span>
                   <div className="flex-1">
                     <p className="rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/10 px-4 py-3 text-sm leading-6 text-slate-100 md:text-base whitespace-pre-line">
@@ -194,8 +214,8 @@ function QuizLeftPanel({
 
               {thinkingQuestionId === question.id ? (
                 <div className="mt-3 flex max-w-[790px] items-start gap-3 animate-pulse-subtle">
-                  <span className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ecc741]/35 bg-[#ecc741]/12 text-[0.72rem] text-[#f2cb36]">
-                    👑
+                  <span className={`mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.72rem] ${systemBadge.className}`}>
+                    {systemBadge.label}
                   </span>
                   <div className="flex-1 w-full rounded-2xl border border-[#0ed8ab]/25 bg-[#0ed8ab]/5 px-4 py-3">
                     <div className="flex items-center gap-2 mb-3">

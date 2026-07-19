@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function ConsultationPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const plan = useSelector((state) => state.auth.plan);
   const normalizedPlan = String(plan || "").toLowerCase();
@@ -14,9 +14,15 @@ function ConsultationPage() {
     <>
       <main className="mx-auto w-[min(1320px,95vw)] pb-16 md:pt-8">
         <section className="text-center">
-          <p className="mx-auto mb-7 inline-flex items-center rounded-full border border-[#ecc741]/30 bg-[#ecc741]/12 px-5 py-2 text-lg font-semibold text-[#ecc741]">
-            {t("consultation:hero.chip")}
-          </p>
+          {normalizedPlan === "edu" ? (
+            <p className="mx-auto mb-7 inline-flex items-center rounded-full border border-teal-500/30 bg-teal-500/12 px-5 py-2 text-lg font-semibold text-teal-400">
+              {i18n.resolvedLanguage === "vi" ? "Tài khoản EDU – Toàn quyền truy cập" : "EDU Account – Full Access"}
+            </p>
+          ) : (
+            <p className="mx-auto mb-7 inline-flex items-center rounded-full border border-[#ecc741]/30 bg-[#ecc741]/12 px-5 py-2 text-lg font-semibold text-[#ecc741]">
+              {t("consultation:hero.chip")}
+            </p>
+          )}
           <h2 className="font-['Sora'] text-[2.2rem] tracking-[-0.03em] md:text-[4.1rem]">
             {t("consultation:hero.title")}
           </h2>
