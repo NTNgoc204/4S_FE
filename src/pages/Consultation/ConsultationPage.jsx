@@ -2,10 +2,13 @@ import { useTranslation } from "react-i18next";
 import bookOpenIcon from "../../assets/BookOpen.svg";
 import sparklesIcon from "../../assets/Sparkles.svg";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function ConsultationPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const plan = useSelector((state) => state.auth.plan);
+  const normalizedPlan = String(plan || "").toLowerCase();
 
   return (
     <>
@@ -24,12 +27,19 @@ function ConsultationPage() {
 
         <section className="mx-auto mt-12 grid max-w-[800px] grid-cols-1 gap-6 md:grid-cols-2">
           <article className="relative flex h-full flex-col items-center rounded-[18px] border border-[#66789c]/34 bg-gradient-to-b from-[#263f5f]/95 to-[#18314c]/98 p-7 text-center shadow-[0_16px_35px_rgba(236,199,65,0.07)] md:p-8">
-            <span className="absolute right-6 top-6 inline-flex items-end gap-1 rounded-lg border border-[#ecc741]/60 bg-[#ecc741]/15 px-3 py-1.5 text-sm font-bold tracking-wide text-[#f4d040]">
-              <span className="text-xl leading-none">{"\u{1F451}"}</span>
-              <span className="leading-none">
-                {t("consultation:header.proBadge")}
+            {normalizedPlan === "edu" ? (
+              <span className="absolute right-6 top-6 inline-flex items-end gap-1 rounded-lg border border-teal-500/60 bg-teal-500/15 px-3 py-1.5 text-sm font-bold tracking-wide text-teal-400">
+                <span className="text-xl leading-none">{"\u{1F393}"}</span>
+                <span className="leading-none">EDU</span>
               </span>
-            </span>
+            ) : (
+              <span className="absolute right-6 top-6 inline-flex items-end gap-1 rounded-lg border border-[#ecc741]/60 bg-[#ecc741]/15 px-3 py-1.5 text-sm font-bold tracking-wide text-[#f4d040]">
+                <span className="text-xl leading-none">{"\u{1F451}"}</span>
+                <span className="leading-none">
+                  {t("consultation:header.proBadge")}
+                </span>
+              </span>
+            )}
 
             <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl border border-[#ecc741]/34 bg-[#ecc741]/14">
               <img
