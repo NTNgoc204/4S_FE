@@ -48,9 +48,7 @@ function Header({
   const isAdmin =
     finalIsLoggedIn &&
     String(reduxAuth.role || currentRole).toLowerCase() === "admin";
-  const showThemeSettings =
-    !finalIsLoggedIn ||
-    String(reduxAuth.role || currentRole).toLowerCase() === "student";
+  const showThemeSettings = true;
 
   const navItems = [
     { label: t("home:nav.home"), to: "/" },
