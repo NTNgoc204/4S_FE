@@ -127,9 +127,18 @@ export default function RegistrationTable({
                           </button>
                         )}
                         {item.status === "Quoted" && (
-                          <span className="text-xs text-slate-400 font-semibold italic pr-2">
-                            {isVi ? "Chờ Kế toán duyệt..." : "Awaiting payment..."}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-750 transition shadow-3xs cursor-pointer"
+                              onClick={() => onOpenQuoteModal(item)}
+                              type="button"
+                            >
+                              {isVi ? "Gửi lại báo giá" : "Resend Quote"}
+                            </button>
+                            <span className="text-xs text-slate-400 font-semibold italic pr-2">
+                              {isVi ? "Chờ Kế toán duyệt..." : "Awaiting payment..."}
+                            </span>
+                          </div>
                         )}
                         {item.status === "Paid" && (
                           <button
@@ -226,9 +235,18 @@ export default function RegistrationTable({
                     </button>
                   )}
                   {item.status === "Quoted" && (
-                    <span className="text-xs text-slate-450 font-semibold italic">
-                      {isVi ? "Chờ Kế toán duyệt..." : "Awaiting payment..."}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1 text-2xs font-bold text-slate-550 hover:text-slate-750 transition shadow-3xs cursor-pointer"
+                        onClick={() => onOpenQuoteModal(item)}
+                        type="button"
+                      >
+                        {isVi ? "Gửi lại" : "Resend"}
+                      </button>
+                      <span className="text-xs text-slate-450 font-semibold italic">
+                        {isVi ? "Chờ duyệt..." : "Awaiting..."}
+                      </span>
+                    </div>
                   )}
                   {item.status === "Paid" && (
                     <button

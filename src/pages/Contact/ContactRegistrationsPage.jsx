@@ -59,33 +59,38 @@ export default function ContactRegistrationsPage() {
 
   // ── Dispatch sendQuote saga ───────────────────────────────────────────────
   const handleSendQuoteSubmit = (id, subject, body) => {
+    const targetReg = registrations.find((r) => r.id === id);
+    const isResend = targetReg?.status === "Quoted";
+
     dispatch(
       sendQuoteRequest({
         id,
         emailContent: body,
+        isResend,
         onSuccess: () => {
           setIsQuoteModalOpen(false);
 
-          // FE notification → Accountant
-          const targetReg = registrations.find((r) => r.id === id);
-          const newNotif = {
-            id: "NOTIF_" + Date.now(),
-            role: "accountant",
-            title: isVi
-              ? `Yêu cầu thanh toán học đường: ${targetReg?.schoolName}`
-              : `School Payment Approval: ${targetReg?.schoolName}`,
-            message: isVi
-              ? `Đơn đăng ký ${id} của trường ${targetReg?.schoolName} đang chờ xác nhận thanh toán.`
-              : `Proposal ${id} for ${targetReg?.schoolName} is awaiting bank confirmation.`,
-            createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
-            isRead: false,
-            type: "payment_requested",
-          };
-          const stored = localStorage.getItem("4s_notifications");
-          const notifs = stored ? JSON.parse(stored) : [];
-          notifs.push(newNotif);
-          localStorage.setItem("4s_notifications", JSON.stringify(notifs));
-          window.dispatchEvent(new Event("4s_notifications_updated"));
+          if (!isResend) {
+            // FE notification → Accountant (Only for initial proposal)
+            const newNotif = {
+              id: "NOTIF_" + Date.now(),
+              role: "accountant",
+              title: isVi
+                ? `Yêu cầu thanh toán học đường: ${targetReg?.schoolName}`
+                : `School Payment Approval: ${targetReg?.schoolName}`,
+              message: isVi
+                ? `Đơn đăng ký ${id} của trường ${targetReg?.schoolName} đang chờ xác nhận thanh toán.`
+                : `Proposal ${id} for ${targetReg?.schoolName} is awaiting bank confirmation.`,
+              createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
+              isRead: false,
+              type: "payment_requested",
+            };
+            const stored = localStorage.getItem("4s_notifications");
+            const notifs = stored ? JSON.parse(stored) : [];
+            notifs.push(newNotif);
+            localStorage.setItem("4s_notifications", JSON.stringify(notifs));
+            window.dispatchEvent(new Event("4s_notifications_updated"));
+          }
         },
       })
     );
