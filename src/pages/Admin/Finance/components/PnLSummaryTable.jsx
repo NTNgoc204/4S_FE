@@ -18,11 +18,13 @@ export default function PnLSummaryTable({
   netProfit,
   profitMargin,
   fmtVND,
+  month,
+  year,
 }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs text-slate-850">
-      <h3 className="font-['Sora'] text-xl font-bold text-slate-800">Báo Cáo P&amp;L — Tháng 6/2026</h3>
-      <p className="mt-1 text-xs text-slate-400">Báo cáo kết quả hoạt động kinh doanh (Dữ liệu mẫu, chưa tính nghĩa vụ thuế VAT thực tế)</p>
+      <h3 className="font-['Sora'] text-xl font-bold text-slate-800">Báo Cáo P&amp;L — Tháng {month}/{year}</h3>
+      <p className="mt-1 text-xs text-slate-400">Báo cáo kết quả hoạt động kinh doanh (Dữ liệu thực tế, chưa tính nghĩa vụ thuế VAT thực tế)</p>
 
       <div className="mt-5 overflow-x-auto">
         <table className="min-w-full text-sm">

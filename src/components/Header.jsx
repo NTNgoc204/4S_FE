@@ -299,13 +299,16 @@ function Header({
                 )}
               </button>
 
-              {/* Logout Button */}
+              {/* Logout SVG Icon Button */}
               <button
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10 hover:text-white cursor-pointer shadow-sm"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition hover:bg-white/10 hover:scale-105 cursor-pointer shadow-sm"
                 onClick={handleLogoutClick}
                 type="button"
+                title={t("common:actions.logout")}
               >
-                {t("common:actions.logout")}
+                <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="#ef4444">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
               </button>
             </div>
           ) : showGuestCta ? (

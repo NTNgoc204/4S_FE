@@ -78,12 +78,10 @@ function PhoneInput({
           aria-describedby={descriptionId}
           aria-invalid={Boolean(error)}
           autoComplete="tel"
-          className={`w-full rounded-xl border bg-white/8 ${sizeClass} text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-60 ${
+          className={`w-full rounded-xl border bg-white/6 ${sizeClass} text-slate-100 placeholder:text-slate-400 focus:outline-none disabled:opacity-60 ${
             error
               ? "border-rose-400/70 focus:border-rose-400"
-              : isValid
-                ? "border-emerald-400/60 focus:border-emerald-400"
-                : "border-white/15 focus:border-[#ecc741]"
+              : "border-white/12 focus:border-[#ecc741]"
           }`}
           disabled={disabled}
           id={id}

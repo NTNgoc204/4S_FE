@@ -25,16 +25,25 @@ export const authAPI = {
   // Logout: Revoke refresh token and clear session
   logout: () => apiClient.post("/api/Auth/logout"),
 
-  // Update user profile (PUT /api/Users/{id})
-  updateProfile: (id, data) => apiClient.put(`/api/Users/${id}`, data),
+  // Update user profile (PUT /api/Auth/profile)
+  updateProfile: (id, data) => apiClient.put("/api/Auth/profile", data),
 
-  // Upload avatar (POST /api/avatar/upload)
+  // Upload avatar (POST /api/Auth/upload-avatar)
   uploadAvatar: (formData) =>
-    apiClient.post("/api/avatar/upload", formData, {
+    apiClient.post("/api/Auth/upload-avatar", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     }),
+
+  // Academic Profile APIs (/api/UserProfiles)
+  getUserProfiles: () => apiClient.get("/api/UserProfiles"),
+  getUserProfileById: (id) => apiClient.get(`/api/UserProfiles/${id}`),
+  createUserProfile: (data) => apiClient.post("/api/UserProfiles", data),
+  updateUserProfile: (id, data) => apiClient.put(`/api/UserProfiles/${id}`, data),
+
+  // AI Overall Summary & Recommendations API (/api/UserAiSummaries)
+  getOverallSummary: () => apiClient.get("/api/UserAiSummaries"),
 
   // Forgot password (POST /api/Auth/forgot-password)
   forgotPassword: (email) =>

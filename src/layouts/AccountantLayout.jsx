@@ -5,6 +5,9 @@ import fourSLogo from "../assets/logo-4s.png";
 import { planAPI } from "../feature/plan/planAPI";
 import { adminAPI } from "../feature/admin/adminAPI";
 import NotificationBell from "../components/NotificationBell";
+import { HubConnectionBuilder } from "@microsoft/signalr";
+import { API_BASE_URL } from "../config/apiClient";
+import { toast } from "react-toastify";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
@@ -19,34 +22,13 @@ const formatDate = (dateStr) => {
 };
 
 
-const INITIAL_EXPENSES = [
-  { id: 1, date: "2026-06-01", category: "AI API & Infrastructure (AI & Máy chủ)", amount: 68000000, description: "AWS hosting fee for core service & database backups", status: "Paid" },
-  { id: 2, date: "2026-06-01", category: "AI API & Infrastructure (AI & Máy chủ)", amount: 42500000, description: "Token utilization billing for Google Vertex API keys", status: "Paid" },
-  { id: 3, date: "2026-06-02", category: "Marketing (Quảng cáo & Ads)", amount: 24700000, description: "Monthly Facebook Ads & student referral campaign costs", status: "Paid" },
-  { id: 4, date: "2026-06-02", category: "Operational (Vận hành)", amount: 12000000, description: "Zendesk & Slack licensing fees for operator workspace", status: "Paid" },
-  { id: 5, date: "2026-06-02", category: "Miscellaneous (Khác)", amount: 8000000, description: "Office supplies, electricity, and workspace essentials", status: "Pending" },
-  { id: 6, date: "2026-06-02", category: "Personnel (Nhân sự & Lương)", amount: 45000000, description: "Salary payout for support team members & facilitators", status: "Paid" },
-];
-
-const INITIAL_INCOMES = [
-  { id: "TX1001", studentName: "Nguyễn Văn A", email: "vana@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-06-02 09:15", status: "Success" },
-  { id: "TX1002", studentName: "Trần Thị B", email: "thib@gmail.com", plan: "Edu Plan", amount: 299000, date: "2026-06-02 10:22", status: "Success" },
-  { id: "TX1003", studentName: "Lê Hoàng C", email: "hoangc@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-06-02 11:05", status: "Pending" },
-  { id: "TX1004", studentName: "Phạm Minh D", email: "minhd@gmail.com", plan: "Edu Plan", amount: 299000, date: "2026-06-02 13:40", status: "Success" },
-  { id: "TX1005", studentName: "Đỗ Thanh E", email: "thanhe@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-06-02 14:12", status: "Failed" },
-  { id: "TX1006", studentName: "Nguyễn Lê F", email: "lef@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-06-01 08:30", status: "Success" },
-  { id: "TX1007", studentName: "Vũ Hải G", email: "haig@gmail.com", plan: "Edu Plan", amount: 299000, date: "2026-06-01 09:55", status: "Success" },
-  { id: "TX1008", studentName: "Hoàng Đức H", email: "duch@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-06-01 15:45", status: "Pending" },
-  { id: "TX1009", studentName: "Bùi Thị I", email: "thii@gmail.com", plan: "Edu Plan", amount: 299000, date: "2026-05-31 10:00", status: "Success" },
-  { id: "TX1010", studentName: "Đặng Văn J", email: "vanj@gmail.com", plan: "Pro Plan", amount: 150000, date: "2026-05-30 16:20", status: "Success" },
-];
-
+const INITIAL_EXPENSES = [];
 
 function AccountantLayout({ onLogout = () => {} }) {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation(["accountant", "common"]);
   const isVi = i18n.resolvedLanguage === "vi";
-  const isEnglish = i18n.resolvedLanguage !== "vi";
+  const isEnglish = !isVi;
 
   function handleLanguageChange(lang) {
     i18n.changeLanguage(lang);
@@ -55,13 +37,22 @@ function AccountantLayout({ onLogout = () => {} }) {
   const NAV_ITEMS = [
     { label: isVi ? "Dashboard & Báo cáo" : "Dashboard & Reports", to: "/accountant/dashboard" },
     { label: isVi ? "Quản lý Khoản chi" : "Expense Management", to: "/accountant/expenses" },
-    { label: isVi ? "Sổ giao dịch & Hoàn tiền" : "Transaction & Refund Ledger", to: "/accountant/transactions" },
+    { label: isVi ? "Sổ giao dịch" : "Transaction Ledger", to: "/accountant/transactions" },
   ];
 
   // Shared in-memory states
   const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
   const [incomes, setIncomes] = useState([]);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
+  // Trigger auto-refetch when transactions change
+  useEffect(() => {
+    const handleRefetch = () => setRefetchTrigger((prev) => prev + 1);
+    window.addEventListener("4s_transactions_refetch", handleRefetch);
+    return () => window.removeEventListener("4s_transactions_refetch", handleRefetch);
+  }, []);
+
+  // Fetch transaction list from API
   useEffect(() => {
     let active = true;
     async function fetchTransactions() {
@@ -110,7 +101,68 @@ function AccountantLayout({ onLogout = () => {} }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [refetchTrigger]);
+
+  // Connect to SignalR Payment Hub to receive real-time updates and add notifications
+  useEffect(() => {
+    let connection;
+    try {
+      connection = new HubConnectionBuilder()
+        .withUrl(`${API_BASE_URL}/payment-hub`)
+        .withAutomaticReconnect()
+        .build();
+
+      connection.start()
+        .then(() => {
+          console.log("Accountant connected to SignalR payment-hub successfully.");
+          
+          // Listen for PaymentConfirmed event broadcast from server
+          connection.on("PaymentConfirmed", (data) => {
+            console.log("Real-time payment confirmation received:", data);
+            
+            // 1. Show toast notification
+            const amountStr = data?.amount ? `${Number(data.amount).toLocaleString('vi-VN')} VND` : "";
+            const planName = data?.planName || "VIP";
+            const txId = data?.transactionCode || data?.transactionId || "TX_" + Date.now();
+            toast.success(t("notifications.realtimeToast", { id: txId, plan: planName }));
+
+            // 2. Create local notification item for the Accountant Bell
+            const newNotif = {
+              id: "NOTIF_" + Date.now(),
+              role: "accountant",
+              title: t("notifications.confirmTitle"),
+              message: t("notifications.confirmMessage", { id: txId, plan: planName, amount: amountStr }),
+              createdAt: new Date().toLocaleString("sv-SE", { hour12: false }).substring(0, 16),
+              isRead: false,
+              type: "payment_confirmed",
+              txId: txId
+            };
+            
+            try {
+              const stored = localStorage.getItem("4s_notifications");
+              const notifs = stored ? JSON.parse(stored) : [];
+              notifs.push(newNotif);
+              localStorage.setItem("4s_notifications", JSON.stringify(notifs));
+              window.dispatchEvent(new Event("4s_notifications_updated"));
+            } catch (err) {
+              console.error("Error saving real-time notification:", err);
+            }
+
+            // 3. Trigger refetch transactions to update list in real-time
+            window.dispatchEvent(new Event("4s_transactions_refetch"));
+          });
+        })
+        .catch((err) => console.warn("Accountant SignalR connection to payment-hub failed:", err));
+    } catch (e) {
+      console.warn("SignalR HubConnectionBuilder error:", e);
+    }
+
+    return () => {
+      if (connection) {
+        connection.stop().catch((e) => console.log("Stopped Accountant SignalR connection:", e));
+      }
+    };
+  }, [t]);
 
 
   function handleLogout() {
@@ -120,9 +172,32 @@ function AccountantLayout({ onLogout = () => {} }) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
+      <style>{`
+        /* Reset green/teal theme overrides for Accountant Panel to ensure clean corporate design */
+        html[data-theme-mode="light"] body,
+        html[data-theme-mode="light"] #root,
+        html[data-theme-mode="light"] .min-h-screen,
+        html[data-theme-mode="dark"] body,
+        html[data-theme-mode="dark"] #root,
+        html[data-theme-mode="dark"] .min-h-screen {
+          background-color: #f8fafc !important;
+          background-image: none !important;
+          color: #1e293b !important;
+        }
+        html[data-theme-mode="light"] header.sticky,
+        html[data-theme-mode="dark"] header.sticky {
+          background-color: #ffffff !important;
+          border-color: #e2e8f0 !important;
+        }
+        html[data-theme-mode="light"] aside,
+        html[data-theme-mode="dark"] aside {
+          background-color: #ffffff !important;
+          border-color: #e2e8f0 !important;
+        }
+      `}</style>
       <div className="mx-auto flex w-full max-w-[1500px]">
         {/* Sidebar – Desktop */}
-        <aside className="hidden min-h-screen w-[290px] shrink-0 border-r border-slate-200/80 bg-white px-5 py-6 lg:flex lg:flex-col shadow-sm">
+        <aside className="hidden sticky top-0 h-screen w-[290px] shrink-0 border-r border-slate-200/80 bg-white px-5 py-6 lg:flex lg:flex-col shadow-sm">
           <button
             className="flex items-center gap-3 px-1 py-1 text-left transition hover:opacity-90 focus:outline-none"
             onClick={() => navigate("/accountant/dashboard")}
