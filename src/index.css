@@ -44,6 +44,11 @@ svg path {
               box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Unify all font variants to the primary font (Be Vietnam Pro) to resolve UI font mismatch bugs */
+.font-\[\'Sora\'\] {
+  font-family: "Be Vietnam Pro", sans-serif !important;
+}
+
 /* Color themes declarations (Emerald, Ocean, Violet, Sunset) */
 :root {
   /* Default: Emerald Theme & Dark Mode */
@@ -370,6 +375,8 @@ html[data-theme-mode="light"] .bg-\[\#172d47\]\/90,
 html[data-theme-mode="light"] .bg-\[\#122237\]\/60,
 html[data-theme-mode="light"] .bg-\[\#1b2d47\]\/30,
 html[data-theme-mode="light"] .bg-\[\#203a59\]\/88,
+html[data-theme-mode="light"] .bg-\[\#1a3352\]\/90,
+html[data-theme-mode="light"] .bg-\[\#142c46\]\/95,
 html[data-theme-mode="light"] .bg-\[\#0c233c\]\/60,
 html[data-theme-mode="light"] .bg-\[\#0c1e36\],
 html[data-theme-mode="light"] .bg-\[\#081a30\]\/60,
@@ -392,6 +399,7 @@ html[data-theme-mode="light"] footer,
 html[data-theme-mode="light"] .bg-\[\#041326\]\/60,
 html[data-theme-mode="light"] .bg-\[\#020d1c\]\/90,
 html[data-theme-mode="light"] .bg-\[\#172c43\],
+html[data-theme-mode="light"] .bg-\[\#1d3551\]\/95,
 html[data-theme-mode="light"] .bg-\[\#07192f\] {
   background-color: var(--bg-panel-darker) !important;
   border-color: var(--border-main) !important;
@@ -417,13 +425,19 @@ html[data-theme-mode="light"] .text-slate-500 {
   color: var(--text-muted) !important;
 }
 
+.text-white-force {
+  color: #ffffff !important;
+}
+
 /* Form controls (Inputs, Selects, Dropdowns, Textareas) */
 html[data-theme-mode="light"] input,
 html[data-theme-mode="light"] select,
 html[data-theme-mode="light"] textarea,
 html[data-theme-mode="light"] option,
 html[data-theme-mode="light"] .bg-white\/8,
+html[data-theme-mode="light"] .bg-white\/6,
 html[data-theme-mode="light"] .bg-white\/5,
+html[data-theme-mode="light"] .bg-white\/4,
 html[data-theme-mode="light"] .bg-white\/\[0\.03\] {
   background-color: var(--bg-panel-darker) !important;
   color: var(--text-main) !important;
@@ -1489,4 +1503,12 @@ html[data-theme-mode="light"] .bg-white\/15 {
 html[data-theme-mode="light"] .lang-globe-icon {
   filter: invert(1) brightness(0.2) !important;
   opacity: 0.95 !important;
+}
+
+/* Force hand cursor on hover for all buttons globally */
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"] {
+  cursor: pointer !important;
 }

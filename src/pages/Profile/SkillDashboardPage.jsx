@@ -1,49 +1,83 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import {
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-} from "recharts";
 import fourSLogo from "../../assets/logo-4s.png";
 import globeIcon from "../../assets/Globe.svg";
-
-const SKILL_VALUES = {
-  mathematics: 85,
-  logic: 90,
-  creativity: 75,
-  communication: 80,
-  problemSolving: 95,
-  leadership: 70,
-};
+import { authAPI } from "../../feature/auth/authAPI";
+import ThemeSettingsToggle from "../../components/ThemeSettingsToggle";
 
 function SkillDashboardPage() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useSelector((state) => state.auth?.user);
   const reduxPlan = useSelector((state) => state.auth.plan);
   const currentPlan = String(reduxPlan ?? "").toLowerCase();
   const locale = i18n.resolvedLanguage === "vi" ? "vi" : "en";
 
-  // Data từ quiz navigate state (aiRecommendations từ backend)
-  const aiRecommendations = location.state?.aiRecommendations ?? [];
-  const displayRecommendations = aiRecommendations.slice(0, 4);
-  const displayCompare = aiRecommendations.slice(0, 3);
+  const [aiSummaryData, setAiSummaryData] = useState(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  const radarData = useMemo(
-    () =>
-      Object.entries(SKILL_VALUES).map(([key, value]) => ({
-        key,
-        label: t(`profile:dashboard.skills.${key}`),
-        value,
-      })),
-    [t],
-  );
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatarUrl]);
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name.trim().charAt(0).toUpperCase();
+  };
+
+  useEffect(() => {
+    setLoadingSummary(true);
+    authAPI
+      .getOverallSummary()
+      .then((res) => {
+        if (res.data?.success && res.data?.data) {
+          setAiSummaryData(res.data.data);
+        }
+      })
+      .catch((err) => {
+        if (err?.response?.status !== 404) {
+          console.warn("Could not fetch AI summary:", err);
+        }
+      })
+      .finally(() => {
+        setLoadingSummary(false);
+      });
+  }, []);
+
+  // Data từ quiz navigate state hoặc từ GET /api/UserAiSummaries
+  const aiRecommendations = location.state?.aiRecommendations ?? [];
+  
+  const displayRecommendations = useMemo(() => {
+    if (aiRecommendations.length > 0) return aiRecommendations.slice(0, 4);
+    if (!aiSummaryData) return [];
+    
+    const top3 = (aiSummaryData.top3Universities || []).map((u) => ({
+      id: u.universityId,
+      name: { vi: u.name, en: u.shortName || u.name },
+      tier: "top3",
+      major: { vi: u.suitableMajors?.[0]?.name || "Chuyên ngành định hướng", en: u.suitableMajors?.[0]?.name || "Suitable Major" },
+      place: { vi: u.location || "Việt Nam", en: u.location || "Vietnam" },
+    }));
+    
+    const next5 = (aiSummaryData.next5Universities || []).map((u) => ({
+      id: u.universityId,
+      name: { vi: u.name, en: u.shortName || u.name },
+      tier: "next5",
+      major: { vi: u.suitableMajors?.[0]?.name || "Chuyên ngành định hướng", en: u.suitableMajors?.[0]?.name || "Suitable Major" },
+      place: { vi: u.location || "Việt Nam", en: u.location || "Vietnam" },
+    }));
+    
+    return [...top3, ...next5].slice(0, 4);
+  }, [aiRecommendations, aiSummaryData]);
+
+  const displayCompare = useMemo(() => {
+    if (aiRecommendations.length > 0) return aiRecommendations.slice(0, 3);
+    return displayRecommendations.slice(0, 3);
+  }, [aiRecommendations, displayRecommendations]);
 
   function handleNewConsultation() {
     const isPaidPlan = currentPlan !== "free" && currentPlan !== "";
@@ -59,15 +93,6 @@ function SkillDashboardPage() {
       <header className="border-b border-white/10 bg-[#1d3551]/95">
         <div className="mx-auto flex w-[min(1360px,96vw)] items-center justify-between gap-4 px-1 py-3">
           <div className="flex items-center gap-4">
-            <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 cursor-pointer"
-              onClick={() => navigate("/profile")}
-              type="button"
-            >
-              <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <path d="M15 5 8 12l7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
-            </button>
             <Link to="/" className="cursor-pointer transition hover:opacity-90 flex items-center">
               <img alt="4S logo" className="h-18 w-18 object-contain" src={fourSLogo} />
             </Link>
@@ -77,201 +102,191 @@ function SkillDashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
-              <img alt="" aria-hidden="true" className="lang-globe-icon ml-2 mr-1 h-4 w-4 opacity-70" src={globeIcon} />
+            {/* Language Switcher */}
+            <div className="relative inline-flex items-center bg-white/5 border border-white/10 rounded-full p-0.5 text-[10px] select-none shadow-inner">
               <button
-                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${locale === "en" ? "bg-white/15 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}
-                onClick={() => handleLanguageChange("en")}
-                type="button"
-              >
-                EN
-              </button>
-              <button
-                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${locale === "vi" ? "bg-white/15 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}
                 onClick={() => handleLanguageChange("vi")}
                 type="button"
+                className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                  locale === "vi" 
+                    ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
               >
                 VI
               </button>
+              <button
+                onClick={() => handleLanguageChange("en")}
+                type="button"
+                className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                  locale === "en" 
+                    ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                EN
+              </button>
             </div>
+
+            {/* 1. Nút Home */}
             <button
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f]"
-              onClick={() => navigate("/profile")}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 cursor-pointer shadow-sm"
+              onClick={() => navigate("/")}
               type="button"
+              title={locale === "vi" ? "Trang chủ" : "Home"}
             >
-              <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
-                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
             </button>
+
+            {/* 2. Nút Hồ sơ cá nhân / Avatar */}
             <button
-              className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-4 py-2 text-sm font-bold text-[#082339] transition hover:brightness-110"
+              aria-label="User profile"
+              className="relative overflow-hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#ffe06e] to-[#e2bb28] text-[#09213f] transition hover:scale-105 cursor-pointer shadow-sm"
+              onClick={() => navigate("/profile")}
+              type="button"
+              title={locale === "vi" ? "Hồ sơ cá nhân" : "User Profile"}
+            >
+              {user?.avatarUrl && !imgError ? (
+                <img
+                  src={user.avatarUrl}
+                  alt="User avatar"
+                  className="h-full w-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span className="font-display text-xs font-bold">
+                  {getInitials(user?.username)}
+                </span>
+              )}
+            </button>
+
+            {/* 3. Nút Tư vấn mới (Icon) */}
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25 hover:scale-105 cursor-pointer shadow-sm"
               onClick={handleNewConsultation}
               type="button"
+              title={t("profile:dashboard.newConsultation")}
             >
-              {t("profile:dashboard.newConsultation")}
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z" />
+              </svg>
             </button>
+
+            {/* 4. Nút Đổi chủ đề (Luôn ở cuối) */}
+            <ThemeSettingsToggle />
           </div>
         </div>
       </header>
 
-      <section className="mx-auto w-[min(1360px,96vw)] py-6">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="space-y-5">
-            <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5">
-              <h2 className="font-['Sora'] text-2xl font-semibold">{t("profile:dashboard.skillProfile")}</h2>
-              <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.skillSubtitle")}</p>
-              <div className="mt-5 h-[280px]">
-                <ResponsiveContainer height="100%" width="100%">
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="rgba(148,163,184,0.3)" />
-                    <PolarAngleAxis dataKey="label" stroke="#aab8cb" tick={{ fill: "#9fb2ca", fontSize: 12 }} />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="#4b617d" tick={{ fill: "#7892b0", fontSize: 10 }} />
-                    <Radar dataKey="value" fill="#11d8ae" fillOpacity={0.35} stroke="#11d8ae" strokeWidth={2} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <MetricCard label={t("profile:dashboard.skills.mathematics")} value={SKILL_VALUES.mathematics} />
-                <MetricCard label={t("profile:dashboard.skills.logic")} value={SKILL_VALUES.logic} />
-                <MetricCard label={t("profile:dashboard.skills.creativity")} value={SKILL_VALUES.creativity} />
-              </div>
+      <section className="mx-auto w-[min(1120px,94vw)] py-6">
+        <div className="space-y-5">
+          {aiSummaryData?.summaryText && (
+            <article className="rounded-2xl border border-[#0ed8ab]/35 bg-[#203a59]/88 p-5 md:p-6 shadow-lg">
+              <h2 className="font-['Sora'] text-xl font-semibold text-[#0ed8ab] flex items-center gap-2">
+                <span>✨</span> {locale === "vi" ? "Nhận Xét & Đánh Giá Tổng Quan Từ AI" : "Overall AI Advice & Evaluation"}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-slate-200 whitespace-pre-line">
+                {aiSummaryData.summaryText}
+              </p>
             </article>
+          )}
 
-            <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5">
-              <h2 className="font-['Sora'] text-2xl font-semibold">{t("profile:dashboard.topRecommended")}</h2>
-              <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.topRecommendedSubtitle")}</p>
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6 shadow-md">
+            <h2 className="font-['Sora'] text-2xl font-semibold">{t("profile:dashboard.topRecommended")}</h2>
+            <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.topRecommendedSubtitle")}</p>
 
-              <div className="mt-4 space-y-3">
-                {displayRecommendations.length === 0 ? (
-                  <p className="text-sm text-slate-400 italic py-4 text-center">
-                    {locale === 'vi' ? 'Chưa có dữ liệu gợi ý. Hãy hoàn thành bài trắc nghiệm trước.' : 'No recommendations yet. Please complete the quiz first.'}
+            <div className="mt-4 space-y-3">
+              {displayRecommendations.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="h-12 w-12 rounded-full bg-[#0ed8ab]/15 flex items-center justify-center text-[#0ed8ab] mb-3">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-slate-300 font-medium">
+                    {locale === 'vi' ? 'Chưa có dữ liệu gợi ý cho tài khoản của bạn.' : 'No recommendations available for your account yet.'}
                   </p>
-                ) : (
-                  displayRecommendations.map((school) => (
-                    <article key={school.id} className={`rounded-xl border p-4 ${
-                      school.tier === 'top3' ? 'border-[#ecc741]/25 bg-[#1a3352]/90' : 'border-white/10 bg-[#142c46]/95'
-                    }`}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold text-slate-100 truncate">
-                              {school.name[locale]}
-                            </h3>
-                            {school.tier === 'top3' && (
-                              <span className="shrink-0 rounded-full bg-[#ecc741]/20 px-2 py-0.5 text-xs font-semibold text-[#ecc741]">⭐ Top Gợi Ý</span>
-                            )}
-                          </div>
-                          <p className="text-sm text-slate-300 mt-0.5">
-                            {t("profile:dashboard.recommended")}:{" "}
-                            <span className="font-semibold text-[#10deb3]">{school.major[locale]}</span>
-                          </p>
+                  <p className="text-xs text-slate-400 mt-1 max-w-md">
+                    {locale === 'vi' 
+                      ? 'Hãy làm bài trắc nghiệm tư vấn định hướng cùng AI để hệ thống phân tích và đề xuất danh sách trường Đại học phù hợp nhất!'
+                      : 'Complete an AI guidance quiz so the system can analyze and recommend the best universities for you!'}
+                  </p>
+                  <button
+                    className="mt-4 rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-5 py-2.5 text-sm font-bold text-[#082339] shadow-lg transition hover:brightness-110 cursor-pointer"
+                    onClick={handleNewConsultation}
+                    type="button"
+                  >
+                    🚀 {locale === 'vi' ? 'Bắt đầu tư vấn trắc nghiệm AI' : 'Start AI Quiz & Consultation'}
+                  </button>
+                </div>
+              ) : (
+                displayRecommendations.map((school) => (
+                  <article key={school.id} className={`rounded-xl border p-4 transition hover:border-white/20 ${
+                    school.tier === 'top3' ? 'border-[#ecc741]/25 bg-[#1a3352]/90' : 'border-white/10 bg-[#142c46]/95'
+                  }`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-slate-100 truncate">
+                            {school.name[locale]}
+                          </h3>
+                          {school.tier === 'top3' && (
+                            <span className="shrink-0 rounded-full bg-[#ecc741]/20 px-2 py-0.5 text-xs font-semibold text-[#ecc741]">⭐ Top Gợi Ý</span>
+                          )}
                         </div>
-                        <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${
-                          school.tier === 'top3' ? 'bg-[#ecc741]/15 text-[#ecc741]' : 'bg-[#0ed8ab]/15 text-[#0ed8ab]'
-                        }`}>
-                          {school.tier === 'top3' ? (locale === 'vi' ? 'Rất phù hợp' : 'Best Fit') : (locale === 'vi' ? 'Phù hợp' : 'Good Fit')}
-                        </span>
+                        <p className="text-sm text-slate-300 mt-0.5">
+                          {t("profile:dashboard.recommended")}:{" "}
+                          <span className="font-semibold text-[#10deb3]">{school.major[locale]}</span>
+                        </p>
                       </div>
-                      <p className="mt-2 text-sm text-slate-400">
-                        📍 {school.place[locale]}
-                      </p>
-                      <div className="mt-3 flex justify-end gap-2">
-                        <button
-                          className="rounded-lg bg-[#13cfa8] px-3 py-1.5 text-sm font-semibold text-[#082339] transition hover:brightness-110"
-                          onClick={() => navigate(`/university/${school.id}`, { state: { from: '/dashboard' } })}
-                          type="button"
-                        >
-                          {t("profile:dashboard.details")} {"->"}
-                        </button>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
-            </article>
+                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${
+                        school.tier === 'top3' ? 'bg-[#ecc741]/15 text-[#ecc741]' : 'bg-[#0ed8ab]/15 text-[#0ed8ab]'
+                      }`}>
+                        {school.tier === 'top3' ? (locale === 'vi' ? 'Rất phù hợp' : 'Best Fit') : (locale === 'vi' ? 'Phù hợp' : 'Good Fit')}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-400">
+                      📍 {school.place[locale]}
+                    </p>
+                    <div className="mt-3 flex justify-end gap-2">
+                      <button
+                        className="rounded-lg bg-[#13cfa8] px-3.5 py-1.5 text-sm font-semibold text-[#082339] transition hover:brightness-110"
+                        onClick={() => navigate(`/university/${school.id}`, { state: { from: '/dashboard' } })}
+                        type="button"
+                      >
+                        {t("profile:dashboard.details")} {"->"}
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </article>
 
-            <article className="rounded-2xl border border-[#12d2ab]/25 bg-[radial-gradient(circle_at_20%_10%,rgba(255,207,74,0.12),transparent_36%),linear-gradient(180deg,rgba(19,61,78,0.86),rgba(12,48,69,0.9))] p-5">
+          {displayCompare.length > 0 && (
+            <article className="rounded-2xl border border-[#12d2ab]/25 bg-[#203a59]/88 p-5 md:p-6 shadow-md">
               <h2 className="font-['Sora'] text-2xl font-semibold">{t("profile:dashboard.quickCompare")}</h2>
               <p className="mt-1 text-sm text-slate-300">{t("profile:dashboard.quickCompareSubtitle")}</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {displayCompare.length === 0 ? (
-                  <p className="text-sm text-slate-400 italic col-span-3">
-                    {locale === 'vi' ? 'Chưa có trường để so sánh.' : 'No schools to compare yet.'}
-                  </p>
-                ) : (
-                  displayCompare.map((school) => (
-                    <div key={school.id} className="rounded-xl border border-white/12 bg-white/8 p-3">
-                      <p className="font-semibold text-slate-100 text-sm leading-snug">{school.name[locale]}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{school.place[locale]}</p>
-                      <p className={`text-sm font-semibold mt-1 ${
-                        school.tier === 'top3' ? 'text-[#ecc741]' : 'text-[#0ed8ab]'
-                      }`}>
-                        {school.tier === 'top3' ? (locale === 'vi' ? '⭐ Top Gợi Ý' : '⭐ Top Pick') : (locale === 'vi' ? '✔ Phù Hợp' : '✔ Good Fit')}
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
-              <button className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#16d2ac] to-[#10bb98] px-4 py-3 font-semibold text-[#062a3f] transition hover:brightness-110" type="button">
-                {t("profile:dashboard.startComparison")}
-              </button>
-            </article>
-          </div>
-
-          <aside className="space-y-5">
-            <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-4">
-              <h2 className="font-['Sora'] text-xl font-semibold">{t("profile:dashboard.savedSchools")}</h2>
-              <p className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-center text-sm text-slate-400">
-                {t("profile:dashboard.noSavedSchools")}
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-4">
-              <h2 className="font-['Sora'] text-xl font-semibold">{t("profile:dashboard.recentConsultations")}</h2>
-              <div className="mt-4 space-y-2.5">
-                {[1, 2, 3].map((index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-sm font-medium text-slate-100">{t(`profile:dashboard.history.h${index}`)}</p>
-                    <p className="mt-1 text-xs text-slate-400">{t(`profile:dashboard.history.t${index}`)}</p>
+                {displayCompare.map((school) => (
+                  <div key={school.id} className="rounded-xl border border-white/12 bg-white/8 p-3.5">
+                    <p className="font-semibold text-slate-100 text-sm leading-snug">{school.name[locale]}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{school.place[locale]}</p>
+                    <p className={`text-sm font-semibold mt-1.5 ${
+                      school.tier === 'top3' ? 'text-[#ecc741]' : 'text-[#0ed8ab]'
+                    }`}>
+                      {school.tier === 'top3' ? (locale === 'vi' ? '⭐ Top Gợi Ý' : '⭐ Top Pick') : (locale === 'vi' ? '✔ Phù Hợp' : '✔ Good Fit')}
+                    </p>
                   </div>
                 ))}
               </div>
-              <button className="mt-4 w-full rounded-lg border border-[#0ed8ab]/30 bg-[#0ed8ab]/12 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/20" type="button">
-                {t("profile:dashboard.viewAllHistory")}
-              </button>
             </article>
-
-            <article className="rounded-2xl border border-[#f0cf47]/22 bg-[radial-gradient(circle_at_22%_20%,rgba(240,207,71,0.2),transparent_42%),linear-gradient(180deg,rgba(35,57,76,0.8),rgba(21,39,57,0.92))] p-4">
-              <h2 className="font-['Sora'] text-xl font-semibold">{t("profile:dashboard.journey")}</h2>
-              <div className="mt-4 space-y-3">
-                <JourneyItem label={t("profile:dashboard.journeyItems.explored")} value={12} />
-                <JourneyItem label={t("profile:dashboard.journeyItems.saved")} value={3} />
-                <JourneyItem label={t("profile:dashboard.journeyItems.consultations")} value={8} />
-              </div>
-            </article>
-          </aside>
+          )}
         </div>
       </section>
     </main>
-  );
-}
-
-function MetricCard({ label, value }) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-      <p className="text-4xl font-bold text-[#10deb3]">{value}</p>
-      <p className="mt-1 text-sm text-slate-300">{label}</p>
-    </div>
-  );
-}
-
-function JourneyItem({ label, value }) {
-  return (
-    <div>
-      <p className="text-4xl font-bold text-[#f2cb36]">{value}</p>
-      <p className="text-sm text-slate-300">{label}</p>
-    </div>
   );
 }
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function NotificationBell({ role }) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
@@ -91,6 +93,30 @@ export default function NotificationBell({ role }) {
     }
   };
 
+  const handleNotificationClick = (notif) => {
+    try {
+      const stored = localStorage.getItem("4s_notifications");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const updated = parsed.map(n => n.id === notif.id ? { ...n, isRead: true } : n);
+        localStorage.setItem("4s_notifications", JSON.stringify(updated));
+        window.dispatchEvent(new Event("4s_notifications_updated"));
+      }
+    } catch (e) {
+      console.error("Error marking notification as read on click:", e);
+    }
+
+    setIsOpen(false);
+
+    if (role === "accountant") {
+      if (notif.txId) {
+        navigate(`/accountant/transactions?highlight=${notif.txId}`);
+      } else {
+        navigate("/accountant/transactions");
+      }
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
@@ -145,7 +171,8 @@ export default function NotificationBell({ role }) {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`flex gap-3 p-3.5 hover:bg-slate-50 transition relative group ${
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`flex gap-3 p-3.5 hover:bg-slate-50 transition relative group cursor-pointer ${
                     !notif.isRead ? "bg-indigo-50/20" : ""
                   }`}
                 >

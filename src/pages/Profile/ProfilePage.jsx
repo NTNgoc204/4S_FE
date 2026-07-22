@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import fourSLogo from "../../assets/logo-4s.png";
 import globeIcon from "../../assets/Globe.svg";
 import { updateProfileRequest, uploadAvatarRequest, changePasswordRequest, getMeRequest } from "../../feature/auth/authSlice";
+import { authAPI } from "../../feature/auth/authAPI";
 import { eduAPI } from "../../feature/edu/eduAPI";
 import {
   normalizeVietnamesePhoneNumber,
@@ -16,32 +17,9 @@ import Skeleton from "../../components/Skeleton";
 import PhoneInput from "../../components/PhoneInput";
 import { getMyTransactionsRequest } from "../../feature/plan/planSlice";
 import { formatDateTimeForFE } from "../../util/dateHelper";
+import ThemeSettingsToggle from "../../components/ThemeSettingsToggle";
 
 
-
-const SKILL_KEYS = [
-  { id: "creativity", value: 75 },
-  { id: "logic", value: 90 },
-  { id: "communication", value: 80 },
-  { id: "leadership", value: 70 },
-  { id: "problemSolving", value: 95 },
-  { id: "teamwork", value: 85 },
-];
-
-const INTEREST_KEYS = [
-  "software",
-  "dataScience",
-  "ai",
-  "businessAnalytics",
-  "finance",
-  "marketing",
-  "medicine",
-  "law",
-  "education",
-  "engineering",
-  "design",
-  "arts",
-];
 
 function ProfilePage() {
   const { i18n, t } = useTranslation();
@@ -52,28 +30,41 @@ function ProfilePage() {
   const { user, avatarUploading, loading, plan } = useSelector((state) => state.auth);
   const isFreeAccount = !plan || String(plan).toLowerCase() === "free";
 
+  const [academicProfileId, setAcademicProfileId] = useState(null);
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phone: "",
+    gender: "Other",
     birthYear: "",
-    currentGrade: "grade12",
     gpa: "8.5",
-    mathScore: "85",
-    englishScore: "80",
-    scienceScore: "90",
+    strengthSubjects: "",
+    interestsText: "",
+    personalityText: "",
+    careerGoalsText: "",
     preferredLocation: "",
-    maxTuition: "50",
-    studyMode: "fullTime",
-    language: "vietnamese",
   });
   const [phoneError, setPhoneError] = useState("");
 
+  const genderOptions = useMemo(
+    () =>
+      locale === "vi"
+        ? [
+            { value: "Male", label: "Nam" },
+            { value: "Female", label: "Nữ" },
+            { value: "Other", label: "Khác" },
+          ]
+        : [
+            { value: "Male", label: "Male" },
+            { value: "Female", label: "Female" },
+            { value: "Other", label: "Other" },
+          ],
+    [locale]
+  );
+
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showAcademic, setShowAcademic] = useState(false);
-  const [showSkills, setShowSkills] = useState(false);
-  const [showInterests, setShowInterests] = useState(false);
-  const [showPreferences, setShowPreferences] = useState(false);
   const [showTransactionHistory, setShowTransactionHistory] = useState(false);
   const [showEduActivation, setShowEduActivation] = useState(false);
   const [eduKey, setEduKey] = useState("");
@@ -119,30 +110,76 @@ function ProfilePage() {
     confirmNewPassword: "",
   });
 
+  const [initialForm, setInitialForm] = useState(null);
+
   useEffect(() => {
     if (user) {
-      setForm((prev) => ({
-        ...prev,
+      const baseUserData = {
         fullName: user.username || "",
         email: user.email || "",
         phone: user.phoneNumber || "",
+        gender: user.gender || "Other",
         birthYear: user.dob ? new Date(user.dob).getFullYear().toString() : "",
         preferredLocation: user.address || "",
-      }));
+      };
+      setForm((prev) => ({ ...prev, ...baseUserData }));
+      setInitialForm((prev) => ({ ...baseUserData, ...(prev || {}) }));
       setPhoneError("");
     }
   }, [user]);
 
   useEffect(() => {
-    if (user) {
+    if (user?.userId) {
       dispatch(getMyTransactionsRequest());
+      authAPI
+        .getUserProfiles()
+        .then((res) => {
+          const raw = res.data?.data || res.data || [];
+          const list = Array.isArray(raw) ? raw : [];
+          const myProfile = list.find((p) => p.userId === user.userId);
+          const academicData = myProfile
+            ? {
+                gpa: myProfile.gpa !== undefined && myProfile.gpa !== null ? String(myProfile.gpa) : "8.5",
+                strengthSubjects: myProfile.strengthSubjects || "",
+                interestsText: myProfile.interests || "",
+                personalityText: myProfile.personality || "",
+                careerGoalsText: myProfile.careerGoals || "",
+              }
+            : {
+                gpa: "8.5",
+                strengthSubjects: "",
+                interestsText: "",
+                personalityText: "",
+                careerGoalsText: "",
+              };
+          if (myProfile) {
+            setAcademicProfileId(myProfile.profileId);
+          }
+          setForm((prev) => ({ ...prev, ...academicData }));
+          setInitialForm((prev) => ({ ...(prev || {}), ...academicData }));
+        })
+        .catch((err) => {
+          console.error("Failed to load user profile:", err);
+        });
     }
-  }, [user, dispatch]);
+  }, [user?.userId, dispatch]);
 
+  const isFormChanged = useMemo(() => {
+    if (!initialForm) return false;
+    return (
+      (form.fullName || "").trim() !== (initialForm.fullName || "").trim() ||
+      (form.phone || "").trim() !== (initialForm.phone || "").trim() ||
+      (form.gender || "Other") !== (initialForm.gender || "Other") ||
+      (form.birthYear || "").trim() !== (initialForm.birthYear || "").trim() ||
+      (form.preferredLocation || "").trim() !== (initialForm.preferredLocation || "").trim() ||
+      (form.gpa || "").trim() !== (initialForm.gpa || "").trim() ||
+      (form.strengthSubjects || "").trim() !== (initialForm.strengthSubjects || "").trim() ||
+      (form.interestsText || "").trim() !== (initialForm.interestsText || "").trim() ||
+      (form.personalityText || "").trim() !== (initialForm.personalityText || "").trim() ||
+      (form.careerGoalsText || "").trim() !== (initialForm.careerGoalsText || "").trim()
+    );
+  }, [form, initialForm]);
 
-  const [selectedInterests, setSelectedInterests] = useState(["software", "ai"]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [hoveredSkillId, setHoveredSkillId] = useState("");
   const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
@@ -154,97 +191,12 @@ function ProfilePage() {
     return name.trim().charAt(0).toUpperCase();
   };
 
-  const [skillScores, setSkillScores] = useState(
-    () =>
-      SKILL_KEYS.reduce((acc, item) => {
-        acc[item.id] = item.value;
-        return acc;
-      }, {}),
-  );
-
-  const skillRows = useMemo(
-    () =>
-      SKILL_KEYS.map((item) => ({
-        id: item.id,
-        value: skillScores[item.id] ?? 0,
-        label: t(`profile:edit.skills.${item.id}`),
-      })),
-    [skillScores, t],
-  );
-
-  const currentGradeOptions = useMemo(
-    () =>
-      locale === "vi"
-        ? [
-            { value: "grade10", label: "Lớp 10" },
-            { value: "grade11", label: "Lớp 11" },
-            { value: "grade12", label: "Lớp 12" },
-            { value: "gapYear", label: "Gap year" },
-          ]
-        : [
-            { value: "grade10", label: "Grade 10" },
-            { value: "grade11", label: "Grade 11" },
-            { value: "grade12", label: "Grade 12" },
-            { value: "gapYear", label: "Gap year" },
-          ],
-    [locale],
-  );
-
-  const studyModeOptions = useMemo(
-    () =>
-      locale === "vi"
-        ? [
-            { value: "fullTime", label: "Toàn thời gian" },
-            { value: "partTime", label: "Bán thời gian" },
-            { value: "online", label: "Trực tuyến" },
-            { value: "hybrid", label: "Kết hợp" },
-          ]
-        : [
-            { value: "fullTime", label: "Full-time" },
-            { value: "partTime", label: "Part-time" },
-            { value: "online", label: "Online" },
-            { value: "hybrid", label: "Hybrid" },
-          ],
-    [locale],
-  );
-
-  const instructionLanguageOptions = useMemo(
-    () =>
-      locale === "vi"
-        ? [
-            { value: "vietnamese", label: "Tiếng Việt" },
-            { value: "english", label: "Tiếng Anh" },
-            { value: "bilingual", label: "Song ngữ" },
-            { value: "japanese", label: "Tiếng Nhật" },
-          ]
-        : [
-            { value: "vietnamese", label: "Vietnamese" },
-            { value: "english", label: "English" },
-            { value: "bilingual", label: "Bilingual" },
-            { value: "japanese", label: "Japanese" },
-          ],
-    [locale],
-  );
-
   function updateField(key, value) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function toggleInterest(id) {
-    setSelectedInterests((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-  }
-
-  function updateSkillScore(id, value) {
-    setSkillScores((prev) => ({
-      ...prev,
-      [id]: Number(value),
-    }));
-  }
-
   function handleSave() {
-    if (!user) return;
+    if (!user || !isFormChanged) return;
 
     const nextPhoneError = validateVietnamesePhoneNumber(form.phone, t, {
       required: false,
@@ -277,6 +229,7 @@ function ProfilePage() {
         ? normalizeVietnamesePhoneNumber(form.phone)
         : "",
       dob: dob,
+      gender: form.gender || user?.gender || "Other",
       address: form.preferredLocation,
     };
 
@@ -285,11 +238,38 @@ function ProfilePage() {
         id: user.userId,
         data: updatePayload,
         onSuccess: () => {
-          setHoveredSkillId("");
-          setIsEditing(false);
+          setInitialForm({ ...form });
         },
       })
     );
+
+    // Save Academic Profile (UserProfiles API)
+    const academicPayload = {
+      userId: user.userId,
+      gpa: parseFloat(form.gpa) || 0,
+      strengthSubjects: form.strengthSubjects || "",
+      interests: form.interestsText || "",
+      personality: form.personalityText || "",
+      careerGoals: form.careerGoalsText || "",
+    };
+
+    if (academicProfileId) {
+      authAPI
+        .updateUserProfile(academicProfileId, academicPayload)
+        .then(() => setInitialForm({ ...form }))
+        .catch(console.error);
+    } else {
+      authAPI
+        .createUserProfile(academicPayload)
+        .then((res) => {
+          const newId = res.data?.data?.profileId || res.data?.profileId;
+          if (newId) {
+            setAcademicProfileId(newId);
+          }
+          setInitialForm({ ...form });
+        })
+        .catch(console.error);
+    }
   }
 
   const handleAvatarChange = (event) => {
@@ -317,7 +297,6 @@ function ProfilePage() {
         preferredLocation: user.address || "",
       }));
     }
-    setHoveredSkillId("");
     setPhoneError("");
     setIsEditing(false);
   }
@@ -327,7 +306,6 @@ function ProfilePage() {
   }
 
   function handleStartEdit() {
-    setHoveredSkillId("");
     setPhoneError("");
     setIsEditing(true);
   }
@@ -386,15 +364,6 @@ function ProfilePage() {
       <header className="border-b border-white/10 bg-[#1d3551]/95">
         <div className="mx-auto flex w-[min(1360px,96vw)] items-center justify-between gap-4 px-1 py-3">
           <div className="flex items-center gap-4">
-            <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 cursor-pointer"
-              onClick={() => navigate(-1)}
-              type="button"
-            >
-              <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <path d="M15 5 8 12l7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
-            </button>
             <Link to="/" className="cursor-pointer transition hover:opacity-90 flex items-center">
               <img alt="4S logo" className="h-18 w-18 object-contain" src={fourSLogo} />
             </Link>
@@ -405,364 +374,170 @@ function ProfilePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 p-1">
-              <img alt="" aria-hidden="true" className="lang-globe-icon ml-2 mr-1 h-4 w-4 opacity-70" src={globeIcon} />
+            <div className="relative inline-flex items-center bg-white/5 border border-white/10 rounded-full p-0.5 text-[10px] select-none shadow-inner">
               <button
-                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${locale === "en" ? "bg-white/15 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}
-                onClick={() => handleLanguageChange("en")}
-                type="button"
-              >
-                EN
-              </button>
-              <button
-                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${locale === "vi" ? "bg-white/15 text-slate-100" : "text-slate-400 hover:text-slate-200"}`}
                 onClick={() => handleLanguageChange("vi")}
                 type="button"
+                className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                  locale === "vi" 
+                    ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
               >
                 VI
               </button>
+              <button
+                onClick={() => handleLanguageChange("en")}
+                type="button"
+                className={`relative z-10 px-3 py-1.5 rounded-full font-bold transition-all duration-300 cursor-pointer ${
+                  locale === "en" 
+                    ? "text-[#0c1e36] bg-[#ecc741] shadow-sm" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                EN
+              </button>
             </div>
+            {/* 1. Nút Home */}
             <button
-              className="rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 px-4 py-2 text-sm font-semibold text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 cursor-pointer shadow-sm"
+              onClick={() => navigate("/")}
+              type="button"
+              title={locale === "vi" ? "Trang chủ" : "Home"}
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </button>
+            {/* 2. Nút Dashboard */}
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[#0ed8ab]/35 bg-[#0ed8ab]/15 text-[#0ed8ab] transition hover:bg-[#0ed8ab]/25 hover:scale-105 cursor-pointer shadow-sm"
               onClick={() => navigate("/dashboard")}
               type="button"
+              title={locale === "vi" ? "Bảng điều khiển sinh viên" : "Student Dashboard"}
             >
-              {t("profile:edit.openDashboard")}
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
             </button>
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <button
-                  className="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10"
-                  onClick={handleCancel}
-                  type="button"
-                >
-                  {t("profile:edit.cancel")}
-                </button>
-                <button
-                  className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] px-4 py-2 text-sm font-bold text-[#082339] transition hover:brightness-110"
-                  onClick={handleSave}
-                  type="button"
-                >
-                  {t("profile:edit.saveChanges")}
-                </button>
-              </div>
-            ) : (
-              <button
-                className="rounded-xl border border-[#ecc741]/45 bg-[#ecc741]/14 px-4 py-2 text-sm font-semibold text-[#f3d459] transition hover:bg-[#ecc741]/24"
-                onClick={handleStartEdit}
-                type="button"
-              >
-                {t("profile:edit.editProfile")}
-              </button>
-            )}
+            {/* 3. Nút Đổi chủ đề */}
+            <ThemeSettingsToggle />
           </div>
         </div>
       </header>
 
       <section className="mx-auto w-[min(1120px,94vw)] py-7">
         <div className="space-y-5">
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6 flex flex-col md:flex-row items-center gap-6">
-            <div className="relative group flex flex-col items-center gap-2">
-              <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-gradient-to-br from-[#ffe06e]/10 to-[#e2bb28]/10 flex items-center justify-center">
-                {avatarUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
-                    <div className="relative h-10 w-10 flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-[#0ed8ab] animate-spin"></div>
-                      <svg className="h-4 w-4 text-[#0ed8ab] animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-                {isProfileLoading ? (
-                  <Skeleton className="h-full w-full absolute inset-0" borderRadius="16px" />
-                ) : user?.avatarUrl && !avatarError ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt="User avatar"
-                    className="h-full w-full object-cover"
-                    onError={() => setAvatarError(true)}
-                  />
-                ) : (
-                  <span className="font-['Sora'] text-3xl font-bold text-[#f3d459]">
-                    {getInitials(user?.username)}
-                  </span>
-                )}
-                {!isProfileLoading && (
-                  <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      className="hidden"
-                      onChange={handleAvatarChange}
-                    />
-                  </label>
-                )}
-              </div>
-              <span className="text-[10px] text-slate-400">
-                {locale === "vi" ? "Click để đổi ảnh" : "Click to change"}
-              </span>
-            </div>
-
-            <div className="flex-1 w-full">
-              <h2 className="mb-4 font-['Sora'] text-xl font-semibold">{t("profile:edit.sections.personal")}</h2>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
-                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.email")} onChange={(value) => updateField("email", value)} type="email" value={form.email} />
-                {isProfileLoading ? (
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-300">{t("profile:edit.fields.phone")}</label>
-                    <Skeleton height="38px" borderRadius="12px" className="w-full" />
-                  </div>
-                ) : (
-                  <PhoneInput
-                    disabled={!isEditing}
-                    error={phoneError}
-                    id="profilePhoneNumber"
-                    label={t("profile:edit.fields.phone")}
-                    onBlur={() => setPhoneError(validateVietnamesePhoneNumber(form.phone, t, { required: false }))}
-                    onChange={(value) => {
-                      updateField("phone", value);
-                      if (phoneError) {
-                        setPhoneError(validateVietnamesePhoneNumber(value, t, { required: false }));
-                      }
-                    }}
-                    placeholder={t("signup:phoneNumberPlaceholder")}
-                    size="sm"
-                    value={form.phone}
-                  />
-                )}
-                <FieldInput isLoading={isProfileLoading} disabled={!isEditing} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
-              </div>
-            </div>
-          </article>
-
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left focus:outline-none"
-              onClick={() => setShowAcademic(!showAcademic)}
-            >
-              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
-                <svg className="h-5 w-5 text-[#8b99ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
-                </svg>
-                {t("profile:edit.sections.academic")}
-              </h2>
-              <svg
-                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
-                  showAcademic ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showAcademic && (
-              <div className="grid gap-4 md:grid-cols-2 mt-5 border-t border-white/10 pt-5">
-                <FieldSelect
-                  disabled={!isEditing}
-                  label={t("profile:edit.fields.currentGrade")}
-                  onChange={(value) => updateField("currentGrade", value)}
-                  options={currentGradeOptions}
-                  value={form.currentGrade}
-                />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.gpa")} onChange={(value) => updateField("gpa", value)} value={form.gpa} />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.mathScore")} onChange={(value) => updateField("mathScore", value)} value={form.mathScore} />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.englishScore")} onChange={(value) => updateField("englishScore", value)} value={form.englishScore} />
-                <div className="md:col-span-1">
-                  <FieldInput disabled={!isEditing} label={t("profile:edit.fields.scienceScore")} onChange={(value) => updateField("scienceScore", value)} value={form.scienceScore} />
-                </div>
-              </div>
-            )}
-          </article>
-
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left focus:outline-none"
-              onClick={() => setShowSkills(!showSkills)}
-            >
-              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
-                <svg className="h-5 w-5 text-[#0ed8ab]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                {t("profile:edit.sections.skills")}
-              </h2>
-              <svg
-                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
-                  showSkills ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showSkills && (
-              <div className="space-y-4 mt-5 border-t border-white/10 pt-5">
-                {skillRows.map((item) => (
-                  <div key={item.id}>
-                    <div className="mb-1 flex items-center justify-between text-sm">
-                      <span>{item.label}</span>
-                      <span className="font-semibold text-[#0ed8ab]">{item.value}/100</span>
-                    </div>
-                    {isEditing ? (
-                      <input
-                        className={`mt-2 h-2 w-full cursor-pointer appearance-none rounded-full 
-                        [&::-webkit-slider-runnable-track]:h-2
-                        [&::-webkit-slider-runnable-track]:rounded-full
-                        [&::-webkit-slider-runnable-track]:bg-transparent
-                        [&::-webkit-slider-thumb]:appearance-none
-                        [&::-webkit-slider-thumb]:transition-all
-                        [&::-webkit-slider-thumb]:duration-150
-                        [&::-moz-range-track]:h-2
-                        [&::-moz-range-track]:rounded-full
-                        [&::-moz-range-track]:bg-transparent
-                        [&::-moz-range-thumb]:transition-all
-                        [&::-moz-range-thumb]:duration-150
-                        ${
-                          hoveredSkillId === item.id
-                            ? "[&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#15d4b0] [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#0f9e87] [&::-webkit-slider-thumb]:shadow-[0_0_0_2px_rgba(21,212,176,0.18)] [&::-webkit-slider-thumb]:opacity-100 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#15d4b0] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-100"
-                            : "[&::-webkit-slider-thumb]:h-0 [&::-webkit-slider-thumb]:w-0 [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent [&::-webkit-slider-thumb]:shadow-none [&::-webkit-slider-thumb]:opacity-0 [&::-moz-range-thumb]:h-0 [&::-moz-range-thumb]:w-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-thumb]:opacity-0"
-                        }`}
-                        onMouseEnter={() => setHoveredSkillId(item.id)}
-                        onMouseLeave={() => setHoveredSkillId("")}
-                        onFocus={() => setHoveredSkillId(item.id)}
-                        onBlur={() => setHoveredSkillId("")}
-                        max={100}
-                        min={0}
-                        onChange={(event) => updateSkillScore(item.id, event.target.value)}
-                        step={1}
-                        style={{
-                          background: `linear-gradient(to right, #15d4b0 0%, #15d4b0 ${item.value}%, rgba(255,255,255,0.12) ${item.value}%, rgba(255,255,255,0.12) 100%)`,
-                        }}
-                        type="range"
-                        value={item.value}
-                      />
-                    ) : (
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/12">
-                        <span
-                          className="block h-full rounded-full bg-[#15d4b0]"
-                          style={{ width: `${item.value}%` }}
-                        />
+          {/* Unified Personal & Academic Info Card */}
+          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6 space-y-6">
+            {/* Personal Info Header & Avatar */}
+            <div className="flex flex-col md:flex-row items-start gap-6">
+              <div className="relative group flex flex-col items-center gap-2 self-center md:self-start">
+                <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-gradient-to-br from-[#ffe06e]/10 to-[#e2bb28]/10 flex items-center justify-center">
+                  {avatarUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+                      <div className="relative h-10 w-10 flex items-center justify-center">
+                        <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-[#0ed8ab] animate-spin"></div>
+                        <svg className="h-4 w-4 text-[#0ed8ab] animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  )}
+                  {isProfileLoading ? (
+                    <Skeleton className="h-full w-full absolute inset-0" borderRadius="16px" />
+                  ) : user?.avatarUrl && !avatarError ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt="User avatar"
+                      className="h-full w-full object-cover"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <span className="font-['Sora'] text-3xl font-bold text-[#f3d459]">
+                      {getInitials(user?.username)}
+                    </span>
+                  )}
+                  {!isProfileLoading && (
+                    <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100">
+                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                    </label>
+                  )}
+                </div>
+                <span className="text-[10px] text-slate-400">
+                  {locale === "vi" ? "Click để đổi ảnh" : "Click to change"}
+                </span>
               </div>
-            )}
-          </article>
 
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left focus:outline-none"
-              onClick={() => setShowInterests(!showInterests)}
-            >
-              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
-                <svg className="h-5 w-5 text-[#ffe16d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                {t("profile:edit.sections.interests")}
-              </h2>
-              <svg
-                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
-                  showInterests ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showInterests && (
-              <div className="mt-5 border-t border-white/10 pt-5">
-                <p className="text-sm text-slate-300">{t("profile:edit.interestHint")}</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {INTEREST_KEYS.map((id) => {
-                    const active = selectedInterests.includes(id);
-                    return (
-                      <button
-                        disabled={!isEditing}
-                        key={id}
-                        className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                          active
-                            ? "border-[#0ed8ab]/45 bg-[#0ed8ab]/16 text-[#0ed8ab]"
-                            : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-                        } ${!isEditing ? "cursor-not-allowed opacity-70" : ""}`}
-                        onClick={() => toggleInterest(id)}
-                        type="button"
-                      >
-                        {t(`profile:edit.interests.${id}`)}
-                      </button>
-                    );
-                  })}
+              <div className="flex-1 w-full">
+                <h2 className="mb-4 font-['Sora'] text-xl font-semibold text-[#f3d459] flex items-center gap-2">
+                  <span>👤</span> {t("profile:edit.sections.personal")}
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FieldInput isLoading={isProfileLoading} label={t("profile:edit.fields.fullName")} onChange={(value) => updateField("fullName", value)} value={form.fullName} />
+                  <FieldInput isLoading={isProfileLoading} disabled={true} label={t("profile:edit.fields.email")} type="email" value={form.email} />
+                  {isProfileLoading ? (
+                    <div>
+                      <label className="mb-2 block text-sm text-slate-300">{t("profile:edit.fields.phone")}</label>
+                      <Skeleton height="38px" borderRadius="12px" className="w-full" />
+                    </div>
+                  ) : (
+                    <PhoneInput
+                      error={phoneError}
+                      id="profilePhoneNumber"
+                      label={t("profile:edit.fields.phone")}
+                      onBlur={() => setPhoneError(validateVietnamesePhoneNumber(form.phone, t, { required: false }))}
+                      onChange={(value) => {
+                        updateField("phone", value);
+                        if (phoneError) {
+                          setPhoneError(validateVietnamesePhoneNumber(value, t, { required: false }));
+                        }
+                      }}
+                      placeholder={t("signup:phoneNumberPlaceholder")}
+                      size="sm"
+                      value={form.phone}
+                    />
+                  )}
+                  <FieldSelect
+                    label={locale === "vi" ? "Giới tính" : "Gender"}
+                    onChange={(value) => updateField("gender", value)}
+                    options={genderOptions}
+                    value={form.gender}
+                  />
+                  <FieldInput isLoading={isProfileLoading} label={t("profile:edit.fields.birthYear")} onChange={(value) => updateField("birthYear", value)} value={form.birthYear} />
+                  <FieldInput isLoading={isProfileLoading} label={t("profile:edit.fields.preferredLocation")} onChange={(value) => updateField("preferredLocation", value)} value={form.preferredLocation} />
+                  <FieldInput label={t("profile:edit.fields.gpa")} onChange={(value) => updateField("gpa", value)} value={form.gpa} />
+                  <FieldInput label={locale === "vi" ? "Môn học thế mạnh" : "Strength Subjects"} onChange={(value) => updateField("strengthSubjects", value)} placeholder={locale === "vi" ? "Ví dụ: Toán, Lý, Tiếng Anh" : "e.g., Math, Physics, English"} value={form.strengthSubjects} />
+                  <FieldInput label={locale === "vi" ? "Sở thích & Đam mê" : "Interests"} onChange={(value) => updateField("interestsText", value)} placeholder={locale === "vi" ? "Ví dụ: Lập trình, Vẽ tranh, Đọc sách" : "e.g., Coding, Painting, Reading"} value={form.interestsText} />
+                  <FieldInput label={locale === "vi" ? "Tính cách & Đặc điểm" : "Personality Traits"} onChange={(value) => updateField("personalityText", value)} placeholder={locale === "vi" ? "Ví dụ: Hướng ngoại, Cẩn thận, Thích sáng tạo" : "e.g., Extroverted, Creative, Detail-oriented"} value={form.personalityText} />
+                  <div className="md:col-span-2">
+                    <FieldInput label={locale === "vi" ? "Mục tiêu nghề nghiệp" : "Career Goals"} onChange={(value) => updateField("careerGoalsText", value)} placeholder={locale === "vi" ? "Ví dụ: Trở thành Lập trình viên AI" : "e.g., AI Engineer"} value={form.careerGoalsText} />
+                  </div>
                 </div>
               </div>
-            )}
-          </article>
+            </div>
 
-          <article className="rounded-2xl border border-white/10 bg-[#203a59]/88 p-5 md:p-6">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left focus:outline-none"
-              onClick={() => setShowPreferences(!showPreferences)}
-            >
-              <h2 className="font-['Sora'] text-xl font-semibold text-[#eaf2ff] flex items-center gap-2">
-                <svg className="h-5 w-5 text-[#7f8cff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                {t("profile:edit.sections.preferences")}
-              </h2>
-              <svg
-                className={`h-6 w-6 text-slate-400 transition-transform duration-200 ${
-                  showPreferences ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {/* Single Save Button right below all fields */}
+            <div className="border-t border-white/10 pt-5 flex items-center justify-end">
+              <button
+                className="rounded-xl bg-gradient-to-r from-[#19d2ad] to-[#0fbc98] hover:from-[#1fe2bb] hover:to-[#12ceaa] px-7 py-3 text-sm font-bold text-[#082339] shadow-lg transition-all duration-200 active:scale-95 cursor-pointer flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:brightness-90"
+                onClick={handleSave}
+                type="button"
+                disabled={loading || !isFormChanged}
+                title={!isFormChanged ? (locale === "vi" ? "Chưa có thay đổi để lưu" : "No changes to save") : ""}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showPreferences && (
-              <div className="grid gap-4 md:grid-cols-2 mt-5 border-t border-white/10 pt-5">
-                <FieldInput
-                  disabled={!isEditing}
-                  label={t("profile:edit.fields.preferredLocation")}
-                  onChange={(value) => updateField("preferredLocation", value)}
-                  value={form.preferredLocation}
-                />
-                <FieldInput disabled={!isEditing} label={t("profile:edit.fields.maxTuition")} onChange={(value) => updateField("maxTuition", value)} value={form.maxTuition} />
-                <FieldSelect
-                  disabled={!isEditing}
-                  label={t("profile:edit.fields.studyMode")}
-                  onChange={(value) => updateField("studyMode", value)}
-                  options={studyModeOptions}
-                  value={form.studyMode}
-                />
-                <FieldSelect
-                  disabled={!isEditing}
-                  label={t("profile:edit.fields.language")}
-                  onChange={(value) => updateField("language", value)}
-                  options={instructionLanguageOptions}
-                  value={form.language}
-                />
-              </div>
-            )}
+                <span>💾</span> {loading ? (locale === "vi" ? "Đang lưu..." : "Saving...") : (locale === "vi" ? "Lưu thay đổi" : "Save Changes")}
+              </button>
+            </div>
           </article>
 
           {/* Kích hoạt gói học đường B2B */}

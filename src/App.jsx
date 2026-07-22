@@ -313,7 +313,7 @@ function App() {
         pauseOnFocusLoss
         pauseOnHover
         position="top-right"
-        theme="dark"
+        theme={themeMode === "light" ? "light" : "dark"}
       />
     </>
   );
