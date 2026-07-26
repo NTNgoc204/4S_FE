@@ -256,6 +256,9 @@ export default function FeedbackFloatingButton() {
               ) : (
                 questions.map((q, idx) => {
                   const currentValue = answers[q.id] || "";
+                  const questionText = q.questionText || q.QuestionText || "";
+                  const questionType = q.questionType || q.QuestionType || "Text";
+                  const options = q.options || q.Options || "";
 
                   return (
                     <div key={q.id} className={`space-y-2 border-b pb-4 last:border-b-0 ${
@@ -264,11 +267,11 @@ export default function FeedbackFloatingButton() {
                       <label className={`block text-sm font-bold ${
                         isDark ? "text-slate-200" : "text-slate-700"
                       }`}>
-                        {idx + 1}. {q.QuestionText}
+                        {idx + 1}. {questionText}
                       </label>
 
                       {/* 1. Rating Question Type */}
-                      {q.QuestionType === "Rating" && (
+                      {questionType === "Rating" && (
                         <div className="flex items-center gap-1.5 pt-1.5">
                           {[1, 2, 3, 4, 5].map((val) => {
                             const isFilled =
@@ -301,7 +304,7 @@ export default function FeedbackFloatingButton() {
                       )}
 
                       {/* 2. YesNo Question Type */}
-                      {q.QuestionType === "YesNo" && (
+                      {questionType === "YesNo" && (
                         <div className="grid grid-cols-2 gap-3 pt-1">
                           {[
                             { label: isVi ? "Có" : "Yes", value: "Yes" },
@@ -329,9 +332,9 @@ export default function FeedbackFloatingButton() {
                       )}
 
                       {/* 3. Multiple Choice Question Type */}
-                      {q.QuestionType === "MultipleChoice" && (
+                      {questionType === "MultipleChoice" && (
                         <div className="space-y-2 pt-1">
-                          {(q.Options || "")
+                          {(options || "")
                             .split(",")
                             .map((opt) => opt.trim())
                             .filter(Boolean)
@@ -369,7 +372,7 @@ export default function FeedbackFloatingButton() {
                       )}
 
                       {/* 4. Text Question Type */}
-                      {q.QuestionType === "Text" && (
+                      {questionType === "Text" && (
                         <textarea
                           rows={2.5}
                           value={currentValue}
