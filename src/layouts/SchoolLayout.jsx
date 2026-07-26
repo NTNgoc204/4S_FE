@@ -57,7 +57,7 @@ function SchoolLayout({ onLogout = () => {} }) {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="mx-auto flex w-full max-w-[1500px]">
         {/* Sidebar – Desktop */}
-        <aside className="hidden min-h-screen w-[290px] shrink-0 border-r border-slate-200/80 bg-white px-5 py-6 lg:flex lg:flex-col shadow-sm">
+        <aside className="hidden sticky top-0 h-screen w-[290px] shrink-0 border-r border-slate-200/80 bg-white px-5 py-6 lg:flex lg:flex-col shadow-sm overflow-y-auto">
           <button
             className="flex items-center gap-3 px-1 py-1 text-left transition hover:opacity-90 focus:outline-none"
             onClick={() => navigate("/school/dashboard")}
