@@ -48,6 +48,7 @@ import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
 import UniversityManagerLayout from "./layouts/UniversityManagerLayout";
 import UniversityManagementPage from "./pages/UniversityManager/UniversityManagementPage";
+import FeedbackFloatingButton from "./components/FeedbackFloatingButton";
 
 function App() {
   const { t } = useTranslation();
@@ -337,6 +338,7 @@ function App() {
         position="top-right"
         theme={themeMode === "light" ? "light" : "dark"}
       />
+      <FeedbackFloatingButton />
     </>
   );
 }
