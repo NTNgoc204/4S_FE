@@ -27,6 +27,7 @@ import AdminRolesPage from "./pages/Admin/Roles/AdminRolesPage";
 import AdminFinancePage from "./pages/Admin/Finance/AdminFinancePage";
 import AdminQuestionsPage from "./pages/Admin/Questions/AdminQuestionsPage";
 import AdminProfilePage from "./pages/Admin/Profile/AdminProfilePage";
+import AdminFeedbackPage from "./pages/Admin/Feedback/AdminFeedbackPage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
@@ -48,6 +49,7 @@ import PaymentQRPage from "./pages/Payment/PaymentQRPage";
 import SchoolPaymentPortalPage from "./pages/Payment/SchoolPaymentPortalPage";
 import UniversityManagerLayout from "./layouts/UniversityManagerLayout";
 import UniversityManagementPage from "./pages/UniversityManager/UniversityManagementPage";
+import FeedbackFloatingButton from "./components/FeedbackFloatingButton";
 
 function App() {
   const { t } = useTranslation();
@@ -248,6 +250,7 @@ function App() {
           <Route path="/admin/roles" element={<AdminRolesPage />} />
           <Route path="/admin/finance" element={<AdminFinancePage />} />
           <Route path="/admin/profile" element={<AdminProfilePage />} />
+          <Route path="/admin/feedbacks" element={<AdminFeedbackPage />} />
         </Route>
 
         {/* Accountant Layout - cho accountant */}
@@ -337,6 +340,7 @@ function App() {
         position="top-right"
         theme={themeMode === "light" ? "light" : "dark"}
       />
+      <FeedbackFloatingButton />
     </>
   );
 }
