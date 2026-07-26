@@ -11,6 +11,8 @@ export default function FeedbackFloatingButton() {
   const location = useLocation();
 
   const { isLoggedIn, user } = useSelector((state) => state.auth);
+  const { themeMode } = useSelector((state) => state.theme || { themeMode: "dark" });
+  const isDark = themeMode === "dark";
 
   const [isOpen, setIsOpen] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -184,21 +186,35 @@ export default function FeedbackFloatingButton() {
 
       {/* Survey Modal Overlay */}
       {isOpen && (
-        <div className="animate-modal-bg fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-md">
+        <div className="animate-modal-bg fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-slate-950/70">
           {/* Modal Container */}
-          <div className="animate-modal-card relative w-full max-w-xl rounded-3xl border border-white/10 bg-slate-900/95 p-6 md:p-8 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className={`animate-modal-card relative w-full max-w-xl rounded-3xl border p-6 md:p-8 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] ${
+            isDark
+              ? "border-white/10 bg-slate-900/95 text-slate-100"
+              : "border-slate-200 bg-white text-slate-800"
+          }`}>
             
             {/* Ambient Background Glows */}
-            <div className="absolute -top-12 -left-12 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+            {isDark && (
+              <>
+                <div className="absolute -top-12 -left-12 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+              </>
+            )}
 
             {/* Header */}
-            <div className="relative z-10 flex items-center justify-between border-b border-white/5 pb-4">
+            <div className={`relative z-10 flex items-center justify-between border-b pb-4 ${
+              isDark ? "border-white/5" : "border-slate-100"
+            }`}>
               <div>
-                <h3 className="font-['Sora'] text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                <h3 className={`font-['Sora'] text-lg font-bold tracking-tight flex items-center gap-2 ${
+                  isDark ? "text-white" : "text-slate-800"
+                }`}>
                   <span>✉️</span> {isVi ? "Khảo sát ý kiến người dùng" : "User Satisfaction Survey"}
                 </h3>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className={`mt-1 text-xs ${
+                  isDark ? "text-slate-400" : "text-slate-500"
+                }`}>
                   {isVi
                     ? "Ý kiến của bạn giúp chúng tôi cải thiện chất lượng dịch vụ hướng nghiệp tốt hơn."
                     : "Your inputs directly help us refine and improve our career advisor services."}
@@ -207,7 +223,11 @@ export default function FeedbackFloatingButton() {
               <button
                 onClick={() => setIsOpen(false)}
                 type="button"
-                className="rounded-xl p-1.5 hover:bg-white/5 text-slate-400 hover:text-white transition cursor-pointer focus:outline-none"
+                className={`rounded-xl p-1.5 transition cursor-pointer focus:outline-none ${
+                  isDark
+                    ? "hover:bg-white/5 text-slate-400 hover:text-white"
+                    : "hover:bg-slate-100 text-slate-400 hover:text-slate-650"
+                }`}
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -220,13 +240,15 @@ export default function FeedbackFloatingButton() {
               
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
-                  <div className="h-9 w-9 animate-spin rounded-full border-4 border-slate-700 border-t-indigo-500" />
-                  <span className="text-xs text-slate-400 font-medium">
+                  <div className={`h-9 w-9 animate-spin rounded-full border-4 ${
+                    isDark ? "border-slate-700 border-t-indigo-500" : "border-slate-200 border-t-indigo-600"
+                  }`} />
+                  <span className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-555"}`}>
                     {isVi ? "Đang tải bộ câu hỏi khảo sát..." : "Loading survey questions..."}
                   </span>
                 </div>
               ) : questions.length === 0 ? (
-                <p className="text-center py-12 text-sm text-slate-400 italic">
+                <p className={`text-center py-12 text-sm italic ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                   {isVi
                     ? "Hiện tại không có khảo sát nào đang hoạt động."
                     : "There are no active survey questions at the moment."}
@@ -236,8 +258,12 @@ export default function FeedbackFloatingButton() {
                   const currentValue = answers[q.id] || "";
 
                   return (
-                    <div key={q.id} className="space-y-2 border-b border-white/5 pb-4 last:border-b-0">
-                      <label className="block text-sm font-bold text-slate-200">
+                    <div key={q.id} className={`space-y-2 border-b pb-4 last:border-b-0 ${
+                      isDark ? "border-white/5" : "border-slate-100"
+                    }`}>
+                      <label className={`block text-sm font-bold ${
+                        isDark ? "text-slate-200" : "text-slate-700"
+                      }`}>
                         {idx + 1}. {q.QuestionText}
                       </label>
 
@@ -259,7 +285,7 @@ export default function FeedbackFloatingButton() {
                                   setHoveredRating((prev) => ({ ...prev, [q.id]: 0 }))
                                 }
                                 className={`text-2xl transition-all duration-200 focus:outline-none hover:scale-125 cursor-pointer ${
-                                  isFilled ? "text-amber-400" : "text-slate-650"
+                                  isFilled ? "text-amber-400" : (isDark ? "text-slate-650" : "text-slate-300")
                                 }`}
                               >
                                 {isFilled ? "★" : "☆"}
@@ -267,7 +293,7 @@ export default function FeedbackFloatingButton() {
                             );
                           })}
                           {currentValue && (
-                            <span className="text-xs font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md ml-3">
+                            <span className="text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md ml-3">
                               {currentValue} / 5
                             </span>
                           )}
@@ -287,10 +313,12 @@ export default function FeedbackFloatingButton() {
                                 key={opt.value}
                                 type="button"
                                 onClick={() => handleSelectAnswer(q.id, opt.value)}
-                                className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-300 focus:outline-none cursor-pointer hover:bg-white/5 ${
+                                className={`rounded-xl border py-2.5 text-xs font-bold transition-all duration-300 focus:outline-none cursor-pointer ${
                                   isSelected
                                     ? "border-indigo-500 bg-indigo-500/15 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                                    : "border-white/10 bg-white/3 text-slate-400"
+                                    : (isDark
+                                        ? "border-white/10 bg-white/3 text-slate-400 hover:bg-white/5"
+                                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100")
                                 }`}
                               >
                                 {opt.label}
@@ -314,10 +342,12 @@ export default function FeedbackFloatingButton() {
                                   key={optVal}
                                   type="button"
                                   onClick={() => handleSelectAnswer(q.id, optVal)}
-                                  className={`w-full text-left rounded-xl border px-4 py-2.5 text-xs font-semibold transition-all duration-300 focus:outline-none cursor-pointer flex items-center justify-between hover:bg-white/5 ${
+                                  className={`w-full text-left rounded-xl border px-4 py-2.5 text-xs font-semibold transition-all duration-300 focus:outline-none cursor-pointer flex items-center justify-between ${
                                     isSelected
                                       ? "border-indigo-500 bg-indigo-500/10 text-indigo-400 shadow-3xs"
-                                      : "border-white/10 bg-white/3 text-slate-350"
+                                      : (isDark
+                                          ? "border-white/10 bg-white/3 text-slate-355 hover:bg-white/5"
+                                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100")
                                   }`}
                                 >
                                   <span>{optVal}</span>
@@ -325,7 +355,7 @@ export default function FeedbackFloatingButton() {
                                     className={`h-4.5 w-4.5 rounded-full border flex items-center justify-center transition-all ${
                                       isSelected
                                         ? "border-indigo-500 bg-indigo-500"
-                                        : "border-white/20"
+                                        : (isDark ? "border-white/20" : "border-slate-300")
                                     }`}
                                   >
                                     {isSelected && (
@@ -349,7 +379,11 @@ export default function FeedbackFloatingButton() {
                               ? "Nhập câu trả lời hoặc góp ý của bạn tại đây..."
                               : "Enter your answer or thoughts here..."
                           }
-                          className="w-full rounded-xl border border-white/10 bg-white/3 px-4 py-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all resize-none leading-relaxed"
+                          className={`w-full rounded-xl border px-4 py-2.5 text-xs focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none transition-all resize-none leading-relaxed ${
+                            isDark
+                              ? "border-white/10 bg-white/3 text-slate-200 placeholder:text-slate-550"
+                              : "border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-white"
+                          }`}
                         />
                       )}
                     </div>
@@ -360,12 +394,18 @@ export default function FeedbackFloatingButton() {
 
             {/* Footer Actions */}
             {!loading && questions.length > 0 && (
-              <div className="relative z-10 border-t border-white/5 pt-4 flex justify-end gap-3.5">
+              <div className={`relative z-10 border-t pt-4 flex justify-end gap-3.5 ${
+                isDark ? "border-white/5" : "border-slate-100"
+              }`}>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   disabled={submitting}
-                  className="rounded-xl border border-white/10 bg-white/3 hover:bg-white/8 px-5 py-2.5 text-xs font-bold text-slate-350 transition active:scale-97 cursor-pointer focus:outline-none"
+                  className={`rounded-xl border px-5 py-2.5 text-xs font-bold transition active:scale-97 cursor-pointer focus:outline-none ${
+                    isDark
+                      ? "border-white/10 bg-white/3 hover:bg-white/8 text-slate-350"
+                      : "border-slate-250 bg-white hover:bg-slate-50 text-slate-600 shadow-3xs"
+                  }`}
                 >
                   {isVi ? "Đóng" : "Close"}
                 </button>
