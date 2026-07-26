@@ -74,7 +74,7 @@ export default function ContactLayout({ onLogout = () => {} }) {
       <div className="mx-auto flex w-full max-w-[1600px]">
         {/* Sidebar – Desktop with smooth transition toggle */}
         <aside
-          className={`hidden min-h-screen shrink-0 border-slate-200 bg-white py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)] transition-all duration-300 ${
+          className={`hidden sticky top-0 h-screen shrink-0 border-slate-200 bg-white py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)] transition-all duration-300 overflow-y-auto ${
             isSidebarCollapsed
               ? "w-0 border-r-0 px-0 overflow-hidden opacity-0"
               : "w-[280px] border-r px-5 opacity-100"

@@ -87,7 +87,7 @@ function AdminLayout({ onLogout = () => {} }) {
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans selection:bg-indigo-500/20 selection:text-indigo-900">
       <div className="mx-auto flex w-full max-w-[1600px]">
         {/* Sidebar */}
-        <aside className="hidden min-h-screen w-[280px] shrink-0 border-r border-slate-200 bg-white px-5 py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)]">
+        <aside className="hidden sticky top-0 h-screen w-[280px] shrink-0 border-r border-slate-200 bg-white px-5 py-6 lg:flex lg:flex-col shadow-[1px_0_10px_rgba(0,0,0,0.01)] overflow-y-auto">
           <button
             className="flex items-center gap-3 px-2 py-1 text-left transition hover:opacity-90 active:scale-98"
             onClick={() => navigate("/admin/dashboard")}
