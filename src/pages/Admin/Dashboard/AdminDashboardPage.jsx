@@ -18,6 +18,7 @@ function AdminDashboardPage() {
     monthlyRevenue: 0,
     totalWebVisits: 0,
     totalUserVisits: 0,
+    dailyStats: [],
     planBreakdown: [],
     monthlyGrowth: [],
     roleComposition: { newUser: 0, proUser: 0, schoolUser: 0, staffUser: 0 },
@@ -38,11 +39,11 @@ function AdminDashboardPage() {
           }),
           adminAPI.getDailyWebVisits().catch((err) => {
             console.warn("Failed to fetch daily web visits:", err);
-            return { data: [] };
+            return { data: { data: [] } };
           }),
           adminAPI.getDailyUserVisits().catch((err) => {
             console.warn("Failed to fetch daily user visits:", err);
-            return { data: [] };
+            return { data: { data: [] } };
           }),
         ]);
 
@@ -56,11 +57,43 @@ function AdminDashboardPage() {
           return p.includes("pro") || p.includes("premium");
         }).length;
 
-        const webVisitsList = webVisitsRes.data || [];
-        const userVisitsList = userVisitsRes.data || [];
+        const webVisitsList = Array.isArray(webVisitsRes?.data?.data)
+          ? webVisitsRes.data.data
+          : (Array.isArray(webVisitsRes?.data) ? webVisitsRes.data : []);
+
+        const userVisitsList = Array.isArray(userVisitsRes?.data?.data)
+          ? userVisitsRes.data.data
+          : (Array.isArray(userVisitsRes?.data) ? userVisitsRes.data : []);
 
         const totalWebVisits = webVisitsList.reduce((sum, item) => sum + (item.visitCount || 0), 0);
         const totalUserVisits = userVisitsList.reduce((sum, item) => sum + (item.userCount || 0), 0);
+
+        // Generate last 30 days list
+        const dailyStats = [];
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split("T")[0]; // YYYY-MM-DD
+          
+          const webMatch = webVisitsList.find(item => {
+            const itemDate = (item.date || "").split("T")[0];
+            return itemDate === dateStr;
+          });
+          
+          const userMatch = userVisitsList.find(item => {
+            const itemDate = (item.date || "").split("T")[0];
+            return itemDate === dateStr;
+          });
+          
+          const label = `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
+          
+          dailyStats.push({
+            dateStr,
+            label,
+            visits: webMatch ? (webMatch.visitCount || 0) : 0,
+            users: userMatch ? (userMatch.userCount || 0) : 0,
+          });
+        }
 
         // Group by roles
         let newUser = 0;
@@ -123,6 +156,7 @@ function AdminDashboardPage() {
           monthlyRevenue: summaryRes.data?.grossRevenue || 0,
           totalWebVisits,
           totalUserVisits,
+          dailyStats,
           planBreakdown: breakdown,
           monthlyGrowth: growthCounts,
           roleComposition: { newUser, proUser, schoolUser, staffUser },
@@ -186,32 +220,12 @@ function AdminDashboardPage() {
         </svg>
       ),
     },
-    {
-      id: "totalWebVisits",
-      label: "Web Visits",
-      value: data.totalWebVisits.toLocaleString("vi-VN"),
-      icon: (
-        <svg className="h-5 w-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-        </svg>
-      ),
-    },
-    {
-      id: "totalUserVisits",
-      label: "Account Visits",
-      value: data.totalUserVisits.toLocaleString("vi-VN"),
-      icon: (
-        <svg className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
   ];
 
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* KPI Section */}
-      <section className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((item) => (
           <article
             key={item.id}
@@ -229,6 +243,9 @@ function AdminDashboardPage() {
           </article>
         ))}
       </section>
+
+      {/* Web Traffic Spline Chart (Last 30 Days) */}
+      <WebStatsSplineChart data={data.dailyStats} />
 
       {/* Dynamic User Growth splined Area Chart */}
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
@@ -415,16 +432,242 @@ function UserCompositionBar({ composition = {} }) {
         </div>
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-amber-500" />
-          <span className="text-slate-600 font-medium">Tài khoản Pro ({proUser} - {pctPro}%)</span>
+          <span className="text-slate-650 font-medium">Tài khoản Pro ({proUser} - {pctPro}%)</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-indigo-500" />
-          <span className="text-slate-600 font-medium">Học sinh trường học ({schoolUser} - {pctSchool}%)</span>
+          <span className="text-slate-650 font-medium">Học sinh trường học ({schoolUser} - {pctSchool}%)</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-slate-400" />
-          <span className="text-slate-600 font-medium">Ban quản trị ({staffUser} - {pctStaff}%)</span>
+          <span className="text-slate-650 font-medium">Ban quản trị ({staffUser} - {pctStaff}%)</span>
         </div>
+      </div>
+    </article>
+  );
+}
+
+// ── Sub-component: WebStatsSplineChart ──────────────────────────────────────
+function WebStatsSplineChart({ data }) {
+  if (!data || data.length === 0) return null;
+  
+  const maxVal = Math.max(...data.map(d => Math.max(d.visits, d.users)), 5);
+  
+  const width = 800;
+  const height = 280;
+  const paddingX = 50;
+  const paddingY = 40;
+
+  const visitPoints = data.map((d, index) => {
+    const x = paddingX + (index * (width - paddingX * 2)) / (data.length - 1);
+    const y = height - paddingY - (d.visits * (height - paddingY * 2)) / maxVal;
+    return { x, y, label: d.label, value: d.visits };
+  });
+
+  const userPoints = data.map((d, index) => {
+    const x = paddingX + (index * (width - paddingX * 2)) / (data.length - 1);
+    const y = height - paddingY - (d.users * (height - paddingY * 2)) / maxVal;
+    return { x, y, label: d.label, value: d.users };
+  });
+
+  function generatePathD(pts) {
+    return pts.reduce((acc, p, i) => {
+      if (i === 0) return `M ${p.x} ${p.y}`;
+      const prev = pts[i - 1];
+      const cpX1 = prev.x + (p.x - prev.x) / 2;
+      const cpY1 = prev.y;
+      const cpX2 = prev.x + (p.x - prev.x) / 2;
+      const cpY2 = p.y;
+      return `${acc} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p.x} ${p.y}`;
+    }, "");
+  }
+
+  const visitPathD = generatePathD(visitPoints);
+  const userPathD = generatePathD(userPoints);
+
+  const visitFillD = visitPoints.length > 0 
+    ? `${visitPathD} L ${visitPoints[visitPoints.length - 1].x} ${height - paddingY} L ${visitPoints[0].x} ${height - paddingY} Z`
+    : "";
+
+  const userFillD = userPoints.length > 0 
+    ? `${userPathD} L ${userPoints[userPoints.length - 1].x} ${height - paddingY} L ${userPoints[0].x} ${height - paddingY} Z`
+    : "";
+
+  const labelInterval = 3;
+
+  return (
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs text-slate-850 flex flex-col justify-between">
+      <style>{`
+        @keyframes drawLine {
+          from {
+            stroke-dashoffset: 1000;
+          }
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+        @keyframes fadeInArea {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes popCircle {
+          from {
+            transform: scale(0);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        .path-visit {
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: drawLine 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .path-user {
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: drawLine 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+        }
+        .fill-area {
+          opacity: 0;
+          animation: fadeInArea 1s ease-out 1.2s forwards;
+        }
+        .circle-point {
+          transform-origin: center;
+          opacity: 0;
+          animation: popCircle 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+      `}</style>
+
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 className="font-['Sora'] text-base font-bold text-slate-800">Lượt truy cập 30 ngày gần đây</h3>
+          <p className="mt-1 text-xs text-slate-400">Biểu đồ so sánh tổng lượt truy cập chung và lượt truy cập từ tài khoản đã đăng nhập</p>
+        </div>
+        
+        <div className="flex items-center gap-4 text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-sky-400" />
+            <span className="text-slate-650">Lượt truy cập Web</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-indigo-500" />
+            <span className="text-slate-650">Tài khoản truy cập</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-6 w-full overflow-hidden">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full overflow-visible">
+          <defs>
+            <linearGradient id="visitGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+            </linearGradient>
+            <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          {/* Grid lines */}
+          {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
+            const y = paddingY + ratio * (height - paddingY * 2);
+            return (
+              <line
+                key={index}
+                x1={paddingX}
+                y1={y}
+                x2={width - paddingX}
+                y2={y}
+                stroke="#f8fafc"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+              />
+            );
+          })}
+
+          {/* Fills */}
+          {visitFillD && <path d={visitFillD} className="fill-area" fill="url(#visitGrad)" />}
+          {userFillD && <path d={userFillD} className="fill-area" fill="url(#userGrad)" />}
+
+          {/* Paths */}
+          {visitPathD && <path d={visitPathD} className="path-visit" fill="none" stroke="#38bdf8" strokeWidth={3} strokeLinecap="round" />}
+          {userPathD && <path d={userPathD} className="path-user" fill="none" stroke="#6366f1" strokeWidth={3} strokeLinecap="round" />}
+
+          {/* Visit Points (Circles) */}
+          {visitPoints.map((p, index) => {
+            if (index % labelInterval !== 0 && index !== data.length - 1) return null;
+            const delay = 1.0 + (index / data.length) * 0.8;
+            return (
+              <g key={`v-${index}`} className="group">
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={4}
+                  className="circle-point fill-white stroke-sky-400 stroke-[3px] transition-all duration-300 hover:r-5 cursor-pointer"
+                  style={{ animationDelay: `${delay}s`, transformBox: 'fill-box' }}
+                />
+                <text
+                  x={p.x}
+                  y={p.y - 10}
+                  textAnchor="middle"
+                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  {p.value}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* User Points (Circles) */}
+          {userPoints.map((p, index) => {
+            if (index % labelInterval !== 0 && index !== data.length - 1) return null;
+            const delay = 1.2 + (index / data.length) * 0.8;
+            return (
+              <g key={`u-${index}`} className="group">
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={4}
+                  className="circle-point fill-white stroke-indigo-500 stroke-[3px] transition-all duration-300 hover:r-5 cursor-pointer"
+                  style={{ animationDelay: `${delay}s`, transformBox: 'fill-box' }}
+                />
+                <text
+                  x={p.x}
+                  y={p.y - 10}
+                  textAnchor="middle"
+                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  {p.value}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* X Axis Labels */}
+          {data.map((d, index) => {
+            if (index % labelInterval !== 0 && index !== data.length - 1) return null;
+            const x = paddingX + (index * (width - paddingX * 2)) / (data.length - 1);
+            return (
+              <text
+                key={`l-${index}`}
+                x={x}
+                y={height - 10}
+                textAnchor="middle"
+                className="fill-slate-400 text-[9px] font-bold"
+              >
+                {d.label}
+              </text>
+            );
+          })}
+        </svg>
       </div>
     </article>
   );
