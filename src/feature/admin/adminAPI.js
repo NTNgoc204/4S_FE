@@ -39,4 +39,10 @@ export const adminAPI = {
 
   // PUT /api/Roles/{id}
   updateRole: (id, data) => apiClient.put(`/api/Roles/${id}`, data),
+
+  // ── Web Stats ─────────────────────────────────────────────
+  getDailyWebVisits: () => apiClient.get("/api/web-stats/visits"),
+  incrementDailyWebVisits: () => apiClient.post("/api/web-stats/visits/increment"),
+  getDailyUserVisits: () => apiClient.get("/api/web-stats/user-visits"),
+  recordDailyUserVisit: (data) => apiClient.post("/api/web-stats/user-visits/record", data || {}),
 };

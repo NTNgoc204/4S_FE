@@ -16,6 +16,8 @@ function AdminDashboardPage() {
     activeUsers: 0,
     proUsers: 0,
     monthlyRevenue: 0,
+    totalWebVisits: 0,
+    totalUserVisits: 0,
     planBreakdown: [],
     monthlyGrowth: [],
     roleComposition: { newUser: 0, proUser: 0, schoolUser: 0, staffUser: 0 },
@@ -28,11 +30,19 @@ function AdminDashboardPage() {
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
 
-        const [usersRes, summaryRes] = await Promise.all([
+        const [usersRes, summaryRes, webVisitsRes, userVisitsRes] = await Promise.all([
           adminAPI.getUsers(),
           financeAPI.getSummary(currentMonth, currentYear).catch((err) => {
             console.warn("Failed to fetch finance summary in AdminDashboardPage:", err);
             return { data: { grossRevenue: 0 } };
+          }),
+          adminAPI.getDailyWebVisits().catch((err) => {
+            console.warn("Failed to fetch daily web visits:", err);
+            return { data: [] };
+          }),
+          adminAPI.getDailyUserVisits().catch((err) => {
+            console.warn("Failed to fetch daily user visits:", err);
+            return { data: [] };
           }),
         ]);
 
@@ -45,6 +55,12 @@ function AdminDashboardPage() {
           const p = (u.planName || "").toLowerCase();
           return p.includes("pro") || p.includes("premium");
         }).length;
+
+        const webVisitsList = webVisitsRes.data || [];
+        const userVisitsList = userVisitsRes.data || [];
+
+        const totalWebVisits = webVisitsList.reduce((sum, item) => sum + (item.visitCount || 0), 0);
+        const totalUserVisits = userVisitsList.reduce((sum, item) => sum + (item.userCount || 0), 0);
 
         // Group by roles
         let newUser = 0;
@@ -105,6 +121,8 @@ function AdminDashboardPage() {
           activeUsers: active,
           proUsers: pro,
           monthlyRevenue: summaryRes.data?.grossRevenue || 0,
+          totalWebVisits,
+          totalUserVisits,
           planBreakdown: breakdown,
           monthlyGrowth: growthCounts,
           roleComposition: { newUser, proUser, schoolUser, staffUser },
@@ -168,12 +186,32 @@ function AdminDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "totalWebVisits",
+      label: "Web Visits",
+      value: data.totalWebVisits.toLocaleString("vi-VN"),
+      icon: (
+        <svg className="h-5 w-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      ),
+    },
+    {
+      id: "totalUserVisits",
+      label: "Account Visits",
+      value: data.totalUserVisits.toLocaleString("vi-VN"),
+      icon: (
+        <svg className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
   ];
 
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* KPI Section */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         {kpis.map((item) => (
           <article
             key={item.id}

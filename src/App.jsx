@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { logoutRequest, getMeRequest, refreshTokenRequest, clearError } from "./feature/auth/authSlice";
 import { loadNotificationsRequest } from "./feature/notification/notificationSlice";
+import { adminAPI } from "./feature/admin/adminAPI";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import AccountantLayout from "./layouts/AccountantLayout";
@@ -70,6 +71,27 @@ function App() {
   useEffect(() => {
     dispatch(loadNotificationsRequest());
   }, [dispatch]);
+
+  // Record overall daily web visit once per session
+  useEffect(() => {
+    const hasIncremented = sessionStorage.getItem("web_visit_incremented");
+    if (!hasIncremented) {
+      sessionStorage.setItem("web_visit_incremented", "true");
+      adminAPI.incrementDailyWebVisits().catch(() => {});
+    }
+  }, []);
+
+  // Record authenticated user visit once per session when logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      const userRecordedKey = `user_visit_recorded_${sessionStorage.getItem("access_token") || "active"}`;
+      const hasRecorded = sessionStorage.getItem(userRecordedKey);
+      if (!hasRecorded) {
+        sessionStorage.setItem(userRecordedKey, "true");
+        adminAPI.recordDailyUserVisit().catch(() => {});
+      }
+    }
+  }, [isLoggedIn]);
 
   // Silent refresh on mount if previously logged in
   useEffect(() => {
