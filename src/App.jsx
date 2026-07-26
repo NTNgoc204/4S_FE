@@ -27,6 +27,7 @@ import AdminRolesPage from "./pages/Admin/Roles/AdminRolesPage";
 import AdminFinancePage from "./pages/Admin/Finance/AdminFinancePage";
 import AdminQuestionsPage from "./pages/Admin/Questions/AdminQuestionsPage";
 import AdminProfilePage from "./pages/Admin/Profile/AdminProfilePage";
+import AdminFeedbackPage from "./pages/Admin/Feedback/AdminFeedbackPage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
@@ -249,6 +250,7 @@ function App() {
           <Route path="/admin/roles" element={<AdminRolesPage />} />
           <Route path="/admin/finance" element={<AdminFinancePage />} />
           <Route path="/admin/profile" element={<AdminProfilePage />} />
+          <Route path="/admin/feedbacks" element={<AdminFeedbackPage />} />
         </Route>
 
         {/* Accountant Layout - cho accountant */}
