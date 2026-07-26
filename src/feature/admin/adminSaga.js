@@ -106,7 +106,7 @@ function* updateUserSaga(action) {
 function* toggleUserStatusSaga(action) {
   const { userId, isActive } = action.payload;
   try {
-    yield call(adminAPI.updateUser, userId, { isActive });
+    yield call(adminAPI.toggleUserStatus, userId);
     yield put(toggleUserStatusSuccess({ userId, isActive }));
   } catch (error) {
     const msg = getErrorMessage(error, "Failed to update user status");
