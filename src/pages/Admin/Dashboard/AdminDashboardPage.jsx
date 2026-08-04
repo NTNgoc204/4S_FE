@@ -603,7 +603,7 @@ function WebStatsSplineChart({ data }) {
 
           {/* Visit Points (Circles) */}
           {visitPoints.map((p, index) => {
-            const isInterval = index % labelInterval === 0 || index === data.length - 1;
+            const isVisible = p.value > 0;
             const delay = 1.0 + (index / data.length) * 0.8;
             return (
               <g key={`v-${index}`} className="group">
@@ -620,7 +620,7 @@ function WebStatsSplineChart({ data }) {
                   cy={p.y}
                   r={4}
                   className={`circle-point fill-white stroke-sky-400 stroke-[3px] transition-all duration-300 cursor-pointer pointer-events-none group-hover:scale-125 ${
-                    isInterval ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    isVisible ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   }`}
                   style={{ animationDelay: `${delay}s`, transformOrigin: `${p.x}px ${p.y}px` }}
                 />
@@ -638,7 +638,7 @@ function WebStatsSplineChart({ data }) {
 
           {/* User Points (Circles) */}
           {userPoints.map((p, index) => {
-            const isInterval = index % labelInterval === 0 || index === data.length - 1;
+            const isVisible = p.value > 0;
             const delay = 1.2 + (index / data.length) * 0.8;
             return (
               <g key={`u-${index}`} className="group">
@@ -655,7 +655,7 @@ function WebStatsSplineChart({ data }) {
                   cy={p.y}
                   r={4}
                   className={`circle-point fill-white stroke-indigo-500 stroke-[3px] transition-all duration-300 cursor-pointer pointer-events-none group-hover:scale-125 ${
-                    isInterval ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    isVisible ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   }`}
                   style={{ animationDelay: `${delay}s`, transformOrigin: `${p.x}px ${p.y}px` }}
                 />
