@@ -68,7 +68,7 @@ function Header({
     sunset:  { id: "sunset",  hex: "#f97316", label: isEnglish ? "Sunset"  : "Hoàng hôn" },
   };
   const userRole = String(reduxAuth.role || currentRole).toLowerCase();
-  const isOrgRole = finalIsLoggedIn && ["admin", "accountant", "contact", "school", "school_manager"].includes(userRole);
+  const isOrgRole = finalIsLoggedIn && ["admin", "accountant", "contact", "school_manager"].includes(userRole);
   
   const isAdmin = finalIsLoggedIn && userRole === "admin";
   const isContact = finalIsLoggedIn && userRole === "contact";

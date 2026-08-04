@@ -31,10 +31,6 @@ import AdminFeedbackPage from "./pages/Admin/Feedback/AdminFeedbackPage";
 import AccountantDashboardPage from "./pages/Accountant/AccountantDashboardPage";
 import AccountantExpensesPage from "./pages/Accountant/AccountantExpensesPage";
 import AccountantTransactionsPage from "./pages/Accountant/AccountantTransactionsPage";
-import SchoolLayout from "./layouts/SchoolLayout";
-import SchoolDashboardPage from "./pages/SchoolManager/SchoolDashboardPage";
-import SchoolStudentsPage from "./pages/SchoolManager/SchoolStudentsPage";
-import SchoolSettingsPage from "./pages/SchoolManager/SchoolSettingsPage";
 import ContactLayout from "./layouts/ContactLayout";
 import ContactDashboardPage from "./pages/Contact/ContactDashboardPage";
 import ContactRegistrationsPage from "./pages/Contact/ContactRegistrationsPage";
@@ -61,7 +57,7 @@ function App() {
   const { themeMode, colorTheme } = useSelector((state) => state.theme || { themeMode: "dark", colorTheme: "emerald" });
 
   const userRole = String(role || "").toLowerCase();
-  const isOrgRole = isLoggedIn && ["admin", "accountant", "contact", "school", "school_manager"].includes(userRole);
+  const isOrgRole = isLoggedIn && ["admin", "accountant", "contact", "school_manager"].includes(userRole);
   const activeThemeMode = isOrgRole ? "light" : themeMode;
 
   // Update HTML data-attributes dynamically based on selected theme configs
@@ -293,23 +289,6 @@ function App() {
           <Route path="/contact/registrations" element={<ContactRegistrationsPage />} />
         </Route>
 
-        {/* School Layout - cho school (THPT Manager) */}
-        <Route
-          element={
-            <ProtectedRoute
-              roles={["school"]}
-              currentRole={role}
-              isAuthenticated={isLoggedIn}
-              useRedux={true}
-            >
-              <SchoolLayout onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/school/dashboard" element={<SchoolDashboardPage />} />
-          <Route path="/school/students" element={<SchoolStudentsPage />} />
-          <Route path="/school/settings" element={<SchoolSettingsPage />} />
-        </Route>
 
         {/* University Manager Layout - cho school_manager (University Admin) */}
         <Route
