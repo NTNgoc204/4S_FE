@@ -86,23 +86,25 @@ function AdminDashboardPage() {
           d.setDate(d.getDate() - i);
           const dateStr = d.toISOString().split("T")[0]; // YYYY-MM-DD
           
-          const webMatch = webVisitsList.find(item => {
+          const webMatches = webVisitsList.filter(item => {
             const itemDate = (item.date || "").split("T")[0];
             return itemDate === dateStr;
           });
+          const dayVisits = webMatches.reduce((sum, item) => sum + (item.visitCount || 0), 0);
           
-          const userMatch = userVisitsList.find(item => {
+          const userMatches = userVisitsList.filter(item => {
             const itemDate = (item.date || "").split("T")[0];
             return itemDate === dateStr;
           });
+          const dayUsers = userMatches.reduce((sum, item) => sum + (item.userCount || 0), 0);
           
           const label = `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
           
           dailyStats.push({
             dateStr,
             label,
-            visits: webMatch ? (webMatch.visitCount || 0) : 0,
-            users: userMatch ? (userMatch.userCount || 0) : 0,
+            visits: dayVisits,
+            users: dayUsers,
           });
         }
 
