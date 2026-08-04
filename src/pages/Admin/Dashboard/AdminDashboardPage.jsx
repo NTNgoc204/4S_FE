@@ -603,22 +603,32 @@ function WebStatsSplineChart({ data }) {
 
           {/* Visit Points (Circles) */}
           {visitPoints.map((p, index) => {
-            if (index % labelInterval !== 0 && index !== data.length - 1) return null;
+            const isInterval = index % labelInterval === 0 || index === data.length - 1;
             const delay = 1.0 + (index / data.length) * 0.8;
             return (
               <g key={`v-${index}`} className="group">
+                {/* Large invisible circle to capture hover events easily */}
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={12}
+                  className="fill-transparent cursor-pointer"
+                />
+                {/* Visual circle point */}
                 <circle
                   cx={p.x}
                   cy={p.y}
                   r={4}
-                  className="circle-point fill-white stroke-sky-400 stroke-[3px] transition-all duration-300 hover:r-5 cursor-pointer"
-                  style={{ animationDelay: `${delay}s`, transformBox: 'fill-box' }}
+                  className={`circle-point fill-white stroke-sky-400 stroke-[3px] transition-all duration-300 cursor-pointer pointer-events-none group-hover:scale-125 ${
+                    isInterval ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                  style={{ animationDelay: `${delay}s`, transformOrigin: `${p.x}px ${p.y}px` }}
                 />
                 <text
                   x={p.x}
-                  y={p.y - 10}
+                  y={p.y - 12}
                   textAnchor="middle"
-                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
                 >
                   {p.value}
                 </text>
@@ -628,22 +638,32 @@ function WebStatsSplineChart({ data }) {
 
           {/* User Points (Circles) */}
           {userPoints.map((p, index) => {
-            if (index % labelInterval !== 0 && index !== data.length - 1) return null;
+            const isInterval = index % labelInterval === 0 || index === data.length - 1;
             const delay = 1.2 + (index / data.length) * 0.8;
             return (
               <g key={`u-${index}`} className="group">
+                {/* Large invisible circle to capture hover events easily */}
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r={12}
+                  className="fill-transparent cursor-pointer"
+                />
+                {/* Visual circle point */}
                 <circle
                   cx={p.x}
                   cy={p.y}
                   r={4}
-                  className="circle-point fill-white stroke-indigo-500 stroke-[3px] transition-all duration-300 hover:r-5 cursor-pointer"
-                  style={{ animationDelay: `${delay}s`, transformBox: 'fill-box' }}
+                  className={`circle-point fill-white stroke-indigo-500 stroke-[3px] transition-all duration-300 cursor-pointer pointer-events-none group-hover:scale-125 ${
+                    isInterval ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                  style={{ animationDelay: `${delay}s`, transformOrigin: `${p.x}px ${p.y}px` }}
                 />
                 <text
                   x={p.x}
-                  y={p.y - 10}
+                  y={p.y - 12}
                   textAnchor="middle"
-                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="fill-slate-800 text-[10px] font-extrabold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
                 >
                   {p.value}
                 </text>
