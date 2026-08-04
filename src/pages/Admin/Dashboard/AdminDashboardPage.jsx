@@ -22,6 +22,7 @@ function AdminDashboardPage() {
     planBreakdown: [],
     monthlyGrowth: [],
     roleComposition: { newUser: 0, proUser: 0, schoolUser: 0, staffUser: 0 },
+    mobileDownloads: 0,
   });
 
   useEffect(() => {
@@ -31,7 +32,7 @@ function AdminDashboardPage() {
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
 
-        const [usersRes, summaryRes, webVisitsRes, userVisitsRes] = await Promise.all([
+        const [usersRes, summaryRes, webVisitsRes, userVisitsRes, githubDownloads] = await Promise.all([
           adminAPI.getUsers(),
           financeAPI.getSummary(currentMonth, currentYear).catch((err) => {
             console.warn("Failed to fetch finance summary in AdminDashboardPage:", err);
@@ -45,6 +46,16 @@ function AdminDashboardPage() {
             console.warn("Failed to fetch daily user visits:", err);
             return { data: { data: [] } };
           }),
+          fetch("https://api.github.com/repos/NTNgoc204/4S_Mobile/releases/tags/dev-build")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+              const apkAsset = (data?.assets || []).find((asset) => asset.name === "CareerGuidanceAI.apk");
+              return apkAsset ? apkAsset.download_count : 0;
+            })
+            .catch((err) => {
+              console.warn("Failed to fetch GitHub downloads:", err);
+              return 0;
+            }),
         ]);
 
         const usersList = usersRes.data || [];
@@ -149,6 +160,9 @@ function AdminDashboardPage() {
           { name: "Edu", users: eduCount, ratio: Math.round((eduCount / totalBase) * 100) || 0, gradient: "from-indigo-500 to-purple-400" },
         ];
 
+        const baseOffset = Number(import.meta.env.VITE_BASE_DOWNLOADS || 0);
+        const mobileDownloads = (githubDownloads || 0) + baseOffset;
+
         setData({
           totalUsers: total,
           activeUsers: active,
@@ -160,6 +174,7 @@ function AdminDashboardPage() {
           planBreakdown: breakdown,
           monthlyGrowth: growthCounts,
           roleComposition: { newUser, proUser, schoolUser, staffUser },
+          mobileDownloads,
         });
       } catch (err) {
         console.error("Failed to load admin dashboard summary:", err);
@@ -220,12 +235,22 @@ function AdminDashboardPage() {
         </svg>
       ),
     },
+    {
+      id: "mobileDownloads",
+      label: "Mobile Downloads",
+      value: data.mobileDownloads.toLocaleString("vi-VN"),
+      icon: (
+        <svg className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      ),
+    },
   ];
 
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* KPI Section */}
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
         {kpis.map((item) => (
           <article
             key={item.id}
