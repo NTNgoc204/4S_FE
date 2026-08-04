@@ -20,8 +20,8 @@ function PublicLayout({
     if (roleLower === 'accountant') {
       return <Navigate replace to="/accountant/dashboard" />
     }
-    if (roleLower === 'school_manager' || roleLower === 'school') {
-      return <Navigate replace to="/school/dashboard" />
+    if (roleLower === 'school_manager') {
+      return <Navigate replace to="/school-manager/university" />
     }
   }
 

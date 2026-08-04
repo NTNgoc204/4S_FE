@@ -56,8 +56,8 @@ function LoginPage() {
         navigate("/admin/dashboard", { replace: true });
       } else if (normalizedRole === "accountant") {
         navigate("/accountant/dashboard", { replace: true });
-      } else if (normalizedRole === "school_manager" || normalizedRole === "school") {
-        navigate("/school/university", { replace: true });
+      } else if (normalizedRole === "school_manager") {
+        navigate("/school-manager/university", { replace: true });
       } else if (normalizedRole === "contact") {
         navigate("/contact/dashboard", { replace: true });
       } else {
