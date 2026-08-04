@@ -60,11 +60,16 @@ function App() {
   const { isLoggedIn, plan, role, refreshTokenError } = useSelector((state) => state.auth);
   const { themeMode, colorTheme } = useSelector((state) => state.theme || { themeMode: "dark", colorTheme: "emerald" });
 
+  const userRole = String(role || "").toLowerCase();
+  const isOrgRole = isLoggedIn && ["admin", "accountant", "contact", "school", "school_manager"].includes(userRole);
+  const activeThemeMode = isOrgRole ? "light" : themeMode;
+
   // Update HTML data-attributes dynamically based on selected theme configs
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme-mode", themeMode || "dark");
+    const finalMode = isOrgRole ? "light" : (themeMode || "dark");
+    document.documentElement.setAttribute("data-theme-mode", finalMode);
     document.documentElement.setAttribute("data-color-theme", colorTheme || "emerald");
-  }, [themeMode, colorTheme]);
+  }, [themeMode, colorTheme, isLoggedIn, role]);
 
   // Track whether we have already fetched user info for the current session
   const hasFetchedMe = useRef(false);
@@ -338,7 +343,7 @@ function App() {
         pauseOnFocusLoss
         pauseOnHover
         position="top-right"
-        theme={themeMode === "light" ? "light" : "dark"}
+        theme={activeThemeMode === "light" ? "light" : "dark"}
       />
       <FeedbackFloatingButton />
     </>
