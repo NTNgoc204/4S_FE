@@ -67,13 +67,12 @@ function Header({
     violet:  { id: "violet",  hex: "#8b5cf6", label: isEnglish ? "Violet"  : "Màu tím"   },
     sunset:  { id: "sunset",  hex: "#f97316", label: isEnglish ? "Sunset"  : "Hoàng hôn" },
   };
-  const isAdmin =
-    finalIsLoggedIn &&
-    String(reduxAuth.role || currentRole).toLowerCase() === "admin";
-  const isContact =
-    finalIsLoggedIn &&
-    String(reduxAuth.role || currentRole).toLowerCase() === "contact";
-  const showThemeSettings = true;
+  const userRole = String(reduxAuth.role || currentRole).toLowerCase();
+  const isOrgRole = finalIsLoggedIn && ["admin", "accountant", "contact", "school", "school_manager"].includes(userRole);
+  
+  const isAdmin = finalIsLoggedIn && userRole === "admin";
+  const isContact = finalIsLoggedIn && userRole === "contact";
+  const showThemeSettings = !isOrgRole;
 
   const navItems = [
     { label: t("home:nav.home"), to: "/" },
