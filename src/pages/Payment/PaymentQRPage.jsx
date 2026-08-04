@@ -38,13 +38,15 @@ function PaymentQRPage() {
   // Redirect back if paymentInfo is not present
   useEffect(() => {
     if (!paymentInfo) {
-      toast.warning(
-        t(
-          "checkout:errors.noPaymentInfo",
-          "Không tìm thấy thông tin giao dịch thanh toán!",
-        ),
-      );
-      navigate("/pricing");
+      if (!paymentEnded.current) {
+        toast.warning(
+          t(
+            "checkout:errors.noPaymentInfo",
+            "Không tìm thấy thông tin giao dịch thanh toán!",
+          ),
+        );
+        navigate("/pricing");
+      }
     } else {
       paymentEnded.current = false;
     }
