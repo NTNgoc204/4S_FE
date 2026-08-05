@@ -527,7 +527,7 @@ function WebStatsSplineChart({ data }) {
       <style>{`
         @keyframes drawLine {
           from {
-            stroke-dashoffset: 1000;
+            stroke-dashoffset: 3000;
           }
           to {
             stroke-dashoffset: 0;
@@ -552,13 +552,13 @@ function WebStatsSplineChart({ data }) {
           }
         }
         .path-visit {
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
+          stroke-dasharray: 3000;
+          stroke-dashoffset: 3000;
           animation: drawLine 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .path-user {
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
+          stroke-dasharray: 3000;
+          stroke-dashoffset: 3000;
           animation: drawLine 1.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
         }
         .fill-area {
